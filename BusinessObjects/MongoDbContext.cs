@@ -1,0 +1,37 @@
+﻿using MongoDB.Driver;
+using Microsoft.Extensions.Configuration;
+using MongoDB.Driver.Core.Configuration;
+
+namespace BusinessObjects
+{
+    public class MongoDbContext
+    {
+        private readonly IMongoDatabase _database;
+
+        public MongoDbContext(IConfiguration configuration)
+        {
+            try
+            {
+                var client = new MongoClient(configuration.GetConnectionString("MongoDb"));
+                Console.WriteLine("Connecting to MongoDb with connection string:");
+                Console.WriteLine(client);
+                _database = client.GetDatabase("SEP_MMB_DB");
+                Console.WriteLine("MongoDb success");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("MongoDb connection failed:");
+                Console.WriteLine(ex.ToString());
+                throw;
+            }
+            //var client = new MongoClient(configuration.GetConnectionString("MongoDb"));
+            //_database = client.GetDatabase("SEP_MMB_DB");
+        }
+
+        public IMongoCollection<Permission> Permissions => _database.GetCollection<Permission>("Permission");
+        public IMongoCollection<PermissionRole> PermissionRoles => _database.GetCollection<PermissionRole>("PermissionRole");
+        public IMongoCollection<Role> Roles => _database.GetCollection<Role>("Role");
+        public IMongoCollection<UseDigitalWallet> UseDigitalWallets => _database.GetCollection<UseDigitalWallet>("UseDigitalWallet");
+        public IMongoCollection<User> Users => _database.GetCollection<User>("User");
+    }
+}

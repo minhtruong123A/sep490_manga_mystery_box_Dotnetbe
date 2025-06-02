@@ -1,0 +1,12 @@
+C:\Users\Dell\Desktop\SEP_MMB_API\BusinessObjects\bin\Debug\net8.0\BusinessObjects.deps.json
+C:\Users\Dell\Desktop\SEP_MMB_API\BusinessObjects\bin\Debug\net8.0\BusinessObjects.dll
+C:\Users\Dell\Desktop\SEP_MMB_API\BusinessObjects\bin\Debug\net8.0\BusinessObjects.pdb
+C:\Users\Dell\Desktop\SEP_MMB_API\BusinessObjects\obj\Debug\net8.0\BusinessObjects.csproj.AssemblyReference.cache
+C:\Users\Dell\Desktop\SEP_MMB_API\BusinessObjects\obj\Debug\net8.0\BusinessObjects.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Dell\Desktop\SEP_MMB_API\BusinessObjects\obj\Debug\net8.0\BusinessObjects.AssemblyInfoInputs.cache
+C:\Users\Dell\Desktop\SEP_MMB_API\BusinessObjects\obj\Debug\net8.0\BusinessObjects.AssemblyInfo.cs
+C:\Users\Dell\Desktop\SEP_MMB_API\BusinessObjects\obj\Debug\net8.0\BusinessObjects.csproj.CoreCompileInputs.cache
+C:\Users\Dell\Desktop\SEP_MMB_API\BusinessObjects\obj\Debug\net8.0\BusinessObjects.dll
+C:\Users\Dell\Desktop\SEP_MMB_API\BusinessObjects\obj\Debug\net8.0\refint\BusinessObjects.dll
+C:\Users\Dell\Desktop\SEP_MMB_API\BusinessObjects\obj\Debug\net8.0\BusinessObjects.pdb
+C:\Users\Dell\Desktop\SEP_MMB_API\BusinessObjects\obj\Debug\net8.0\ref\BusinessObjects.dll

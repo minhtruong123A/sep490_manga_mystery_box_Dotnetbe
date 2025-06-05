@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SEP_MMB_API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+38ba53a12b3a2c0bbb9428b6204d5af99bed20f9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9cd773066749569f321a7971645a31879301679e")]
 [assembly: System.Reflection.AssemblyProductAttribute("SEP_MMB_API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SEP_MMB_API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

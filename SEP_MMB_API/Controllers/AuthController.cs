@@ -4,7 +4,7 @@ using BusinessObjects.Dtos.Schema_Response;
 using BusinessObjects.Dtos.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Services;
+using Services.Interface;
 
 namespace SEP_MMB_API.Controllers
 {

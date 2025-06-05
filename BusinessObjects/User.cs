@@ -46,5 +46,8 @@ namespace BusinessObjects
 
         [BsonElement("role_id")]
         public string RoleId { get; set; }
+
+        [BsonElement("is_email_verification")]
+        public bool EmailVerification { get; set; }
     }
 }

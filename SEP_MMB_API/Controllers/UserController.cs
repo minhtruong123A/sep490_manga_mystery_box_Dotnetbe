@@ -1,6 +1,8 @@
 ﻿using BusinessObjects;
+using BusinessObjects.Dtos.Schema_Response;
+using BusinessObjects.Dtos.User;
 using Microsoft.AspNetCore.Mvc;
-using Services;
+using Services.Interface;
 
 namespace SEP_MMB_API.Controllers
 {
@@ -16,55 +18,37 @@ namespace SEP_MMB_API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<User>>> Get()
+        public async Task<ActionResult<ResponseModel<List<UserInformationDto>>>> Get()
         {
-            var users = await _userService.GetAllUsersAsync();
-            return Ok(users);
+            try
+            {
+                var usersDto = await _userService.GetAllUsersAsync();
+                return Ok(new ResponseModel<List<UserInformationDto>>()
+                {
+                    Data = usersDto,
+                    Error = null,
+                    Success = true
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<List<UserInformationDto>>()
+                {
+                    Data = null,
+                    Error = ex.Message,
+                    Success = false,
+                    ErrorCode = 400
+                });
+            }
         }
 
-        //[HttpGet("{id:length(24)}")]
-        //public async Task<ActionResult<User>> Get(string id)
+
+        // not fix yet
+        //[HttpPost]
+        //public async Task<ActionResult<User>> Create(User user)
         //{
-        //    var user = await _userService.GetUserByIdAsync(id);
-
-        //    if (user == null)
-        //        return NotFound();
-
-        //    return Ok(user);
-        //}
-
-        [HttpPost]
-        public async Task<ActionResult<User>> Create(User user)
-        {
-            await _userService.CreateUserAsync(user);
-            return CreatedAtAction(nameof(Get), new { id = user.Id }, user);
-        }
-
-        //[HttpPut("{id:length(24)}")]
-        //public async Task<IActionResult> Update(string id, User user)
-        //{
-        //    var existingUser = await _userService.GetUserByIdAsync(id);
-
-        //    if (existingUser == null)
-        //        return NotFound();
-
-        //    user.Id = id;
-        //    await _userService.UpdateUserAsync(id, user);
-
-        //    return NoContent();
-        //}
-
-        //[HttpDelete("{id:length(24)}")]
-        //public async Task<IActionResult> Delete(string id)
-        //{
-        //    var user = await _userService.GetUserByIdAsync(id);
-
-        //    if (user == null)
-        //        return NotFound();
-
-        //    await _userService.DeleteUserAsync(id);
-
-        //    return NoContent();
+        //    await _userService.CreateUserAsync(user);
+        //    return CreatedAtAction(nameof(Get), new { id = user.Id }, user);
         //}
     }
 }

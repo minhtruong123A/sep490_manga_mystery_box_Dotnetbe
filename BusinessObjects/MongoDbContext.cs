@@ -24,10 +24,14 @@ namespace BusinessObjects
                 Console.WriteLine(ex.ToString());
                 throw;
             }
-            //var client = new MongoClient(configuration.GetConnectionString("MongoDb"));
-            //_database = client.GetDatabase("SEP_MMB_DB");
         }
 
+        public IMongoCollection<T> GetCollection<T>(string collectionName)
+        {
+            return _database.GetCollection<T>(collectionName);
+        }
+
+        public IMongoCollection<EmailVerification> EmailVerification => _database.GetCollection<EmailVerification>("PendingEmailVerification");
         public IMongoCollection<Permission> Permissions => _database.GetCollection<Permission>("Permission");
         public IMongoCollection<PermissionRole> PermissionRoles => _database.GetCollection<PermissionRole>("PermissionRole");
         public IMongoCollection<Role> Roles => _database.GetCollection<Role>("Role");

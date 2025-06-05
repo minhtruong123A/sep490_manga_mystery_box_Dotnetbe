@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "lMJLdpMXBE4oOEifnxka2pZLdr2PHoG1kZijl36pRjQ=",
+  "Source": "SEP_MMB_API",
+  "BasePath": "_content/SEP_MMB_API",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

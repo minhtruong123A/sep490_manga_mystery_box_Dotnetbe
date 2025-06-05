@@ -7,15 +7,20 @@ namespace BusinessObjects
     public class MongoDbContext
     {
         private readonly IMongoDatabase _database;
+        private readonly MongoClient _client;
 
         public MongoDbContext(IConfiguration configuration)
         {
             try
             {
-                var client = new MongoClient(configuration.GetConnectionString("MongoDb"));
-                Console.WriteLine("Connecting to MongoDb with connection string:");
-                Console.WriteLine(client);
-                _database = client.GetDatabase("SEP_MMB_DB");
+                var connectionString = configuration.GetConnectionString("MongoDb");
+                Console.WriteLine($"Connecting to MongoDb with connection string:\n{connectionString}");
+
+                _client = new MongoClient(connectionString);
+
+                var databaseName = configuration["MongoDbName"];
+                _database = _client.GetDatabase(databaseName);
+
                 Console.WriteLine("MongoDb success");
             }
             catch (Exception ex)

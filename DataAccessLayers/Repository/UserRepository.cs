@@ -30,5 +30,19 @@ namespace DataAccessLayers.Repository
         {
             return await _users.Find(m => m.Username == accountName).SingleOrDefaultAsync();
         }
+
+        public async Task<User?> GetByEmailAsync(string email)
+        {
+            return await _users.Find(u => u.Email == email).FirstOrDefaultAsync();
+        }
+
+        public async Task DeleteByEmailAsync(string email)
+        {
+            var result = await _users.DeleteOneAsync(u => u.Email == email);
+            if (result.DeletedCount == 0)
+            {
+                throw new Exception("No User found with the given email.");
+            }
+        }
     }
 }

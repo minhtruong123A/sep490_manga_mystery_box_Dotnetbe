@@ -17,6 +17,7 @@ namespace SEP_MMB_API.Controllers
             _userService = userService;
         }
 
+        [Tags("Server Test Fetch API Only")]
         [HttpGet]
         public async Task<ActionResult<ResponseModel<List<UserInformationDto>>>> Get()
         {
@@ -42,13 +43,30 @@ namespace SEP_MMB_API.Controllers
             }
         }
 
-
-        // not fix yet
-        //[HttpPost]
-        //public async Task<ActionResult<User>> Create(User user)
-        //{
-        //    await _userService.CreateUserAsync(user);
-        //    return CreatedAtAction(nameof(Get), new { id = user.Id }, user);
-        //}
+        [Tags("Server Test Fetch API Only")]
+        [HttpDelete("delete-by-email")]
+        public async Task<ActionResult<ResponseModel<string>>> DeleteByEmail(string email)
+        {
+            try
+            {
+                await _userService.DeleteUserByEmailAsync(email);
+                return Ok(new ResponseModel<string>
+                {
+                    Data = "User and associated email verification deleted successfully.",
+                    Success = true,
+                    Error = null
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string>
+                {
+                    Data = null,
+                    Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
     }
 }

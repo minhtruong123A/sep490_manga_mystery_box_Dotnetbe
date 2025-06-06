@@ -14,8 +14,10 @@ namespace DataAccessLayers.UnitOfWork
         private readonly MongoDbContext _context;
 
         private IUserRepository _users;
+        private IEmailVerificationRepository _emailVerificationRepository;
 
         public IUserRepository UserRepository => _users ??= new UserRepository(_context);
+        public IEmailVerificationRepository EmailVerificationRepository => _emailVerificationRepository ??= new EmailVerificationRepository(_context);
 
         public UnitOfWork(MongoDbContext context)
         {

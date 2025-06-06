@@ -10,6 +10,7 @@ namespace DataAccessLayers.UnitOfWork
     public interface IUnitOfWork
     {
         IUserRepository UserRepository { get; }
+        IEmailVerificationRepository EmailVerificationRepository { get; }
         Task SaveChangesAsync();
     }
 }

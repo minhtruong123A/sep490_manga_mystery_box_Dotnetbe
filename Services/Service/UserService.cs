@@ -49,5 +49,12 @@ namespace Services.Service
         {
             return _uniUnitOfWork.UserRepository.DeleteAsync(id);
         }
+
+        public async Task DeleteUserByEmailAsync(string email)
+        {
+            _ = await _uniUnitOfWork.UserRepository.GetByEmailAsync(email) ?? throw new Exception("User not found");
+            await _uniUnitOfWork.UserRepository.DeleteByEmailAsync(email);
+            await _uniUnitOfWork.EmailVerificationRepository.DeleteByEmailAsync(email);
+        }
     }
 }

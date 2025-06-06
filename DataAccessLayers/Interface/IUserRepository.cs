@@ -11,5 +11,7 @@ namespace DataAccessLayers.Interface
     {
         Task<User?> GetSystemAccountByAccountEmailAndPassword(string accountEmail, string password);
         Task<User?> GetSystemAccountByAccountName(string accountName);
+        Task<User?> GetByEmailAsync(string email);
+        Task DeleteByEmailAsync(string email);
     }
 }

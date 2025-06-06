@@ -15,5 +15,6 @@ namespace Services.Interface
         Task CreateUserAsync(User user);
         Task UpdateUserAsync(string id, User user);
         Task DeleteUserAsync(string id);
+        Task DeleteUserByEmailAsync(string email);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Dtos.Schema_Response;
 using BusinessObjects.Dtos.User;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
 
@@ -17,8 +18,8 @@ namespace SEP_MMB_API.Controllers
             _userService = userService;
         }
 
-        [Tags("Server Test Fetch API Only")]
-        [HttpGet]
+        [Authorize]
+        [HttpGet("get-all-accounts")]
         public async Task<ActionResult<ResponseModel<List<UserInformationDto>>>> Get()
         {
             try
@@ -38,32 +39,6 @@ namespace SEP_MMB_API.Controllers
                     Data = null,
                     Error = ex.Message,
                     Success = false,
-                    ErrorCode = 400
-                });
-            }
-        }
-
-        [Tags("Server Test Fetch API Only")]
-        [HttpDelete("delete-by-email")]
-        public async Task<ActionResult<ResponseModel<string>>> DeleteByEmail(string email)
-        {
-            try
-            {
-                await _userService.DeleteUserByEmailAsync(email);
-                return Ok(new ResponseModel<string>
-                {
-                    Data = "User and associated email verification deleted successfully.",
-                    Success = true,
-                    Error = null
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ResponseModel<string>
-                {
-                    Data = null,
-                    Success = false,
-                    Error = ex.Message,
                     ErrorCode = 400
                 });
             }

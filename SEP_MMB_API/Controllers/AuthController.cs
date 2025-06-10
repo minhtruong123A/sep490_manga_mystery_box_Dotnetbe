@@ -9,6 +9,7 @@ using Services.Interface;
 namespace SEP_MMB_API.Controllers
 {
     [Route("api/[controller]")]
+    [ApiController]
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
@@ -19,7 +20,7 @@ namespace SEP_MMB_API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<ResponseModel<AuthResponseDto>>> Login(LoginDto loginDto)
+        public async Task<ActionResult<ResponseModel<AuthResponseDto>>> Login([FromQuery] LoginDto loginDto)
         {
             try
             {

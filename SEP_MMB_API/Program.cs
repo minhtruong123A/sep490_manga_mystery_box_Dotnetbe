@@ -25,7 +25,6 @@ builder.Services.AddSwaggerGen(c =>
     c.DocInclusionPredicate((docName, apiDesc) =>
     {
         if (!apiDesc.TryGetMethodInfo(out var methodInfo)) return false;
-
         var groupName = apiDesc.GroupName ?? "v1";
         return docName == groupName;
     });
@@ -137,7 +136,7 @@ var app = builder.Build();
 
 app.UseSwagger();
 
-//dev server test
+//set permissions in middleware
 app.Use(async (context, next) =>
 {
     var path = context.Request.Path;
@@ -149,6 +148,31 @@ app.Use(async (context, next) =>
             context.Response.StatusCode = 401;
             context.Response.Headers["WWW-Authenticate"] = "MMB-Dev realm=\"Only system developers can access this endpoint.\"";
             await context.Response.WriteAsync("Unauthorized: You must provide a valid MMB Dev Password.");
+            return;
+        }
+    }
+    await next();
+});
+app.Use(async (context, next) =>
+{
+    if (context.Request.Method == HttpMethods.Post ||
+        context.Request.Method == HttpMethods.Put ||
+        context.Request.Method == HttpMethods.Patch)
+    {
+        context.Request.EnableBuffering();
+        using var reader = new StreamReader(context.Request.Body, Encoding.UTF8, 
+                                            detectEncodingFromByteOrderMarks: false, leaveOpen: true);
+        var body = await reader.ReadToEndAsync();
+        context.Request.Body.Position = 0;
+        var forbiddenKeywords = new[]
+        {
+            "<script>","root","ssh","$ne","$where"
+        };
+        var match = forbiddenKeywords.FirstOrDefault(keyword => body.Contains(keyword,StringComparison.OrdinalIgnoreCase));
+        if (match != null)
+        {
+            context.Response.StatusCode = 400;
+            await context.Response.WriteAsync($"Request blocked: forbidden keyword using for request \"{match}\" is not allowed.");
             return;
         }
     }

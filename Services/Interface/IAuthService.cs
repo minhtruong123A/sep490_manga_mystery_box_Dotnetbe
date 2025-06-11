@@ -13,5 +13,6 @@ namespace Services.Interface
     {
         Task<AuthResponseDto> Login(LoginDto loginDto);
         Task<User> GetUserByClaims(ClaimsPrincipal claims);
+        Task<AuthResponseDto> RefreshTokenAsync(string token);
     }
 }

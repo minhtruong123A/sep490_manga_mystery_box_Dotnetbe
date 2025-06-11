@@ -29,35 +29,43 @@ namespace Services.Service
         public async Task<AuthResponseDto> Login(LoginDto loginDto)
         {
             var account = await _uniUnitOfWork.UserRepository.GetSystemAccountByAccountName(loginDto.Name);
-
             if (account == null || !VerifyPassword(loginDto.Password, account.Password ?? ""))
-            {
                 throw new UnauthorizedAccessException("Wrong email or password.");
-            }
 
-            var token = CreateToken(account);
-            return new AuthResponseDto { Token = token };
+            //if (!account.IsActive)
+            //    throw new UnauthorizedAccessException("Inactive account.");
+
+            var accessToken = CreateToken(account, false, 60);
+            var refreshToken = CreateToken(account, true, 60 * 24 * 7);
+
+            return new AuthResponseDto
+            {
+                Token = accessToken,
+                RefreshToken = refreshToken,
+                TokenType = "Bearer",
+                Username = account.Username,
+                Email = account.Email,
+                Role = account.RoleId.ToString(),
+                IsEmailVerification = account.EmailVerification
+            };
         }
 
-        private bool VerifyPassword(string enteredPassword, string storedHash)
-        {
-            return BCrypt.Net.BCrypt.Verify(enteredPassword, storedHash);
-        }
 
-        private string CreateToken(User account)
+        private bool VerifyPassword(string enteredPassword, string storedHash) => BCrypt.Net.BCrypt.Verify(enteredPassword, storedHash);
+
+        private string CreateToken(User account, bool isRefreshToken = false, int expireMinutes = 30)
         {
             var rawKey = _configuration["JwtSettings:JWT_SECRET"];
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(rawKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expiresAt = DateTime.UtcNow.AddMinutes(30);
+            var expiresAt = DateTime.UtcNow.AddMinutes(expireMinutes);
 
             var claims = new List<Claim>
             {
                 new("username", account.Username ?? "unknown"),
                 new("role", account.RoleId ?? ""),
-                new("is_refresh_token", "false")
+                new("is_refresh_token", isRefreshToken ? "true" : "false")
             };
-
 
             var token = new JwtSecurityToken(
                 claims: claims,
@@ -74,6 +82,61 @@ namespace Services.Service
             var account = await _uniUnitOfWork.UserRepository.GetSystemAccountByAccountName(userName);
 
             return account ?? throw new Exception("User not found.");
+        }
+
+        public async Task<AuthResponseDto> RefreshTokenAsync(string token)
+        {
+            if (string.IsNullOrWhiteSpace(token)) throw new ArgumentException("Refresh token is required");
+
+            var handler = new JwtSecurityTokenHandler();
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:JWT_SECRET"]));
+            try
+            {
+                var principal = handler.ValidateToken(token, GetValidationParameters(), out _);
+                var claims = principal.Claims.ToDictionary(c => c.Type, c => c.Value);
+
+                if (!claims.TryGetValue("is_refresh_token", out var isRefresh) || isRefresh != "true")
+                    throw new SecurityTokenException("Provided token is not a refresh token");
+                if (!claims.TryGetValue("username", out var username) || string.IsNullOrEmpty(username))
+                    throw new SecurityTokenException("Invalid token: username missing");
+
+                var user = await _uniUnitOfWork.UserRepository.GetSystemAccountByAccountName(username) 
+                    ?? throw new Exception("User not found");
+                var accessToken = CreateToken(user, isRefreshToken: false, expireMinutes: 60);
+                var refreshToken = CreateToken(user, isRefreshToken: true, expireMinutes: 60 * 24 * 7);
+
+                return new AuthResponseDto
+                {
+                    Token = accessToken,
+                    RefreshToken = refreshToken,
+                    TokenType = "Bearer",
+                    Username = username,
+                    Email = user.Email,
+                    Role = claims.GetValueOrDefault("role"),
+                    IsEmailVerification = user.EmailVerification
+                };
+            }
+            catch (SecurityTokenExpiredException)
+            {
+                throw new UnauthorizedAccessException("Refresh token has expired");
+            }
+            catch (Exception ex) when (ex is SecurityTokenException || ex is ArgumentException)
+            {
+                throw new UnauthorizedAccessException($"Invalid refresh token: {ex.Message}");
+            }
+        }
+
+        private TokenValidationParameters GetValidationParameters()
+        {
+            return new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:JWT_SECRET"])),
+                ClockSkew = TimeSpan.Zero
+            };
         }
     }
 }

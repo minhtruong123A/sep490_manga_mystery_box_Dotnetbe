@@ -5,6 +5,7 @@ using BusinessObjects.Dtos.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
+using Services.Service;
 
 namespace SEP_MMB_API.Controllers
 {
@@ -44,26 +45,27 @@ namespace SEP_MMB_API.Controllers
             }
         }
 
-        [HttpGet("who-am-i"), Authorize]
+        [Authorize]
+        [HttpGet("who-am-i")]
         public async Task<ActionResult<ResponseModel<UserTokenDto>>> WhoAmI()
         {
             try
             {
-                var account = await _authService.GetUserByClaims(HttpContext.User);
+                var (account, accessToken, refreshToken, tokenType) = await _authService.GetUserWithTokens(HttpContext);
+
                 return Ok(new ResponseModel<UserTokenDto>()
                 {
                     Data = new UserTokenDto()
                     {
-                        AccessToken = "",
-                        RefreshToken = "",
-                        TokenType = "",
-                        UserName = account.Username,
-                        RoleId = account.RoleId,
+                        AccessToken = accessToken ?? "",
+                        RefreshToken = refreshToken ?? "",
+                        TokenType = tokenType ?? "",
+                        UserName = account.Username ?? "",
+                        RoleId = account.RoleId ?? "",
                     },
                     Error = null,
                     Success = true,
                 });
-
             }
             catch (Exception ex)
             {
@@ -71,11 +73,10 @@ namespace SEP_MMB_API.Controllers
                 {
                     Data = null,
                     Error = ex.Message,
-                    Success = true,
+                    Success = false,
                     ErrorCode = 401
                 });
             }
-
         }
     }
 }

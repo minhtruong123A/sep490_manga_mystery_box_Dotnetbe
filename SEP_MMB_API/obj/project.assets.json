@@ -1165,8 +1165,7 @@
           "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.16",
           "Microsoft.AspNetCore.Identity": "2.3.1",
           "Microsoft.Identity.Client": "4.72.1",
-          "Microsoft.IdentityModel.JsonWebTokens": "8.11.0",
-          "Microsoft.IdentityModel.Tokens": "8.11.0"
+          "Microsoft.IdentityModel.JsonWebTokens": "8.11.0"
         },
         "compile": {
           "bin/placeholder/Services.dll": {}

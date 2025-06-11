@@ -4142,8 +4142,7 @@
       "Microsoft.AspNetCore.Identity >= 2.3.1",
       "Microsoft.EntityFrameworkCore.Design >= 8.0.16",
       "Microsoft.Identity.Client >= 4.72.1",
-      "Microsoft.IdentityModel.JsonWebTokens >= 8.11.0",
-      "Microsoft.IdentityModel.Tokens >= 8.11.0"
+      "Microsoft.IdentityModel.JsonWebTokens >= 8.11.0"
     ]
   },
   "packageFolders": {
@@ -4227,10 +4226,6 @@
             "version": "[4.72.1, )"
           },
           "Microsoft.IdentityModel.JsonWebTokens": {
-            "target": "Package",
-            "version": "[8.11.0, )"
-          },
-          "Microsoft.IdentityModel.Tokens": {
             "target": "Package",
             "version": "[8.11.0, )"
           }

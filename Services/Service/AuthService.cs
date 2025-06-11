@@ -2,7 +2,9 @@
 using BusinessObjects.Dtos.Auth;
 using DataAccessLayers.Interface;
 using DataAccessLayers.UnitOfWork;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Services.Interface;
 using System;
@@ -76,12 +78,26 @@ namespace Services.Service
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public async Task<User> GetUserByClaims(ClaimsPrincipal claims)
+        public async Task<(User user, string? accessToken, string? refreshToken, string? tokenType)> GetUserWithTokens(HttpContext context)
         {
-            var userName = claims.FindFirst(c => c.Type == "username")?.Value ?? throw new Exception("User not found.");
-            var account = await _uniUnitOfWork.UserRepository.GetSystemAccountByAccountName(userName);
+            var claims = context.User;
+            var userName = claims.FindFirst(c => c.Type == "username")?.Value
+                ?? throw new Exception("User not found.");
+            var account = await _uniUnitOfWork.UserRepository.GetSystemAccountByAccountName(userName)
+                ?? throw new Exception("User not found.");
+            var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+            string? accessToken = null,
+                    tokenType = null;
 
-            return account ?? throw new Exception("User not found.");
+            if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            {
+                tokenType = "Bearer";
+                accessToken = authHeader.Substring("Bearer ".Length).Trim();
+            }
+
+            var refreshToken = context.Request.Headers["X-Refresh-Token"].FirstOrDefault();
+
+            return (account, accessToken, refreshToken, tokenType);
         }
 
         public async Task<AuthResponseDto> RefreshTokenAsync(string token)
@@ -100,7 +116,7 @@ namespace Services.Service
                 if (!claims.TryGetValue("username", out var username) || string.IsNullOrEmpty(username))
                     throw new SecurityTokenException("Invalid token: username missing");
 
-                var user = await _uniUnitOfWork.UserRepository.GetSystemAccountByAccountName(username) 
+                var user = await _uniUnitOfWork.UserRepository.GetSystemAccountByAccountName(username)
                     ?? throw new Exception("User not found");
                 var accessToken = CreateToken(user, isRefreshToken: false, expireMinutes: 60);
                 var refreshToken = CreateToken(user, isRefreshToken: true, expireMinutes: 60 * 24 * 7);
@@ -126,7 +142,7 @@ namespace Services.Service
             }
         }
 
-        private TokenValidationParameters GetValidationParameters()
+        public TokenValidationParameters GetValidationParameters()
         {
             return new TokenValidationParameters
             {
@@ -134,8 +150,8 @@ namespace Services.Service
                 ValidateAudience = false,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
+                RequireExpirationTime = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:JWT_SECRET"])),
-                ClockSkew = TimeSpan.Zero
             };
         }
     }

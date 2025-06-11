@@ -3,16 +3,32 @@
   "WorkspaceRootPath": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\sep_mmb_api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|solutionrelative:sep_mmb_api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\sep_mmb_api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|solutionrelative:sep_mmb_api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{20727481-E8BE-431D-B6EA-B7046E6E7275}|Services\\Services.csproj|c:\\users\\dell\\desktop\\sep_mmb_api\\services\\service\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{20727481-E8BE-431D-B6EA-B7046E6E7275}|Services\\Services.csproj|solutionrelative:services\\service\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|c:\\users\\dell\\desktop\\sep_mmb_api\\sep_mmb_api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|solutionrelative:sep_mmb_api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\sep_mmb_api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|solutionrelative:sep_mmb_api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|c:\\users\\dell\\desktop\\sep_mmb_api\\sep_mmb_api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|solutionrelative:sep_mmb_api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\sep_mmb_api\\controllers\\testcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|solutionrelative:sep_mmb_api\\controllers\\testcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{20727481-E8BE-431D-B6EA-B7046E6E7275}|Services\\Services.csproj|C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\services\\interface\\iauthservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{20727481-E8BE-431D-B6EA-B7046E6E7275}|Services\\Services.csproj|solutionrelative:services\\interface\\iauthservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E3BDF4F5-BA77-48CE-9896-09009BB51E57}|BusinessObjects\\BusinessObjects.csproj|C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\businessobjects\\dtos\\auth\\refreshtokendto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E3BDF4F5-BA77-48CE-9896-09009BB51E57}|BusinessObjects\\BusinessObjects.csproj|solutionrelative:businessobjects\\dtos\\auth\\refreshtokendto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,7 +38,7 @@
       "DocumentGroups": [
         {
           "DockedHeight": 337,
-          "SelectedChildIndex": 26,
+          "SelectedChildIndex": 25,
           "Children": [
             {
               "$type": "Bookmark",
@@ -126,42 +142,90 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\SEP_MMB_API\\appsettings.json",
               "RelativeDocumentMoniker": "SEP_MMB_API\\appsettings.json",
               "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\SEP_MMB_API\\appsettings.json",
               "RelativeToolTip": "SEP_MMB_API\\appsettings.json",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABAAAAA/AAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAAYAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-06-11T14:58:24.321Z",
+              "WhenOpened": "2025-06-11T19:25:32.532Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "AuthService.cs",
-              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\Services\\Service\\AuthService.cs",
-              "RelativeDocumentMoniker": "Services\\Service\\AuthService.cs",
-              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\Services\\Service\\AuthService.cs",
-              "RelativeToolTip": "Services\\Service\\AuthService.cs",
-              "ViewState": "AQIAABYAAAAAAAAAAAAzwEgAAAAIAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-11T14:27:31.799Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\SEP_MMB_API\\Program.cs",
               "RelativeDocumentMoniker": "SEP_MMB_API\\Program.cs",
               "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\SEP_MMB_API\\Program.cs",
               "RelativeToolTip": "SEP_MMB_API\\Program.cs",
-              "ViewState": "AQIAABUAAAAAAAAAAAAYwCgAAAAFAAAA",
+              "ViewState": "AQIAAGoAAAAAAAAAAAAYwHwAAAAFAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-11T13:58:42.417Z",
+              "WhenOpened": "2025-06-11T18:37:13.45Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "RefreshTokenDto.cs",
+              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\BusinessObjects\\Dtos\\Auth\\RefreshTokenDto.cs",
+              "RelativeDocumentMoniker": "BusinessObjects\\Dtos\\Auth\\RefreshTokenDto.cs",
+              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\BusinessObjects\\Dtos\\Auth\\RefreshTokenDto.cs",
+              "RelativeToolTip": "BusinessObjects\\Dtos\\Auth\\RefreshTokenDto.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-11T18:32:09.119Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "TestController.cs",
+              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\SEP_MMB_API\\Controllers\\TestController.cs",
+              "RelativeDocumentMoniker": "SEP_MMB_API\\Controllers\\TestController.cs",
+              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\SEP_MMB_API\\Controllers\\TestController.cs",
+              "RelativeToolTip": "SEP_MMB_API\\Controllers\\TestController.cs",
+              "ViewState": "AQIAAFEAAAAAAAAAAAAAwF4AAAAXAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-11T17:48:22.903Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "IAuthService.cs",
+              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\Services\\Interface\\IAuthService.cs",
+              "RelativeDocumentMoniker": "Services\\Interface\\IAuthService.cs",
+              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\Services\\Interface\\IAuthService.cs",
+              "RelativeToolTip": "Services\\Interface\\IAuthService.cs",
+              "ViewState": "AQIAAAgAAAAAAAAAAAAuwBMAAAA5AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-11T17:05:59.712Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\Services\\Service\\AuthService.cs",
+              "RelativeDocumentMoniker": "Services\\Service\\AuthService.cs",
+              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\Services\\Service\\AuthService.cs",
+              "RelativeToolTip": "Services\\Service\\AuthService.cs",
+              "ViewState": "AQIAAIYAAAAAAAAAAAAUwJoAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-11T16:47:54.119Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\SEP_MMB_API\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "SEP_MMB_API\\Controllers\\AuthController.cs",
+              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\SEP_MMB_API\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "SEP_MMB_API\\Controllers\\AuthController.cs",
+              "ViewState": "AQIAAAkAAAAAAAAAAAAAAFIAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-11T16:46:34.644Z"
             }
           ]
         },

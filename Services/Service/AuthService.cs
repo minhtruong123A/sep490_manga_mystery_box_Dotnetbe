@@ -150,7 +150,7 @@ namespace Services.Service
                 ValidateAudience = false,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                RequireExpirationTime = true,
+                //RequireExpirationTime = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:JWT_SECRET"])),
             };
         }

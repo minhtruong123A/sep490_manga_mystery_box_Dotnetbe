@@ -1,7 +1,9 @@
+using AspNetCoreRateLimit;
 using BusinessObjects;
 using DataAccessLayers.Interface;
 using DataAccessLayers.Repository;
 using DataAccessLayers.UnitOfWork;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -11,12 +13,15 @@ using Services.Interface;
 using Services.Service;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text;
+using System.Text.RegularExpressions;
 
 var builder = WebApplication.CreateBuilder(args);
 var devPassword = builder.Configuration["DevSettings:DevPassword"];
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+//if (!builder.Environment.IsProduction())
+//{
 builder.Services.AddSwaggerGen(c =>
 {
     //switch selection between user swagger and dev swagger
@@ -39,17 +44,17 @@ builder.Services.AddSwaggerGen(c =>
     });
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
-        {
-            new OpenApiSecurityScheme
             {
-                Reference = new OpenApiReference
+                new OpenApiSecurityScheme
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                Array.Empty<string>()
+            }
     });
 
     //open dev password to use server test api
@@ -62,19 +67,20 @@ builder.Services.AddSwaggerGen(c =>
     });
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
-        {
-            new OpenApiSecurityScheme
             {
-                Reference = new OpenApiReference
+                new OpenApiSecurityScheme
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "MMB Dev Password"
-                }
-            },
-            Array.Empty<string>()
-        }
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "MMB Dev Password"
+                    }
+                },
+                Array.Empty<string>()
+            }
     });
-}); 
+});
+//}
 
 //CORS
 builder.Services.AddCors(options =>
@@ -86,6 +92,21 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod();
     });
 });
+
+//Rate Limiting for preventing DDOS
+builder.Services.AddMemoryCache();
+builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
+builder.Services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+builder.Services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
+builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+builder.Services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
+
+//Csrf cookie
+//builder.Services.AddAntiforgery(opt =>
+//{
+//    opt.Cookie.Name = "XSRF-TOKEN";
+//    opt.HeaderName = "X-XSRF-TOKEN";
+//});
 
 //DbContext
 builder.Services.AddSingleton<MongoDbContext>();
@@ -132,9 +153,18 @@ builder.Services.AddAuthentication(options =>
 });
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 
+// Configure the HTTP request pipeline.
+//if (!app.Environment.IsProduction())
+//{
 app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Main User API");
+    c.SwaggerEndpoint("/swagger/test/swagger.json", "Dev Server Test API");
+    c.EnableFilter();
+});
+//}
 
 //set permissions in middleware
 app.Use(async (context, next) =>
@@ -153,44 +183,58 @@ app.Use(async (context, next) =>
     }
     await next();
 });
+
+//MongoDB injection filter
 app.Use(async (context, next) =>
 {
-    if (context.Request.Method == HttpMethods.Post ||
-        context.Request.Method == HttpMethods.Put ||
-        context.Request.Method == HttpMethods.Patch)
+    if (context.Request.Method is "POST" or "PUT" or "PATCH")
     {
         context.Request.EnableBuffering();
-        using var reader = new StreamReader(context.Request.Body, Encoding.UTF8, 
-                                            detectEncodingFromByteOrderMarks: false, leaveOpen: true);
+        using var reader = new StreamReader(context.Request.Body, Encoding.UTF8, false, leaveOpen: true);
         var body = await reader.ReadToEndAsync();
         context.Request.Body.Position = 0;
-        var forbiddenKeywords = new[]
+
+        var patterns = new[]
         {
-            "<script>","root","ssh","$ne","$where"
+            "<script>", "root", "ssh", "$ne", "$where",
+            "eval\\(", "function\\(", "sleep\\(", "drop\\s+collection", "db\\.getCollection"
         };
-        var match = forbiddenKeywords.FirstOrDefault(keyword => body.Contains(keyword,StringComparison.OrdinalIgnoreCase));
-        if (match != null)
+
+        foreach (var pattern in patterns)
         {
-            context.Response.StatusCode = 400;
-            await context.Response.WriteAsync($"Request blocked: forbidden keyword using for request \"{match}\" is not allowed.");
-            return;
+            if (Regex.IsMatch(body, pattern, RegexOptions.IgnoreCase))
+            {
+                context.Response.StatusCode = 400;
+                await context.Response.WriteAsync($"Suspicious input: {pattern}");
+                var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+                logger.LogWarning("Blocked request: matched pattern {pattern}", pattern);
+                return;
+            }
         }
     }
     await next();
 });
 
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Main User API");
-    c.SwaggerEndpoint("/swagger/test/swagger.json", "Dev Server Test API");
-    c.EnableFilter();
-});
-
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
+app.UseIpRateLimiting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Csrf cookie middleware
+//app.Use(async (context, next) =>
+//{
+//    var antiforgery = context.RequestServices.GetRequiredService<IAntiforgery>();
+//    var hasXSRF = context.Request.Cookies.ContainsKey("XSRF-TOKEN");
+
+//    if (hasXSRF &&
+//        (HttpMethods.IsPost(context.Request.Method) ||
+//         HttpMethods.IsPut(context.Request.Method) ||
+//         HttpMethods.IsDelete(context.Request.Method))) await antiforgery.ValidateRequestAsync(context);
+
+//    await next();
+//});
 
 app.MapControllers();
 

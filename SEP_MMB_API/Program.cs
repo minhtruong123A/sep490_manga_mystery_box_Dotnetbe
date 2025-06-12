@@ -196,7 +196,7 @@ app.Use(async (context, next) =>
 
         var patterns = new[]
         {
-            "<script>", "root", "ssh", "$ne", "$where",
+            "<script>", "root", "ssh", "$ne", "$where", "$regex",
             "eval\\(", "function\\(", "sleep\\(", "drop\\s+collection", "db\\.getCollection"
         };
 

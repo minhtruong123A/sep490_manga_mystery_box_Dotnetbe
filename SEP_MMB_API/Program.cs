@@ -1,5 +1,6 @@
 using AspNetCoreRateLimit;
 using BusinessObjects;
+using BusinessObjects.Mongodb;
 using DataAccessLayers.Interface;
 using DataAccessLayers.Repository;
 using DataAccessLayers.UnitOfWork;
@@ -152,6 +153,14 @@ builder.Services.AddAuthentication(options =>
     };
 });
 var app = builder.Build();
+
+//Seed DB: if you want to fake data, uncomment the line down below 
+//using (var scope = app.Services.CreateScope())
+//{
+//    var mongoDbContext = scope.ServiceProvider.GetRequiredService<MongoDbContext>();
+//    var seeder = new MongoSeeder(mongoDbContext);
+//    await seeder.SeedAsync();
+//}
 
 
 // Configure the HTTP request pipeline.

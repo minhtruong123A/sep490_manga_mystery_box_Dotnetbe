@@ -3,28 +3,8 @@
   "WorkspaceRootPath": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\sep_mmb_api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|c:\\users\\dell\\desktop\\sep_mmb_api\\sep_mmb_api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|solutionrelative:sep_mmb_api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\sep_mmb_api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|solutionrelative:sep_mmb_api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E3BDF4F5-BA77-48CE-9896-09009BB51E57}|BusinessObjects\\BusinessObjects.csproj|C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\businessobjects\\serializers\\flexibleserializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E3BDF4F5-BA77-48CE-9896-09009BB51E57}|BusinessObjects\\BusinessObjects.csproj|solutionrelative:businessobjects\\serializers\\flexibleserializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E3BDF4F5-BA77-48CE-9896-09009BB51E57}|BusinessObjects\\BusinessObjects.csproj|c:\\users\\dell\\desktop\\sep_mmb_api\\businessobjects\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E3BDF4F5-BA77-48CE-9896-09009BB51E57}|BusinessObjects\\BusinessObjects.csproj|solutionrelative:businessobjects\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}|DataAccessLayers\\DataAccessLayers.csproj|C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\dataaccesslayers\\dataaccesslayers.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}|DataAccessLayers\\DataAccessLayers.csproj|solutionrelative:dataaccesslayers\\dataaccesslayers.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{20727481-E8BE-431D-B6EA-B7046E6E7275}|Services\\Services.csproj|C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\services\\service\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{20727481-E8BE-431D-B6EA-B7046E6E7275}|Services\\Services.csproj|solutionrelative:services\\service\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -34,8 +14,21 @@
       "DocumentGroups": [
         {
           "DockedHeight": 337,
-          "SelectedChildIndex": 29,
+          "SelectedChildIndex": 0,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\SEP_MMB_API\\Program.cs",
+              "RelativeDocumentMoniker": "SEP_MMB_API\\Program.cs",
+              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\SEP_MMB_API\\Program.cs",
+              "RelativeToolTip": "SEP_MMB_API\\Program.cs",
+              "ViewState": "AQIAAIoAAAAAAAAAAAAAAJwAAABDAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-13T20:08:36.805Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
@@ -135,82 +128,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:129:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "DataAccessLayers",
-              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\DataAccessLayers\\DataAccessLayers.csproj",
-              "RelativeDocumentMoniker": "DataAccessLayers\\DataAccessLayers.csproj",
-              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\DataAccessLayers\\DataAccessLayers.csproj",
-              "RelativeToolTip": "DataAccessLayers\\DataAccessLayers.csproj",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-06-12T16:54:16.926Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "FlexibleSerializer.cs",
-              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\BusinessObjects\\Serializers\\FlexibleSerializer.cs",
-              "RelativeDocumentMoniker": "BusinessObjects\\Serializers\\FlexibleSerializer.cs",
-              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\BusinessObjects\\Serializers\\FlexibleSerializer.cs",
-              "RelativeToolTip": "BusinessObjects\\Serializers\\FlexibleSerializer.cs",
-              "ViewState": "AQIAAAQAAAAAAAAAAAAAAAgAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-12T15:23:50.997Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "User.cs",
-              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\BusinessObjects\\User.cs",
-              "RelativeDocumentMoniker": "BusinessObjects\\User.cs",
-              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\BusinessObjects\\User.cs",
-              "RelativeToolTip": "BusinessObjects\\User.cs",
-              "ViewState": "AQIAAAsAAAAAAAAAAAAAwBMAAAAhAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-12T14:43:42.623Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\SEP_MMB_API\\appsettings.json",
-              "RelativeDocumentMoniker": "SEP_MMB_API\\appsettings.json",
-              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\SEP_MMB_API\\appsettings.json",
-              "RelativeToolTip": "SEP_MMB_API\\appsettings.json",
-              "ViewState": "AQIAAAwAAAAAAAAAAAAAABsAAAAhAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-06-12T14:20:05.461Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\SEP_MMB_API\\Program.cs",
-              "RelativeDocumentMoniker": "SEP_MMB_API\\Program.cs",
-              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\SEP_MMB_API\\Program.cs",
-              "RelativeToolTip": "SEP_MMB_API\\Program.cs",
-              "ViewState": "AQIAALQAAAAAAAAAAAAAALwAAAABAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-12T12:01:14.277Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "AuthService.cs",
-              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\Services\\Service\\AuthService.cs",
-              "RelativeDocumentMoniker": "Services\\Service\\AuthService.cs",
-              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\Services\\Service\\AuthService.cs",
-              "RelativeToolTip": "Services\\Service\\AuthService.cs",
-              "ViewState": "AQIAACYAAAAAAAAAAADwvzcAAACIAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-11T23:03:05.908Z"
             }
           ]
         },

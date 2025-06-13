@@ -1,4 +1,4 @@
-﻿using BusinessObjects;
+﻿using BusinessObjects.Mongodb;
 using DataAccessLayers.Interface;
 using DataAccessLayers.Repository;
 using System;

@@ -2,6 +2,7 @@
 using BusinessObjects.Dtos.Product;
 using BusinessObjects.Mongodb;
 using DataAccessLayers.Interface;
+using DataAccessLayers.Pipelines;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
@@ -61,46 +62,63 @@ namespace DataAccessLayers.Repository
 
 
         //getallproductonsale
+        //public async Task<List<SellProductGetAllDto>> GetAllProductOnSaleAsync()
+        //{
+        //    var result = await _sellProductCollection.Aggregate()
+        //        .Match(x => x.IsSell)
+        //        .AppendStage<BsonDocument>(new BsonDocument("$addFields",
+        //            new BsonDocument("ProductObjectId", new BsonDocument("$toObjectId", "$ProductId"))))
+        //        .Lookup("Product", "ProductObjectId", "_id", "Product")
+        //        .Unwind("Product")
+        //        .AppendStage<BsonDocument>(new BsonDocument("$addFields",
+        //            new BsonDocument("ProductStringId", new BsonDocument("$toString", "$Product._id"))))
+        //        .Lookup("User_Product", "ProductStringId", "ProductId", "UserProduct")
+        //        .Unwind("UserProduct", new AggregateUnwindOptions<BsonDocument> { PreserveNullAndEmptyArrays = true })
+        //        .AppendStage<BsonDocument>(new BsonDocument("$addFields",
+        //            new BsonDocument("CollectionObjectId", new BsonDocument("$toObjectId", "$UserProduct.CollectionId"))))
+        //        .Lookup("Collection", "CollectionObjectId", "_id", "Collection")
+        //        .Unwind("Collection", new AggregateUnwindOptions<BsonDocument> { PreserveNullAndEmptyArrays = true })
+        //        .AppendStage<BsonDocument>(new BsonDocument("$addFields",
+        //            new BsonDocument("SellerObjectId", new BsonDocument("$toObjectId", "$SellerId"))))
+        //        .Lookup("User", "SellerObjectId", "_id", "User")
+        //        .Unwind("User")
+        //        .Project(new BsonDocument
+        //        {
+        //            { "Id", new BsonDocument("$toString", "$_id") },
+        //            { "Name", "$Product.Name" },
+        //            { "Price", "$Price" },
+        //            { "Username", "$User.username" },
+        //            { "UrlImage", "$Product.UrlImage" },
+        //            { "Topic", "$Collection.Topic" }
+        //        })
+        //        .ToListAsync();
+
+        //    return result.Select(x => new SellProductGetAllDto
+        //    {
+        //        Id = x.GetValue("Id", "").AsString,
+        //        Name = x.GetValue("Name", "").AsString,
+        //        Price = x.GetValue("Price", 0).ToInt32(),
+        //        Username = x.GetValue("Username", "").AsString,
+        //        Topic = x.Contains("Topic") && !x["Topic"].IsBsonNull ? x["Topic"].AsString : "Unknown",
+        //        UrlImage = x.Contains("UrlImage") && !x["UrlImage"].IsBsonNull ? x["UrlImage"].AsString : null
+        //    }).ToList();
+        //}
+
         public async Task<List<SellProductGetAllDto>> GetAllProductOnSaleAsync()
         {
-            var result = await _sellProductCollection.Aggregate()
-                .Match(x => x.IsSell)
-                .AppendStage<BsonDocument>(new BsonDocument("$addFields",
-                    new BsonDocument("ProductObjectId", new BsonDocument("$toObjectId", "$ProductId"))))
-                .Lookup("Product", "ProductObjectId", "_id", "Product")
-                .Unwind("Product")
-                .AppendStage<BsonDocument>(new BsonDocument("$addFields",
-                    new BsonDocument("ProductStringId", new BsonDocument("$toString", "$Product._id"))))
-                .Lookup("User_Product", "ProductStringId", "ProductId", "UserProduct")
-                .Unwind("UserProduct", new AggregateUnwindOptions<BsonDocument> { PreserveNullAndEmptyArrays = true })
-                .AppendStage<BsonDocument>(new BsonDocument("$addFields",
-                    new BsonDocument("CollectionObjectId", new BsonDocument("$toObjectId", "$UserProduct.CollectionId"))))
-                .Lookup("Collection", "CollectionObjectId", "_id", "Collection")
-                .Unwind("Collection", new AggregateUnwindOptions<BsonDocument> { PreserveNullAndEmptyArrays = true })
-                .AppendStage<BsonDocument>(new BsonDocument("$addFields",
-                    new BsonDocument("SellerObjectId", new BsonDocument("$toObjectId", "$SellerId"))))
-                .Lookup("User", "SellerObjectId", "_id", "User")
-                .Unwind("User")
-                .Project(new BsonDocument
-                {
-                    { "Id", new BsonDocument("$toString", "$_id") },
-                    { "Name", "$Product.Name" },
-                    { "Price", "$Price" },
-                    { "Username", "$User.username" },
-                    { "UrlImage", "$Product.UrlImage" },
-                    { "Topic", "$Collection.Topic" }
-                })
-                .ToListAsync();
-
-            return result.Select(x => new SellProductGetAllDto
-            {
-                Id = x.GetValue("Id", "").AsString,
-                Name = x.GetValue("Name", "").AsString,
-                Price = x.GetValue("Price", 0).ToInt32(),
-                Username = x.GetValue("Username", "").AsString,
-                Topic = x.Contains("Topic") && !x["Topic"].IsBsonNull ? x["Topic"].AsString : "Unknown",
-                UrlImage = x.Contains("UrlImage") && !x["UrlImage"].IsBsonNull ? x["UrlImage"].AsString : null
-            }).ToList();
+            return await _sellProductCollection
+                .WithBson()
+                .RunAggregateWithLookups(
+                    buildPipeline: SellProductPipelineBuilder.BuildProductOnSalePipeline,
+                    selector: x => new SellProductGetAllDto
+                    {
+                        Id = x.GetValue("Id", "").AsString,
+                        Name = x.GetValue("Name", "").AsString,
+                        Price = x.GetValue("Price", 0).ToInt32(),
+                        Username = x.GetValue("Username", "").AsString,
+                        Topic = x.TryGetString("Topic") ?? "Unknown",
+                        UrlImage = x.TryGetString("UrlImage")
+                    });
         }
 
         //getproductonsalebyid
@@ -108,54 +126,23 @@ namespace DataAccessLayers.Repository
         {
             var objectId = ObjectId.Parse(id);
 
-            var result = await _sellProductCollection.Aggregate()
-                .Match(Builders<SellProduct>.Filter.Eq("_id", objectId))
-                .AppendStage<BsonDocument>(new BsonDocument("$addFields",
-                    new BsonDocument("ProductObjectId", new BsonDocument("$toObjectId", "$ProductId"))))
-                .Lookup("Product", "ProductObjectId", "_id", "Product")
-                .Unwind("Product")
-                .AppendStage<BsonDocument>(new BsonDocument("$addFields",
-                    new BsonDocument("ProductStringId", new BsonDocument("$toString", "$Product._id"))))
-                .Lookup("User_Product", "ProductStringId", "ProductId", "UserProduct")
-                .Unwind("UserProduct", new AggregateUnwindOptions<BsonDocument> { PreserveNullAndEmptyArrays = true })
-                .AppendStage<BsonDocument>(new BsonDocument("$addFields",
-                    new BsonDocument("CollectionObjectId", new BsonDocument("$toObjectId", "$UserProduct.CollectionId"))))
-                .Lookup("Collection", "CollectionObjectId", "_id", "Collection")
-                .Unwind("Collection", new AggregateUnwindOptions<BsonDocument> { PreserveNullAndEmptyArrays = true })
-                .AppendStage<BsonDocument>(new BsonDocument("$addFields",
-                    new BsonDocument("SellerObjectId", new BsonDocument("$toObjectId", "$SellerId"))))
-                .Lookup("User", "SellerObjectId", "_id", "User")
-                .Unwind("User")
-                .AppendStage<BsonDocument>(new BsonDocument("$addFields",
-                    new BsonDocument("RarityObjectId", new BsonDocument("$toObjectId", "$Product.RarityId"))))
-                .Lookup("Rarity", "RarityObjectId", "_id", "Rarity")
-                .Unwind("Rarity", new AggregateUnwindOptions<BsonDocument> { PreserveNullAndEmptyArrays = true })
-                .Project(new BsonDocument
-                {
-                    { "Id", new BsonDocument("$toString", "$_id") },
-                    { "Name", "$Product.Name" },
-                    { "Price", "$Price" },
-                    { "Username", "$User.username" },
-                    { "UrlImage", "$Product.UrlImage" },
-                    { "Topic", "$Collection.Topic" },
-                    { "RateName", "$Rarity.Name" },
-                    { "Description", "$Description" }
-                })
-                .FirstOrDefaultAsync();
+            var result = await _sellProductCollection
+                .WithBson()
+                .RunAggregateWithLookups(
+                    buildPipeline: p => SellProductPipelineBuilder.BuildProductDetailPipeline(p, objectId),
+                    selector: x => new SellProductDetailDto
+                    {
+                        Id = x.GetValue("Id", "").AsString,
+                        Name = x.GetValue("Name", "").AsString,
+                        Price = x.GetValue("Price", 0).ToInt32(),
+                        Username = x.GetValue("Username", "").AsString,
+                        Topic = x.TryGetString("Topic") ?? "Unknown",
+                        UrlImage = x.TryGetString("UrlImage"),
+                        RateName = x.TryGetString("RateName") ?? "Unknown",
+                        Description = x.TryGetString("Description") ?? ""
+                    });
 
-            if (result == null) return null;
-
-            return new SellProductDetailDto
-            {
-                Id = result.GetValue("Id", "").AsString,
-                Name = result.GetValue("Name", "").AsString,
-                Price = result.GetValue("Price", 0).ToInt32(),
-                Username = result.GetValue("Username", "").AsString,
-                Topic = result.Contains("Topic") && !result["Topic"].IsBsonNull ? result["Topic"].AsString : "Unknown",
-                UrlImage = result.Contains("UrlImage") && !result["UrlImage"].IsBsonNull ? result["UrlImage"].AsString : null,
-                RateName = result.Contains("RateName") && !result["RateName"].IsBsonNull ? result["RateName"].AsString : "Unknown",
-                Description = result.Contains("Description") && !result["Description"].IsBsonNull ? result["Description"].AsString : ""
-            };
+            return result.FirstOrDefault();
         }
     }
 }

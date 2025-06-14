@@ -116,6 +116,10 @@ builder.Services.AddSingleton<MongoDbContext>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IEmailVerificationRepository, EmailVerificationRepository>();
+builder.Services.AddScoped<IMangaBoxRepository, MangaBoxRepository>();
+builder.Services.AddScoped<ISellProductRepository, SellProductRepository>();
+builder.Services.AddScoped<IUserCollectionRepository, UserCollectionRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 
 //UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -123,6 +127,10 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 //Service
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IMangaBoxService, MangaBoxService>();
+builder.Services.AddScoped<ISellProductService, SellProductService>();
+builder.Services.AddScoped<IUserCollectionService, UserCollectionService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
 
 //AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

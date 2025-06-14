@@ -15,9 +15,18 @@ namespace DataAccessLayers.UnitOfWork
 
         private IUserRepository _users;
         private IEmailVerificationRepository _emailVerificationRepository;
+        private IMangaBoxRepository _mangaBoxRepository;
+        private ISellProductRepository _sellProductRepository;
+        public IUserCollectionRepository _userCollectionRepository;
+        public ICommentRepository _commentRepository;
 
         public IUserRepository UserRepository => _users ??= new UserRepository(_context);
         public IEmailVerificationRepository EmailVerificationRepository => _emailVerificationRepository ??= new EmailVerificationRepository(_context);
+        public IMangaBoxRepository MangaBoxRepository => _mangaBoxRepository ??= new MangaBoxRepository(_context);
+        public ISellProductRepository SellProductRepository => _sellProductRepository ??= new SellProductRepository(_context);
+        public IUserCollectionRepository UserCollectionRepository => _userCollectionRepository ??= new UserCollectionRepository(_context);
+        public ICommentRepository CommentRepository => _commentRepository ??= new CommentRepository(_context);
+
 
         public UnitOfWork(MongoDbContext context)
         {

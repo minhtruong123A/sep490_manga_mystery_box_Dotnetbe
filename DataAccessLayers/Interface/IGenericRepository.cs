@@ -17,6 +17,7 @@ namespace DataAccessLayers.Interface
         Task<IEnumerable<T>> AddRangeAsync(IEnumerable<T> entities);
         Task DeleteAsync(string id);
         Task DeleteRangeAsync(Expression<Func<T, bool>> expression);
+        Task DeleteAllAsync();
         Task UpdateAsync(string id, T entity);
         Task<bool> ExistsAsync(Expression<Func<T, bool>> expression);
     }

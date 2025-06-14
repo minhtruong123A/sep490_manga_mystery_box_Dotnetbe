@@ -1,7 +1,11 @@
-﻿using BusinessObjects.Dtos;
+﻿using AutoMapper;
+using BusinessObjects;
+using BusinessObjects.Dtos;
 using BusinessObjects.Dtos.Auth;
+using BusinessObjects.Dtos.MangaBox;
 using BusinessObjects.Dtos.Schema_Response;
 using BusinessObjects.Dtos.User;
+using BusinessObjects.Dtos.UserCollection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
@@ -17,11 +21,19 @@ namespace SEP_MMB_API.Controllers
     {
         private readonly IUserService _userService;
         private readonly IAuthService _authService;
+        private readonly IMangaBoxService _mangaBoxService;
+        private readonly IUserCollectionService _userCollectionService;
+        private readonly ICommentService _commentService;
+        private readonly IMapper _mapper;
 
-        public TestController(IUserService userService, IAuthService authService)
+        public TestController(IUserService userService, IAuthService authService, IMangaBoxService mailboxService, IMapper mapper, IUserCollectionService userCollectionService, ICommentService commentService)
         {
             _userService = userService;
             _authService = authService;
+            _mangaBoxService = mailboxService;
+            _userCollectionService = userCollectionService;
+            _commentService = commentService;
+            _mapper = mapper;
         }
 
         [Tags("Server Test Fetch API Only")]
@@ -152,6 +164,90 @@ namespace SEP_MMB_API.Controllers
                     Success = false,
                     Error = ex.Message,
                     ErrorCode = 500
+                });
+            }
+        }
+
+        [Tags("Server Test Fetch API Only")]
+        [Authorize]
+        [HttpDelete("delete-all-comment")]
+        public async Task<ActionResult<ResponseModel<string>>> DeleteAllComment()
+        {
+            try
+            {
+                await _commentService.DeleteAllCommentAsync();
+                return Ok(new ResponseModel<string>
+                {
+                    Data = "all comment deleted successfully.",
+                    Success = true,
+                    Error = null
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string>
+                {
+                    Data = null,
+                    Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
+
+        [Tags("Server Test BACKEND Only")]
+        [HttpPost("add-manga-box")]
+        public async Task<ActionResult<ResponseModel<MangaBoxDto>>> AddMangaBox([FromQuery] MangaBoxDto mangaBoxDto)
+        {
+            try
+            {
+                var mangaBox = _mapper.Map<MangaBox>(mangaBoxDto);
+                mangaBox.Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
+                var addedMangabox = await _mangaBoxService.AddAsync(mangaBox);
+                return Ok(new ResponseModel<MangaBox>
+                {
+                    Data = addedMangabox,
+                    Success = true,
+                    Error = null
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string>
+                {
+                    Data = null,
+                    Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
+
+
+        [Tags("Server Test BACKEND Only")]
+        [HttpPost("add-user-collection")]
+        public async Task<ActionResult<ResponseModel<UserCollectionDto>>> AddUserCollection([FromQuery] UserCollectionDto dto)
+        {
+            try
+            {
+                var userCollection = _mapper.Map<UserCollection>(dto);
+                userCollection.Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
+                await _userCollectionService.CreateUserCollectionAsync(userCollection);
+                return Ok(new ResponseModel<string>
+                {
+                    Data = null,
+                    Success = true,
+                    Error = null
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string>
+                {
+                    Data = null,
+                    Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 400
                 });
             }
         }

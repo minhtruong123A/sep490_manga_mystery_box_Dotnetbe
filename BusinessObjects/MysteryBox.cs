@@ -17,5 +17,6 @@ namespace BusinessObjects
         public string Description { get; set; }
         public int Price { get; set; }
         public int TotalProduct { get; set; }
+        public string UrlImage { get; set; }
     }
 }

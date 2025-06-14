@@ -50,6 +50,8 @@ namespace BusinessObjects.Mongodb
         public IMongoCollection<ProductInMangaBox> ProductInMangaBoxes => _database.GetCollection<ProductInMangaBox>("ProductInMangaBox");
         public IMongoCollection<UserBox> UserBoxes => _database.GetCollection<UserBox>("UserBox");
         public IMongoCollection<UserCollection> UserCollections => _database.GetCollection<UserCollection>("UserCollection");
-        public IMongoCollection<UserProduct> UserProducts => _database.GetCollection<UserProduct>("UserProduct");
+        public IMongoCollection<UserProduct> UserProducts => _database.GetCollection<UserProduct>("User_Product");
+        public IMongoCollection<SellProduct> SellProducts => _database.GetCollection<SellProduct>("SellProduct");
+        public IMongoCollection<Comment> Comments => _database.GetCollection<Comment>("Comment");
     }
 }

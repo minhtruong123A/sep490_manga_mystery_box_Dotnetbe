@@ -11,6 +11,10 @@ namespace DataAccessLayers.UnitOfWork
     {
         IUserRepository UserRepository { get; }
         IEmailVerificationRepository EmailVerificationRepository { get; }
+        IMangaBoxRepository MangaBoxRepository { get; }
+        ISellProductRepository SellProductRepository { get; }
+        IUserCollectionRepository UserCollectionRepository { get; }
+        ICommentRepository CommentRepository { get; }
         Task SaveChangesAsync();
     }
 }

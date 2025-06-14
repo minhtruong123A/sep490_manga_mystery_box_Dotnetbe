@@ -23,6 +23,7 @@ namespace Services.Service
             _mapper = mapper;
         }
 
+        //get all user
         public async Task<List<UserInformationDto>> GetAllUsersAsync()
         {
             var users = await _uniUnitOfWork.UserRepository.GetAllAsync();
@@ -30,26 +31,20 @@ namespace Services.Service
             return userDtos;
         }
 
-        public Task<User?> GetUserByIdAsync(string id)
-        {
-            return _uniUnitOfWork.UserRepository.GetByIdAsync(id);
-        }
+        //basic CRUD User
+        public async Task<User?> GetUserByIdAsync(string id) =>  await _uniUnitOfWork.UserRepository.GetByIdAsync(id);
+        
 
-        public Task CreateUserAsync(User user)
-        {
-            return _uniUnitOfWork.UserRepository.AddAsync(user);
-        }
+        public async Task CreateUserAsync(User user) => await _uniUnitOfWork.UserRepository.AddAsync(user);
 
-        public Task UpdateUserAsync(string id, User user)
-        {
-            return _uniUnitOfWork.UserRepository.UpdateAsync(id, user);
-        }
 
-        public Task DeleteUserAsync(string id)
-        {
-            return _uniUnitOfWork.UserRepository.DeleteAsync(id);
-        }
+        public async Task UpdateUserAsync(string id, User user) => await _uniUnitOfWork.UserRepository.UpdateAsync(id, user);
 
+
+        public async Task DeleteUserAsync(string id) => await _uniUnitOfWork.UserRepository.DeleteAsync(id);
+
+
+        //delete user and email verification by email
         public async Task DeleteUserByEmailAsync(string email)
         {
             _ = await _uniUnitOfWork.UserRepository.GetByEmailAsync(email) ?? throw new Exception("User not found");

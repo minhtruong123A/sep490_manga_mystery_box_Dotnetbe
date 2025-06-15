@@ -155,7 +155,10 @@ builder.Services.AddAuthentication(options =>
     {
         OnAuthenticationFailed = context =>
         {
-            var error = context.Exception;
+            if (context.Exception is SecurityTokenExpiredException)
+            {
+                context.Response.Headers.Append("Token-Expired", "true");
+            }
             return Task.CompletedTask;
         }
     };
@@ -179,6 +182,7 @@ app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Main User API");
     c.SwaggerEndpoint("/swagger/test/swagger.json", "Dev Server Test API");
+    c.RoutePrefix = "swagger";
     c.EnableFilter();
 });
 //}

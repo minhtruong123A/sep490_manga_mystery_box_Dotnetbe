@@ -17,8 +17,7 @@ namespace DataAccessLayers.Repository
         private readonly IMongoCollection<Comment> _comments;
         private readonly IMongoCollection<User> _users;
 
-        public CommentRepository(MongoDbContext context)
-            : base(context.GetCollection<Comment>("Comment"))
+        public CommentRepository(MongoDbContext context) : base(context.GetCollection<Comment>("Comment"))
         {
             _comments = context.GetCollection<Comment>("Comment");
             _users = context.GetCollection<User>("User");
@@ -108,6 +107,14 @@ namespace DataAccessLayers.Repository
 
             return result;
         }
-    }
 
+        public async Task<Comment?> GetRatingOnlyByUserAndProductAsync(string userId, string productId)
+        {
+            return await _comments.Find(c =>
+                c.UserId == userId &&
+                c.SellProductId == productId &&
+                (c.Content == null || c.Content.Trim() == "")
+            ).SingleOrDefaultAsync();
+        }
+    }
 }

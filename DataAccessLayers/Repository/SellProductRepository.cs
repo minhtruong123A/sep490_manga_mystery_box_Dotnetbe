@@ -163,6 +163,7 @@ namespace DataAccessLayers.Repository
                 Price = sellProduct.Price,
                 UrlImage = productResult?.UrlImage,
                 Description = sellProduct.Description ?? "",
+                UserId = userResult?.Id ?? "Unknown Id",
                 Username = userResult?.Username ?? "Unknown",
                 Topic = collectionResult?.Topic ?? "Unknown",
                 RateName = rarityResult?.Name ?? "Unknown"

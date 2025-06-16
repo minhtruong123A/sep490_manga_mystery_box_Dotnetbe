@@ -147,6 +147,7 @@ namespace DataAccessLayers.Repository
 
             return new SellProductDetailDto
             {
+<<<<<<< Updated upstream
                 Id = result.GetValue("Id", "").AsString,
                 Name = result.GetValue("Name", "").AsString,
                 Price = result.GetValue("Price", 0).ToInt32(),
@@ -155,6 +156,17 @@ namespace DataAccessLayers.Repository
                 UrlImage = result.Contains("UrlImage") && !result["UrlImage"].IsBsonNull ? result["UrlImage"].AsString : null,
                 RateName = result.Contains("RateName") && !result["RateName"].IsBsonNull ? result["RateName"].AsString : "Unknown",
                 Description = result.Contains("Description") && !result["Description"].IsBsonNull ? result["Description"].AsString : ""
+=======
+                Id = sellProduct.Id.ToString(),
+                Name = productResult?.Name,
+                Price = sellProduct.Price,
+                UrlImage = productResult?.UrlImage,
+                Description = sellProduct.Description ?? "",
+                UserId = userResult?.Id ?? "Unknown",
+                Username = userResult?.Username ?? "Unknown",
+                Topic = collectionResult?.Topic ?? "Unknown",
+                RateName = rarityResult?.Name ?? "Unknown"
+>>>>>>> Stashed changes
             };
         }
     }

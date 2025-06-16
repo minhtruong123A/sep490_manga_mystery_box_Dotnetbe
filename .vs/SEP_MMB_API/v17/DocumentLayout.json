@@ -1,7 +1,32 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{E3BDF4F5-BA77-48CE-9896-09009BB51E57}|BusinessObjects\\BusinessObjects.csproj|c:\\users\\dell\\desktop\\sep_mmb_api\\businessobjects\\collection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E3BDF4F5-BA77-48CE-9896-09009BB51E57}|BusinessObjects\\BusinessObjects.csproj|solutionrelative:businessobjects\\collection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}|DataAccessLayers\\DataAccessLayers.csproj|c:\\users\\dell\\desktop\\sep_mmb_api\\dataaccesslayers\\repository\\sellproductrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}|DataAccessLayers\\DataAccessLayers.csproj|solutionrelative:dataaccesslayers\\repository\\sellproductrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|c:\\users\\dell\\desktop\\sep_mmb_api\\sep_mmb_api\\controllers\\sellproductcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|solutionrelative:sep_mmb_api\\controllers\\sellproductcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|c:\\users\\dell\\desktop\\sep_mmb_api\\sep_mmb_api\\controllers\\commentcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|solutionrelative:sep_mmb_api\\controllers\\commentcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E3BDF4F5-BA77-48CE-9896-09009BB51E57}|BusinessObjects\\BusinessObjects.csproj|c:\\users\\dell\\desktop\\sep_mmb_api\\businessobjects\\usercollection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E3BDF4F5-BA77-48CE-9896-09009BB51E57}|BusinessObjects\\BusinessObjects.csproj|solutionrelative:businessobjects\\usercollection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}|DataAccessLayers\\DataAccessLayers.csproj|c:\\users\\dell\\desktop\\sep_mmb_api\\dataaccesslayers\\repository\\mangaboxrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}|DataAccessLayers\\DataAccessLayers.csproj|solutionrelative:dataaccesslayers\\repository\\mangaboxrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 1,
@@ -9,7 +34,7 @@
       "DocumentGroups": [
         {
           "DockedHeight": 337,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 28,
           "Children": [
             {
               "$type": "Bookmark",
@@ -110,6 +135,84 @@
             {
               "$type": "Bookmark",
               "Name": "ST:129:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "SellProductController.cs",
+              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\SEP_MMB_API\\Controllers\\SellProductController.cs",
+              "RelativeDocumentMoniker": "SEP_MMB_API\\Controllers\\SellProductController.cs",
+              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\SEP_MMB_API\\Controllers\\SellProductController.cs",
+              "RelativeToolTip": "SEP_MMB_API\\Controllers\\SellProductController.cs",
+              "ViewState": "AQIAADkAAAAAAAAAAAAYwAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-16T09:38:24.121Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "CommentController.cs",
+              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\SEP_MMB_API\\Controllers\\CommentController.cs",
+              "RelativeDocumentMoniker": "SEP_MMB_API\\Controllers\\CommentController.cs",
+              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\SEP_MMB_API\\Controllers\\CommentController.cs",
+              "RelativeToolTip": "SEP_MMB_API\\Controllers\\CommentController.cs",
+              "ViewState": "AQIAAAwAAAAAAAAAAAAkwCkAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-16T09:38:01.847Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "UserCollection.cs",
+              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\BusinessObjects\\UserCollection.cs",
+              "RelativeDocumentMoniker": "BusinessObjects\\UserCollection.cs",
+              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\BusinessObjects\\UserCollection.cs",
+              "RelativeToolTip": "BusinessObjects\\UserCollection.cs",
+              "ViewState": "AQIAAAkAAAAAAAAAAAAAABMAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-16T09:36:44.198Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Collection.cs",
+              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\BusinessObjects\\Collection.cs",
+              "RelativeDocumentMoniker": "BusinessObjects\\Collection.cs",
+              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\BusinessObjects\\Collection.cs",
+              "RelativeToolTip": "BusinessObjects\\Collection.cs",
+              "ViewState": "AQIAAAsAAAAAAAAAAAAAwBIAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-16T09:36:42.791Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "SellProductRepository.cs",
+              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\DataAccessLayers\\Repository\\SellProductRepository.cs",
+              "RelativeDocumentMoniker": "DataAccessLayers\\Repository\\SellProductRepository.cs",
+              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\DataAccessLayers\\Repository\\SellProductRepository.cs",
+              "RelativeToolTip": "DataAccessLayers\\Repository\\SellProductRepository.cs",
+              "ViewState": "AQIAAEAAAAAAAAAAAAAYwIsAAABtAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-16T09:30:52.747Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "MangaBoxRepository.cs",
+              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\DataAccessLayers\\Repository\\MangaBoxRepository.cs",
+              "RelativeDocumentMoniker": "DataAccessLayers\\Repository\\MangaBoxRepository.cs",
+              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\DataAccessLayers\\Repository\\MangaBoxRepository.cs",
+              "RelativeToolTip": "DataAccessLayers\\Repository\\MangaBoxRepository.cs",
+              "ViewState": "AQIAAFwAAAAAAAAAAAArwGQAAABrAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-16T07:59:41.749Z",
+              "EditorCaption": ""
             }
           ]
         },

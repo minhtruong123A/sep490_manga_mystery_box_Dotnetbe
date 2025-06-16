@@ -82,7 +82,7 @@ namespace SEP_MMB_API.Controllers
                 {
                     Success = false,
                     Data = null,
-                    Error = "MangaBox not found",
+                    Error = "Product on sale not found",
                     ErrorCode = 404
                 });
             }

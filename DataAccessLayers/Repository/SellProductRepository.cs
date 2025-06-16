@@ -137,7 +137,7 @@ namespace DataAccessLayers.Repository
         //    return result.FirstOrDefault();
         public async Task<SellProductDetailDto?> GetProductDetailByIdAsync(string id)
         {
-            var sellProduct = await _mongoDbContext.SellProducts.AsQueryable().FirstOrDefaultAsync(c => c.Id == id && c.IsSell);
+            var sellProduct = await _mongoDbContext.SellProducts.AsQueryable().FirstOrDefaultAsync(c => c.Id.ToString() == id && c.IsSell);
             if (sellProduct is null) return null;
             var productTask = _mongoDbContext.Products.AsQueryable().FirstOrDefaultAsync(c => c.Id.ToString() == sellProduct.ProductId);
             var userTask = _mongoDbContext.Users.AsQueryable().FirstOrDefaultAsync(c => c.Id.ToString() == sellProduct.SellerId);

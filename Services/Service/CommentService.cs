@@ -1,6 +1,7 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Dtos.Comment;
 using DataAccessLayers.UnitOfWork;
+using DnsClient;
 using Services.Interface;
 using System;
 using System.Collections.Generic;
@@ -15,9 +16,12 @@ namespace Services.Service
     public class CommentService : ICommentService
     {
         private readonly IUnitOfWork _uniUnitOfWork;
-        public CommentService(IUnitOfWork unitOfWork)
+        private readonly IModerationService _moderationService;
+
+        public CommentService(IUnitOfWork unitOfWork, IModerationService moderationService)
         {
             _uniUnitOfWork = unitOfWork;
+            _moderationService = moderationService;
         }
 
         public async Task<List<CommentWithUsernameDto>> GetAlCommentlBySellProductIdAsync(string sellProductId) => await _uniUnitOfWork.CommentRepository.GetAlCommentlBySellProductIdAsync(sellProductId);
@@ -48,20 +52,31 @@ namespace Services.Service
         //comment create and validation
         public async Task<Comment> CreateCommentAsync(string sellProductId, string userId, string content)
         {
-            ValidateCommentInput(sellProductId, content);
-            
+            await ValidateCommentInput(sellProductId, content);
+
             var product = await _uniUnitOfWork.SellProductRepository.GetByIdAsync(sellProductId);
             if (product == null || !product.IsSell) throw new Exception("Product not found or not available for sale.");
+
+            var existingCommentOnly = await _uniUnitOfWork.CommentRepository.GetCommentOnlyByUserAndProductAsync(userId, sellProductId);
+            if (existingCommentOnly != null)
+            {
+                existingCommentOnly.Content = content;
+                existingCommentOnly.UpdatedAt = DateTime.UtcNow;
+                await _uniUnitOfWork.CommentRepository.UpdateAsync(existingCommentOnly.Id, existingCommentOnly);
+                return existingCommentOnly;
+            }
 
             return await _uniUnitOfWork.CommentRepository.CreateCommentAsync(sellProductId, userId, content);
         }
 
-        private void ValidateCommentInput(string sellProductId, string content)
+        private async Task ValidateCommentInput(string sellProductId, string content)
         {
             if (string.IsNullOrWhiteSpace(sellProductId)) throw new Exception("SellProductId must not be empty.");
             if (string.IsNullOrWhiteSpace(content)) throw new Exception("Comment content cannot be empty.");
             if (content.Length > 1000) throw new Exception("Comment content too long (max 1000 characters).");
-            if (IsMeaninglessContent(content)) throw new ValidationException("Comment content must contain meaningful words.");
+            if (IsMeaninglessContent(content)) throw new ValidationException("Comment contains inappropriate or harmful content.");
+            //bool isSafe = await _moderationService.IsContentSafeGeminiAIAsync(content);
+            //if (!isSafe) throw new ValidationException("Comment contains inappropriate or harmful content.");
         }
 
         private bool IsMeaninglessContent(string content)
@@ -96,7 +111,7 @@ namespace Services.Service
             return false;
         }
 
-        private static readonly HashSet<string> AllowedShortWords = new() {"ok", "ổn", "ừ", "ờ", "tốt", "no", "yes", "ko", "k", "có", "hmm", "haha"};
+        private static readonly HashSet<string> AllowedShortWords = new() { "ok", "ổn", "ừ", "ờ", "tốt", "no", "yes", "ko", "k", "có", "hmm", "haha" };
 
         private static readonly HashSet<string> BasicWords = new()
         {
@@ -105,8 +120,8 @@ namespace Services.Service
             "chậm", "thật", "sự", "hài", "lòng", "dùng", "ưng", "rẻ", "giá", "bền", "rất", "liền",
             "xịn", "chất", "mượt", "êm", "mạnh", "ổn áp", "mượt mà", "bền bỉ", "sắc nét", "xài", "ngon", "xứng", "đáng",
             "tuyệt", "vời", "đáng", "tiền", "tốt thật", "hàng chuẩn", "hàng xịn", "đúng mô tả", "đúng hàng", "hợp lý",
-            "đẹp lắm", "ưng lắm", "xài ổn", "quá ngon", "đáng mua", "đẹp", "dỏm", "này", "vượt", "ngoài", "mong", "đợi", "chất", "lượng", 
-            "nhanh chóng", "đóng", "gói", "cẩn thận", "ủng hộ", "lần nữa", "regrets", "vibes", "cat", "moon", "potato", "teacher", "box", "broke", 
+            "đẹp lắm", "ưng lắm", "xài ổn", "quá ngon", "đáng mua", "đẹp", "dỏm", "này", "vượt", "ngoài", "mong", "đợi", "chất", "lượng",
+            "nhanh chóng", "đóng", "gói", "cẩn thận", "ủng hộ", "lần nữa", "regrets", "vibes", "cat", "moon", "potato", "teacher", "box", "broke",
             "guess", "thing", "3am", "documentary", "funny", "coincidence",
 
 
@@ -136,7 +151,6 @@ namespace Services.Service
             int unknownCount = words.Count(w => !BasicWords.Contains(w.ToLower()));
             return (double)unknownCount / words.Length >= 0.98;
         }
-
 
         // delete all comment
         public async Task DeleteAllCommentAsync() => await _uniUnitOfWork.CommentRepository.DeleteAllAsync();

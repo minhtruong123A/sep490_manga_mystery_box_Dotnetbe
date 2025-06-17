@@ -20,6 +20,7 @@ namespace Services.Service
 
         public async Task<bool> CreateSellProductAsync(SellProductCreateDto dto, string userId) => await _uniUnitOfWork.SellProductRepository.CreateSellProductAsync(dto, userId);
         public async Task<List<SellProductGetAllDto>> GetAllProductOnSaleAsync() => await _uniUnitOfWork.SellProductRepository.GetAllProductOnSaleAsync();
+        public async Task<List<SellProductGetAllDto>> GetAllProductOnSaleOfUserAsync(string id) => await _uniUnitOfWork.SellProductRepository.GetAllProductOnSaleOfUserIdAsync(id);
         public async Task<SellProductDetailDto> GetProductDetailByIdAsync(string id) => await _uniUnitOfWork.SellProductRepository.GetProductDetailByIdAsync(id);
 
     }

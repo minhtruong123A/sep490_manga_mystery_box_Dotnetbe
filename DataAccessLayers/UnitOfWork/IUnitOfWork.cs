@@ -15,6 +15,8 @@ namespace DataAccessLayers.UnitOfWork
         ISellProductRepository SellProductRepository { get; }
         IUserCollectionRepository UserCollectionRepository { get; }
         ICommentRepository CommentRepository { get; }
+        IUserBoxRepository UserBoxRepository { get; }
+        IUserProductRepository UserProductRepository { get; }
         Task SaveChangesAsync();
     }
 }

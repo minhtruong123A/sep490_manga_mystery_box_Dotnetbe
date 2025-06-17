@@ -13,6 +13,7 @@ namespace DataAccessLayers.Interface
     {
         Task<bool> CreateSellProductAsync(SellProductCreateDto dto, string userId);
         Task<List<SellProductGetAllDto>> GetAllProductOnSaleAsync();
+        Task<List<SellProductGetAllDto>> GetAllProductOnSaleOfUserIdAsync(string id);
         Task<SellProductDetailDto> GetProductDetailByIdAsync(string id);
     }
 }

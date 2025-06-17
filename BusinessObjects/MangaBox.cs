@@ -16,5 +16,6 @@ namespace BusinessObjects
         public string MysteryBoxId { get; set; }
         public string CollectionTopicId { get; set; }
         public int Status { get; set; }
+        public string Title { get; set; }
     }
 }

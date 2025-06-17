@@ -1,0 +1,6 @@
+D:\Github\sep490_manga_mystery_box_Dotnetbe\DataAccessLayers\obj\Debug\net8.0\DataAccessLayers.csproj.AssemblyReference.cache
+D:\Github\sep490_manga_mystery_box_Dotnetbe\DataAccessLayers\obj\Debug\net8.0\DataAccessLayers.GeneratedMSBuildEditorConfig.editorconfig
+D:\Github\sep490_manga_mystery_box_Dotnetbe\DataAccessLayers\obj\Debug\net8.0\DataAccessLayers.AssemblyInfoInputs.cache
+D:\Github\sep490_manga_mystery_box_Dotnetbe\DataAccessLayers\obj\Debug\net8.0\DataAccessLayers.AssemblyInfo.cs
+D:\Github\sep490_manga_mystery_box_Dotnetbe\DataAccessLayers\obj\Debug\net8.0\DataAccessLayers.csproj.CoreCompileInputs.cache
+D:\Github\sep490_manga_mystery_box_Dotnetbe\DataAccessLayers\obj\Debug\net8.0\DataAccessLayers.sourcelink.json

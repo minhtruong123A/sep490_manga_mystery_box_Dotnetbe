@@ -1,0 +1,13 @@
+D:\Github\sep490_manga_mystery_box_Dotnetbe\BusinessObjects\bin\Debug\net8.0\BusinessObjects.deps.json
+D:\Github\sep490_manga_mystery_box_Dotnetbe\BusinessObjects\bin\Debug\net8.0\BusinessObjects.dll
+D:\Github\sep490_manga_mystery_box_Dotnetbe\BusinessObjects\bin\Debug\net8.0\BusinessObjects.pdb
+D:\Github\sep490_manga_mystery_box_Dotnetbe\BusinessObjects\obj\Debug\net8.0\BusinessObjects.csproj.AssemblyReference.cache
+D:\Github\sep490_manga_mystery_box_Dotnetbe\BusinessObjects\obj\Debug\net8.0\BusinessObjects.GeneratedMSBuildEditorConfig.editorconfig
+D:\Github\sep490_manga_mystery_box_Dotnetbe\BusinessObjects\obj\Debug\net8.0\BusinessObjects.AssemblyInfoInputs.cache
+D:\Github\sep490_manga_mystery_box_Dotnetbe\BusinessObjects\obj\Debug\net8.0\BusinessObjects.AssemblyInfo.cs
+D:\Github\sep490_manga_mystery_box_Dotnetbe\BusinessObjects\obj\Debug\net8.0\BusinessObjects.csproj.CoreCompileInputs.cache
+D:\Github\sep490_manga_mystery_box_Dotnetbe\BusinessObjects\obj\Debug\net8.0\BusinessObjects.sourcelink.json
+D:\Github\sep490_manga_mystery_box_Dotnetbe\BusinessObjects\obj\Debug\net8.0\BusinessObjects.dll
+D:\Github\sep490_manga_mystery_box_Dotnetbe\BusinessObjects\obj\Debug\net8.0\refint\BusinessObjects.dll
+D:\Github\sep490_manga_mystery_box_Dotnetbe\BusinessObjects\obj\Debug\net8.0\BusinessObjects.pdb
+D:\Github\sep490_manga_mystery_box_Dotnetbe\BusinessObjects\obj\Debug\net8.0\ref\BusinessObjects.dll

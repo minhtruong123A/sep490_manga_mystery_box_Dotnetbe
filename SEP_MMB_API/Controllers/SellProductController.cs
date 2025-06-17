@@ -46,6 +46,31 @@ namespace SEP_MMB_API.Controllers
         //        return BadRequest(response);
         //    }
         //}
+        [HttpGet("get-all-product-on-sale-of-user")]
+        public async Task<ActionResult<ResponseModel<List<SellProductGetAllDto>>>> GetAllProductOnSaleOfUser(string token)
+        {
+            try
+            {
+                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var result = await _sellProductService.GetAllProductOnSaleOfUserAsync(account.Id);
+                return Ok(new ResponseModel<List<SellProductGetAllDto>>
+                {
+                    Data = result,
+                    Error = null,
+                    Success = true
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<SellProductGetAllDto>
+                {
+                    Data = null,
+                    Error = ex.Message,
+                    Success = false,
+                    ErrorCode = 400
+                });
+            }
+        }
 
         [HttpGet("get-all-product-on-sale")]
         public async Task<ActionResult<ResponseModel<List<SellProductGetAllDto>>>> GetAllProductOnSale()

@@ -3,12 +3,24 @@
   "WorkspaceRootPath": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{20727481-E8BE-431D-B6EA-B7046E6E7275}|Services\\Services.csproj|c:\\users\\dell\\desktop\\sep_mmb_api\\services\\service\\commentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{20727481-E8BE-431D-B6EA-B7046E6E7275}|Services\\Services.csproj|solutionrelative:services\\service\\commentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}|DataAccessLayers\\DataAccessLayers.csproj|c:\\users\\dell\\desktop\\sep_mmb_api\\dataaccesslayers\\interface\\iunitofwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}|DataAccessLayers\\DataAccessLayers.csproj|solutionrelative:dataaccesslayers\\interface\\iunitofwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\sep_mmb_api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|solutionrelative:sep_mmb_api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}|DataAccessLayers\\DataAccessLayers.csproj|c:\\users\\dell\\desktop\\sep_mmb_api\\dataaccesslayers\\unitofwork\\unitofwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}|DataAccessLayers\\DataAccessLayers.csproj|solutionrelative:dataaccesslayers\\unitofwork\\unitofwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}|DataAccessLayers\\DataAccessLayers.csproj|c:\\users\\dell\\desktop\\sep_mmb_api\\dataaccesslayers\\repository\\commentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}|DataAccessLayers\\DataAccessLayers.csproj|solutionrelative:dataaccesslayers\\repository\\commentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}|DataAccessLayers\\DataAccessLayers.csproj|c:\\users\\dell\\desktop\\sep_mmb_api\\dataaccesslayers\\interface\\icommentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}|DataAccessLayers\\DataAccessLayers.csproj|solutionrelative:dataaccesslayers\\interface\\icommentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E3BDF4F5-BA77-48CE-9896-09009BB51E57}|BusinessObjects\\BusinessObjects.csproj|c:\\users\\dell\\desktop\\sep_mmb_api\\businessobjects\\serializers\\flexibleserializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E3BDF4F5-BA77-48CE-9896-09009BB51E57}|BusinessObjects\\BusinessObjects.csproj|solutionrelative:businessobjects\\serializers\\flexibleserializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,7 +30,7 @@
       "DocumentGroups": [
         {
           "DockedHeight": 337,
-          "SelectedChildIndex": 26,
+          "SelectedChildIndex": 25,
           "Children": [
             {
               "$type": "Bookmark",
@@ -122,27 +134,67 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\SEP_MMB_API\\Program.cs",
-              "RelativeDocumentMoniker": "SEP_MMB_API\\Program.cs",
-              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\SEP_MMB_API\\Program.cs",
-              "RelativeToolTip": "SEP_MMB_API\\Program.cs",
-              "ViewState": "AQIAANgAAAAAAAAAAAAAANwAAAAkAAAA",
+              "DocumentIndex": 0,
+              "Title": "IUnitOfWork.cs",
+              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\DataAccessLayers\\Interface\\IUnitOfWork.cs",
+              "RelativeDocumentMoniker": "DataAccessLayers\\Interface\\IUnitOfWork.cs",
+              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\DataAccessLayers\\Interface\\IUnitOfWork.cs",
+              "RelativeToolTip": "DataAccessLayers\\Interface\\IUnitOfWork.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABMAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-18T09:11:25.352Z"
+              "WhenOpened": "2025-06-18T20:20:55.897Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "CommentService.cs",
-              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\Services\\Service\\CommentService.cs",
-              "RelativeDocumentMoniker": "Services\\Service\\CommentService.cs",
-              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\Services\\Service\\CommentService.cs",
-              "RelativeToolTip": "Services\\Service\\CommentService.cs",
-              "ViewState": "AQIAAGsAAAAAAAAAAADwv3IAAACEAQAA",
+              "DocumentIndex": 1,
+              "Title": "UnitOfWork.cs",
+              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\DataAccessLayers\\UnitOfWork\\UnitOfWork.cs",
+              "RelativeDocumentMoniker": "DataAccessLayers\\UnitOfWork\\UnitOfWork.cs",
+              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\DataAccessLayers\\UnitOfWork\\UnitOfWork.cs",
+              "RelativeToolTip": "DataAccessLayers\\UnitOfWork\\UnitOfWork.cs",
+              "ViewState": "AQIAABYAAAAAAAAAAAA/wCYAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-17T08:22:13.652Z",
+              "WhenOpened": "2025-06-18T20:20:49.924Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "CommentRepository.cs",
+              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\DataAccessLayers\\Repository\\CommentRepository.cs",
+              "RelativeDocumentMoniker": "DataAccessLayers\\Repository\\CommentRepository.cs",
+              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\DataAccessLayers\\Repository\\CommentRepository.cs",
+              "RelativeToolTip": "DataAccessLayers\\Repository\\CommentRepository.cs",
+              "ViewState": "AQIAAGwAAAAAAAAAAAAiwIAAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-18T20:20:42.123Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ICommentRepository.cs",
+              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\DataAccessLayers\\Interface\\ICommentRepository.cs",
+              "RelativeDocumentMoniker": "DataAccessLayers\\Interface\\ICommentRepository.cs",
+              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\DataAccessLayers\\Interface\\ICommentRepository.cs",
+              "RelativeToolTip": "DataAccessLayers\\Interface\\ICommentRepository.cs",
+              "ViewState": "AQIAAAQAAAAAAAAAAAAwwBQAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-18T20:17:29.171Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "FlexibleSerializer.cs",
+              "DocumentMoniker": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\BusinessObjects\\Serializers\\FlexibleSerializer.cs",
+              "RelativeDocumentMoniker": "BusinessObjects\\Serializers\\FlexibleSerializer.cs",
+              "ToolTip": "C:\\Users\\Dell\\Desktop\\SEP_MMB_API\\BusinessObjects\\Serializers\\FlexibleSerializer.cs",
+              "RelativeToolTip": "BusinessObjects\\Serializers\\FlexibleSerializer.cs",
+              "ViewState": "AQIAAAIAAAAAAAAAAAAmwA8AAAAPAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-18T19:28:31.386Z",
               "EditorCaption": ""
             }
           ]

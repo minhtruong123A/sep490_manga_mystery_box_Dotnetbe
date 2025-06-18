@@ -1,7 +1,6 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Dtos.Auth;
 using DataAccessLayers.Interface;
-using DataAccessLayers.UnitOfWork;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;

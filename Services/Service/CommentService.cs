@@ -1,6 +1,6 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Dtos.Comment;
-using DataAccessLayers.UnitOfWork;
+using DataAccessLayers.Interface;
 using DnsClient;
 using Services.Interface;
 using System;

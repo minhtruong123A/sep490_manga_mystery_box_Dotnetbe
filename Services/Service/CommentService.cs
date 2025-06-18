@@ -112,11 +112,11 @@ namespace Services.Service
 
         private static readonly HashSet<string> AllowedShortWords = new(StringComparer.OrdinalIgnoreCase)
         {
-            "ok", "ổn", "ừ", "ờ", "tốt", "ko", "k", "có", "hmm", "haha", "hihi", "uh", "uk", "dạ", "vâng", "nha", "nhe", "được", "sao", "ừm", "hazz", "haizz", "ừmhm", "oki", "okie", "chuẩn", "đúng", "ơ", "z", "zạ", "zị", "vs", "ko sao", "k sao", "k vấn đề", "thx", "tks", "cảm ơn", "tk", "cmn", "đg", "đang", "ngon", "xong", "huhu", "hic", "oa", "ủa", "ơ kìa", "trời", "tr", "vl", "vcl", "đc", "gì", "ghê", "kk", "ncl", "chắc", "sml", "clgt", "cmm", "cmnr",
+            "ok", "ổn", "ừ", "ờ", "tốt", "ko", "k", "có", "hmm", "haha", "hihi", "uh", "uk", "dạ", "vâng", "nha", "nhe", "được", "sao", "ừm", "hazz", "haizz", "ừmm", "oki", "okie", "chuẩn", "đúng", "ơ", "z", "zạ", "zị", "vs", "ko sao", "k sao", "k vấn đề", "thx", "tks", "cảm ơn", "tk", "cmn", "đg", "đang", "ngon", "xong", "huhu", "hic", "oa", "ủa", "ơ kìa", "trời", "tr", "đc", "gì", "j", "ghê", "kk", "chắc",
 
-            "yes", "no", "yeah", "yup", "nope", "sure", "fine", "great", "cool", "nice", "okay", "okie", "okey", "yessir", "alright", "amazing", "good", "bad", "maybe", "yikes", "welp", "meh", "uhm", "huh", "nah", "idk", "idc", "lol", "lmao", "omg", "wtf", "wth", "zzzz", "zz", "yo", "bruh", "bro", "sis", "dude", "haha", "hehe", "yay", "hmm", "hmmm", "ouch", "oh", "eh", "tsk", "woo", "ehh", "ughh", "gah", "rip",
+            "yes", "no", "yeah", "yup", "nope", "sure", "fine", "great", "cool", "nice", "okay", "okie", "okey", "yessir", "alright", "amazing", "good", "bad", "maybe", "yikes", "welp", "meh", "uhm", "huh", "nah", "idk", "idc", "lol", "lmao", "omg", "zzzz", "zz", "yo", "bruh", "bro", "sis", "dude", "haha", "hehe", "yay", "hmm", "hmmm", "ouch", "oh", "eh", "tsk", "woo", "ehh", "ughh", "gah", "rip",
 
-            "ah", "eh", "uh", "hm", "hmm", "zzz", "aa", "ơ", "á", "ồ", "ồh", "ồồ", "há", "ê", "ớ", "ể", "ừ", "ờ", "o", "oà", "òa", "huh", "trời", "trời ơi", "trời má", "đm", "dm", "vl", "vãi", "chà", "chậc", "ặc", "ặc ặc"
+            "ah", "eh", "uh", "hm", "hmm", "zzz", "aa", "ơ", "á", "ồ", "ồh", "ồồ", "há", "ê", "ớ", "ể", "ừ", "ờ", "o", "oà", "òa", "huh", "trời", "trời ơi", "trời má", "vl", "vãi", "chà", "chậc",
         };
         private string SanitizeBadWords(string content)
         {

@@ -21,4 +21,10 @@
     <ProjectReference Include="..\DataAccessLayers\DataAccessLayers.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="badwords.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

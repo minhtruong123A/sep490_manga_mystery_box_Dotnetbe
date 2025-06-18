@@ -6,6 +6,7 @@ using Services.Interface;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -17,6 +18,21 @@ namespace Services.Service
     {
         private readonly IUnitOfWork _uniUnitOfWork;
         private readonly IModerationService _moderationService;
+        private static readonly HashSet<string> BadWords = LoadBadWords();
+
+        //set up reading load file
+        private static HashSet<string> LoadBadWords()
+        {
+            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "badwords.txt");
+            Console.WriteLine("Looking for badwords.txt at: " + path);
+
+            if (!File.Exists(path)) throw new FileNotFoundException($"File not found: {path}");
+
+            return File.ReadAllLines(path)
+                .Where(line => !string.IsNullOrWhiteSpace(line))
+                .Select(word => word.ToLower().Trim())
+                .ToHashSet();
+        }
 
         public CommentService(IUnitOfWork unitOfWork, IModerationService moderationService)
         {
@@ -52,7 +68,7 @@ namespace Services.Service
         //comment create and validation
         public async Task<Comment> CreateCommentAsync(string sellProductId, string userId, string content)
         {
-            await ValidateCommentInput(sellProductId, content);
+            var sanitizedContent = ValidateCommentInput(sellProductId, content);
 
             var product = await _uniUnitOfWork.SellProductRepository.GetByIdAsync(sellProductId);
             if (product == null || !product.IsSell) throw new Exception("Product not found or not available for sale.");
@@ -60,23 +76,27 @@ namespace Services.Service
             var existingCommentOnly = await _uniUnitOfWork.CommentRepository.GetCommentOnlyByUserAndProductAsync(userId, sellProductId);
             if (existingCommentOnly != null)
             {
-                existingCommentOnly.Content = content;
+                existingCommentOnly.Content = sanitizedContent;
                 existingCommentOnly.UpdatedAt = DateTime.UtcNow;
                 await _uniUnitOfWork.CommentRepository.UpdateAsync(existingCommentOnly.Id, existingCommentOnly);
                 return existingCommentOnly;
             }
 
-            return await _uniUnitOfWork.CommentRepository.CreateCommentAsync(sellProductId, userId, content);
+            return await _uniUnitOfWork.CommentRepository.CreateCommentAsync(sellProductId, userId, sanitizedContent);
         }
 
-        private async Task ValidateCommentInput(string sellProductId, string content)
+        private string ValidateCommentInput(string sellProductId, string content)
         {
             if (string.IsNullOrWhiteSpace(sellProductId)) throw new Exception("SellProductId must not be empty.");
             if (string.IsNullOrWhiteSpace(content)) throw new Exception("Comment content cannot be empty.");
             if (content.Length > 1000) throw new Exception("Comment content too long (max 1000 characters).");
-            if (IsMeaninglessContent(content)) throw new ValidationException("Comment contains inappropriate or harmful content.");
             //bool isSafe = await _moderationService.IsContentSafeGeminiAIAsync(content);
             //if (!isSafe) throw new ValidationException("Comment contains inappropriate or harmful content.");
+
+            var sanitized = SanitizeBadWords(content);
+            if (IsMeaninglessContent(sanitized)) throw new ValidationException("Comment contains meaningless or spam-like content.");
+            return sanitized;
+
         }
 
         private bool IsMeaninglessContent(string content)
@@ -86,71 +106,43 @@ namespace Services.Service
             if (AllowedShortWords.Contains(text)) return false;
             if (text.All(c => char.IsPunctuation(c) || char.IsSymbol(c))) return true;
             if (HasSuspiciousRepetition(text)) return true;
-            if (text.Count(char.IsLetterOrDigit) < 3) return true;
-            if (IsTooShortAndUnknown(text)) return true;
 
             return false;
         }
 
-        private bool IsTooShortAndUnknown(string text)
+        private static readonly HashSet<string> AllowedShortWords = new(StringComparer.OrdinalIgnoreCase)
         {
-            var words = Regex.Split(text, @"\W+").Where(w => !string.IsNullOrWhiteSpace(w)).ToArray();
-            if (words.Length == 0) return true;
-            if (words.Length < 5)
-            {
-                int unknownCount = words.Count(w => !BasicWords.Contains(w.ToLower()));
-                return (double)unknownCount / words.Length > 0.8;
-            }
-            if (words.Length >= 5)
-            {
-                int unknownCount = words.Count(w => !BasicWords.Contains(w.ToLower()));
-                return (double)unknownCount / words.Length > 0.98;
-            }
-            if (IsLowVowelRatio(text) && IsMostlyUnknownWords(text)) return true;
+            "ok", "ổn", "ừ", "ờ", "tốt", "ko", "k", "có", "hmm", "haha", "hihi", "uh", "uk", "dạ", "vâng", "nha", "nhe", "được", "sao", "ừm", "hazz", "haizz", "ừmhm", "oki", "okie", "chuẩn", "đúng", "ơ", "z", "zạ", "zị", "vs", "ko sao", "k sao", "k vấn đề", "thx", "tks", "cảm ơn", "tk", "cmn", "đg", "đang", "ngon", "xong", "huhu", "hic", "oa", "ủa", "ơ kìa", "trời", "tr", "vl", "vcl", "đc", "gì", "ghê", "kk", "ncl", "chắc", "sml", "clgt", "cmm", "cmnr",
 
-            return false;
-        }
+            "yes", "no", "yeah", "yup", "nope", "sure", "fine", "great", "cool", "nice", "okay", "okie", "okey", "yessir", "alright", "amazing", "good", "bad", "maybe", "yikes", "welp", "meh", "uhm", "huh", "nah", "idk", "idc", "lol", "lmao", "omg", "wtf", "wth", "zzzz", "zz", "yo", "bruh", "bro", "sis", "dude", "haha", "hehe", "yay", "hmm", "hmmm", "ouch", "oh", "eh", "tsk", "woo", "ehh", "ughh", "gah", "rip",
 
-        private static readonly HashSet<string> AllowedShortWords = new() { "ok", "ổn", "ừ", "ờ", "tốt", "no", "yes", "ko", "k", "có", "hmm", "haha" };
-
-        private static readonly HashSet<string> BasicWords = new()
-        {
-            // Vietnamese
-            "tốt", "ok", "sản", "phẩm", "đẹp", "giao", "hàng", "nhanh", "quá", "ổn", "xấu",
-            "chậm", "thật", "sự", "hài", "lòng", "dùng", "ưng", "rẻ", "giá", "bền", "rất", "liền",
-            "xịn", "chất", "mượt", "êm", "mạnh", "ổn áp", "mượt mà", "bền bỉ", "sắc nét", "xài", "ngon", "xứng", "đáng",
-            "tuyệt", "vời", "đáng", "tiền", "tốt thật", "hàng chuẩn", "hàng xịn", "đúng mô tả", "đúng hàng", "hợp lý",
-            "đẹp lắm", "ưng lắm", "xài ổn", "quá ngon", "đáng mua", "đẹp", "dỏm", "này", "vượt", "ngoài", "mong", "đợi", "chất", "lượng",
-            "nhanh chóng", "đóng", "gói", "cẩn thận", "ủng hộ", "lần nữa", "regrets", "vibes", "cat", "moon", "potato", "teacher", "box", "broke",
-            "guess", "thing", "3am", "documentary", "funny", "coincidence",
-
-
-            // English
-            "nice", "cool", "great", "bad", "awesome", "terrible", "excellent", "boring", "cheap", "expensive",
-            "worthless", "amazing", "fast", "slow", "love", "hate", "good", "clean", "dirty", "ugly", "perfect",
-            "fine", "yummy", "tasty", "very", "so", "it", "product", "quality", "beautiful", "smooth", "strong",
-            "sharp", "worth", "price", "value", "super", "recommend", "satisfied", "happy", "okay", "decent"
+            "ah", "eh", "uh", "hm", "hmm", "zzz", "aa", "ơ", "á", "ồ", "ồh", "ồồ", "há", "ê", "ớ", "ể", "ừ", "ờ", "o", "oà", "òa", "huh", "trời", "trời ơi", "trời má", "đm", "dm", "vl", "vãi", "chà", "chậc", "ặc", "ặc ặc"
         };
+        private string SanitizeBadWords(string content)
+        {
+            return Regex.Replace(content, @"\p{L}+", match =>
+            {
+                var word = match.Value;
+                var normalized = RemoveDiacritics(word.ToLower());
+                return BadWords.Contains(normalized) ? "***" : word;
+            });
+        }
+        public static string RemoveDiacritics(string text)
+        {
+            var normalized = text.Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder();
+            foreach (var c in normalized)
+            {
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                {
+                    sb.Append(c);
+                }
+            }
+            return sb.ToString().Normalize(NormalizationForm.FormC);
+        }
 
         private static bool HasSuspiciousRepetition(string text) => (text.Distinct().Count() == 1 && text.Length >= 3) || Regex.IsMatch(text, @"(.)\1{4,}");
-
-        private static bool IsLowVowelRatio(string text)
-        {
-            var letters = text.Where(char.IsLetter).ToList();
-            if (letters.Count < 3) return true;
-
-            double vowelRatio = letters.Count(c => "aeiouy".Contains(c)) / (double)letters.Count;
-            return vowelRatio < 0.15;
-        }
-
-        private static bool IsMostlyUnknownWords(string text)
-        {
-            var words = Regex.Split(text, @"\W+");
-            if (words.Length == 0) return true;
-
-            int unknownCount = words.Count(w => !BasicWords.Contains(w.ToLower()));
-            return (double)unknownCount / words.Length >= 0.98;
-        }
 
         // delete all comment
         public async Task DeleteAllCommentAsync() => await _uniUnitOfWork.CommentRepository.DeleteAllAsync();

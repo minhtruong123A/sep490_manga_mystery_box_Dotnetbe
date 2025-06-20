@@ -15,9 +15,21 @@ using Services.Service;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text;
 using System.Text.RegularExpressions;
+using BusinessObjects.Dtos.PayOS;
+using Net.payOS;
 
 var builder = WebApplication.CreateBuilder(args);
 var devPassword = builder.Configuration["DevSettings:DevPassword"];
+
+//appsettings.json setting PayOs
+builder.Services.Configure<PayOSConfig>(builder.Configuration.GetSection("PayOS"));
+
+//singleton PayOS
+var config = builder.Configuration.GetSection("PayOS").Get<PayOSConfig>();
+builder.Services.AddSingleton(new PayOS(config.ClientId, config.ApiKey, config.ChecksumKey));
+
+//inject PayOSConfig
+builder.Services.Configure<PayOSConfig>(builder.Configuration.GetSection("PayOS"));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -132,6 +144,7 @@ builder.Services.AddScoped<ISellProductService, SellProductService>();
 builder.Services.AddScoped<IUserCollectionService, UserCollectionService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IModerationService, ModerationService>();
+builder.Services.AddScoped<IPayOSService, PayOSService>();
 
 //AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
@@ -175,18 +188,7 @@ var app = builder.Build();
 //}
 
 
-// Configure the HTTP request pipeline.
-//if (!app.Environment.IsProduction())
-//{
-app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Main User API");
-    c.SwaggerEndpoint("/swagger/test/swagger.json", "Dev Server Test API");
-    c.RoutePrefix = "swagger";
-    c.EnableFilter();
-});
-//}
+
 
 //set permissions in middleware
 app.Use(async (context, next) =>
@@ -238,6 +240,7 @@ app.Use(async (context, next) =>
 });
 
 app.UseHttpsRedirection();
+app.UseRouting();
 app.UseCors("AllowAll");
 app.UseIpRateLimiting();
 
@@ -257,6 +260,20 @@ app.UseAuthorization();
 
 //    await next();
 //});
+
+// Configure the HTTP request pipeline.
+//if (!app.Environment.IsProduction())
+//{
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Main User API");
+    c.SwaggerEndpoint("/swagger/test/swagger.json", "Dev Server Test API");
+    c.RoutePrefix = "swagger";
+    c.ConfigObject.AdditionalItems["https"] = true;
+    c.EnableFilter();
+});
+//}
 
 app.MapControllers();
 

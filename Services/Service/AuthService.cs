@@ -1,5 +1,6 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Dtos.Auth;
+using DataAccessLayers.Exceptions;
 using DataAccessLayers.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -84,6 +85,8 @@ namespace Services.Service
                 ?? throw new Exception("User not found.");
             var account = await _uniUnitOfWork.UserRepository.GetSystemAccountByAccountName(userName)
                 ?? throw new Exception("User not found.");
+            if (account.IsActive is false || account.EmailVerification is false)
+                   throw new ForbiddenException("Forbidden: Account is inactive or email not verified."); 
             var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
             string? accessToken = null,
                     tokenType = null;

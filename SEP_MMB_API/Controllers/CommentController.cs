@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Dtos.Comment;
 using BusinessObjects.Dtos.Schema_Response;
+using DataAccessLayers.Exceptions;
 using DataAccessLayers.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -68,10 +69,20 @@ namespace SEP_MMB_API.Controllers
             try
             {
                 var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+
                 var comment = await _commentService.CreateCommentAsync(dto.SellProductId, account.Id, dto.Content);
                 response.Success = true;
                 response.Data = comment;
                 return Ok(response);
+            }
+            catch (ForbiddenException ex)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new ResponseModel<object>
+                {
+                    Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 403
+                });
             }
             catch (Exception ex)
             {
@@ -82,6 +93,7 @@ namespace SEP_MMB_API.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost("create-rating-only")]
         public async Task<ActionResult<ResponseModel<object>>> CreateRatingOnly([FromBody] CommentRatingCreateDto dto)
         {
@@ -89,10 +101,20 @@ namespace SEP_MMB_API.Controllers
             try
             {
                 var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+
                 var comment = await _commentService.CreateRatingOnlyAsync(dto.SellProductId, account.Id, dto.Rating);
                 response.Success = true;
                 response.Data = comment;
                 return Ok(response);
+            }
+            catch (ForbiddenException ex)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new ResponseModel<object>
+                {
+                    Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 403
+                });
             }
             catch (Exception ex)
             {

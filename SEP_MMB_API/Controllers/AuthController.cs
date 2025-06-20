@@ -2,6 +2,7 @@
 using BusinessObjects.Dtos.Auth;
 using BusinessObjects.Dtos.Schema_Response;
 using BusinessObjects.Dtos.User;
+using DataAccessLayers.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
@@ -67,14 +68,23 @@ namespace SEP_MMB_API.Controllers
                     Success = true,
                 });
             }
+            catch (ForbiddenException ex)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new ResponseModel<object>
+                {
+                    Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 403
+                });
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, new ResponseModel<User>()
+                return StatusCode(400, new ResponseModel<User>()
                 {
                     Data = null,
                     Error = ex.Message,
                     Success = false,
-                    ErrorCode = 401
+                    ErrorCode = 400
                 });
             }
         }

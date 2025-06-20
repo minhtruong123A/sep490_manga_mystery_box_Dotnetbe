@@ -8,6 +8,7 @@ using BusinessObjects.Dtos.User;
 using BusinessObjects.Dtos.UserCollection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Net.payOS.Types;
 using Services.Interface;
 using Services.Service;
 using System.IdentityModel.Tokens.Jwt;
@@ -25,8 +26,9 @@ namespace SEP_MMB_API.Controllers
         private readonly IUserCollectionService _userCollectionService;
         private readonly ICommentService _commentService;
         private readonly IMapper _mapper;
+        private readonly IPayOSService _payOSService;
 
-        public TestController(IUserService userService, IAuthService authService, IMangaBoxService mailboxService, IMapper mapper, IUserCollectionService userCollectionService, ICommentService commentService)
+        public TestController(IUserService userService, IAuthService authService, IMangaBoxService mailboxService, IMapper mapper, IUserCollectionService userCollectionService, ICommentService commentService, IPayOSService payOSService)
         {
             _userService = userService;
             _authService = authService;
@@ -34,6 +36,7 @@ namespace SEP_MMB_API.Controllers
             _userCollectionService = userCollectionService;
             _commentService = commentService;
             _mapper = mapper;
+            _payOSService = payOSService;
         }
 
         [Tags("Server Test Fetch API Only")]
@@ -222,7 +225,6 @@ namespace SEP_MMB_API.Controllers
                 });
             }
         }
-
 
         [Tags("Server Test BACKEND Only")]
         [HttpPost("add-user-collection")]

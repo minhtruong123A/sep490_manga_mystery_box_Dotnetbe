@@ -24,7 +24,7 @@ namespace Services.Service
         private static HashSet<string> LoadBadWords()
         {
             var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "badwords.txt");
-            Console.WriteLine("Looking for badwords.txt at: " + path);
+            //Console.WriteLine("Looking for badwords.txt at: " + path);
 
             if (!File.Exists(path)) throw new FileNotFoundException($"File not found: {path}");
 

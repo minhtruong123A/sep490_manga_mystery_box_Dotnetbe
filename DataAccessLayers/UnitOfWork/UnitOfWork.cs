@@ -19,6 +19,9 @@ namespace DataAccessLayers.UnitOfWork
         private ISellProductRepository _sellProductRepository;
         public IUserCollectionRepository _userCollectionRepository;
         public ICommentRepository _commentRepository;
+        public IPayOSRepository _payosRepository;
+        public IUseDigitalWalletRepository _useDigitalWalletRepository;
+        public ITransactionHistoryRepository _transactionHistoryRepository;
 
         public IUserRepository UserRepository => _users ??= new UserRepository(_context);
         public IEmailVerificationRepository EmailVerificationRepository => _emailVerificationRepository ??= new EmailVerificationRepository(_context);
@@ -26,8 +29,9 @@ namespace DataAccessLayers.UnitOfWork
         public ISellProductRepository SellProductRepository => _sellProductRepository ??= new SellProductRepository(_context);
         public IUserCollectionRepository UserCollectionRepository => _userCollectionRepository ??= new UserCollectionRepository(_context);
         public ICommentRepository CommentRepository => _commentRepository ??= new CommentRepository(_context);
-
-
+        public IPayOSRepository payOSRepository => _payosRepository ??= new PayOSRepository(_context);
+        public IUseDigitalWalletRepository useDigitalWalletRepository => _useDigitalWalletRepository ??= new UseDigitalWalletRepository(_context);
+        public ITransactionHistoryRepository transactionHistoryRepository => _transactionHistoryRepository ??= new TransactionHistoryRepository(_context);
         public UnitOfWork(MongoDbContext context)
         {
             _context = context;

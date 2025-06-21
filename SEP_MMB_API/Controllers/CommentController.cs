@@ -61,7 +61,7 @@ namespace SEP_MMB_API.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "user")]
         [HttpPost("create-comment")]
         public async Task<ActionResult<ResponseModel<object>>> CreateComment([FromBody] CommentCreateDto dto)
         {
@@ -93,7 +93,7 @@ namespace SEP_MMB_API.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "user")]
         [HttpPost("create-rating-only")]
         public async Task<ActionResult<ResponseModel<object>>> CreateRatingOnly([FromBody] CommentRatingCreateDto dto)
         {

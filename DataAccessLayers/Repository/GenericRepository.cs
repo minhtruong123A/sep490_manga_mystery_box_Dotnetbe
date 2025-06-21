@@ -78,5 +78,10 @@ namespace DataAccessLayers.Repository
         {
             await _collection.DeleteManyAsync(Builders<T>.Filter.Empty);
         }
+
+        public async Task UpdateFieldAsync(Expression<Func<T, bool>> filter, UpdateDefinition<T> update)
+        {
+            await _collection.UpdateOneAsync(filter, update);
+        }
     }
 }

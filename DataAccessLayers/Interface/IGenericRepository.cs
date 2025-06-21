@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MongoDB.Driver;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -20,5 +21,6 @@ namespace DataAccessLayers.Interface
         Task DeleteAllAsync();
         Task UpdateAsync(string id, T entity);
         Task<bool> ExistsAsync(Expression<Func<T, bool>> expression);
+        Task UpdateFieldAsync(Expression<Func<T, bool>> filter, UpdateDefinition<T> update);
     }
 }

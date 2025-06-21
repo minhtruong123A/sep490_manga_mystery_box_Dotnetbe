@@ -1,7 +1,10 @@
 ﻿using BusinessObjects.Dtos.PayOS;
+using BusinessObjects.Dtos.Schema_Response;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Net.payOS;
 using Net.payOS.Types;
+using Services.Interface;
 using System.Text;
 
 
@@ -12,38 +15,77 @@ namespace SEP_MMB_API.Controllers
     public class WebhookController : ControllerBase
     {
         private readonly IConfiguration _config;
+        private readonly IPayOSService _payOSService;
 
-        public WebhookController(IConfiguration config)
+        public WebhookController(IConfiguration config, IPayOSService payOSService)
         {
             _config = config;
+            _payOSService = payOSService;
         }
 
         [HttpPost("payment")]
-        public async Task<IActionResult> HandlePaymentWebhook([FromBody] PayOSWebhookRequest request)
+        public async Task<ActionResult<ResponseModel<object>>> HandlePaymentWebhook([FromBody] PayOSWebhookRequest request)
         {
-            // 1. Kiểm tra signature
-            var checksumKey = _config["PayOS:ChecksumKey"];
-            var rawData = Newtonsoft.Json.JsonConvert.SerializeObject(request.Data); // serialize data
-            var computedSignature = ComputeHmacSHA256(rawData, checksumKey);
-
-            if (computedSignature != request.Signature)
+            try
             {
-                return BadRequest("Invalid signature");
-            }
+                var checksumKey = _config["PayOS:ChecksumKey"];
+                var rawData = Newtonsoft.Json.JsonConvert.SerializeObject(request.Data);
+                var computedSignature = ComputeHmacSHA256(rawData, checksumKey);
 
-            // 2. Xử lý nếu thanh toán thành công
-            if (request.Success && request.Data.Code == "00")
+                if (computedSignature != request.Signature)
+                {
+                    return BadRequest(new ResponseModel<object>
+                    {
+                        Data = null,
+                        Success = false,
+                        Error = "Invalid signature",
+                        ErrorCode = 400
+                    });
+                }
+
+                if (request.Success && request.Data.Code == "00")
+                {
+                    var orderCode = request.Data.OrderCode.ToString();
+                    var amount = request.Data.Amount;
+                    var success = await _payOSService.ProcessRechargeAsync(orderCode, amount);
+
+                    if (!success)
+                    {
+                        return BadRequest(new ResponseModel<object>
+                        {
+                            Data = null,
+                            Success = false,
+                            Error = "Recharge failed.",
+                            ErrorCode = 400
+                        });
+                    }
+
+                    return Ok(new ResponseModel<object>
+                    {
+                        Data = new { message = "Recharge successful" },
+                        Success = true,
+                        Error = null
+                    });
+                }
+
+                return BadRequest(new ResponseModel<object>
+                {
+                    Data = null,
+                    Success = false,
+                    Error = "Payment failed or system invalid",
+                    ErrorCode = 400
+                });
+            }
+            catch (Exception ex)
             {
-                var orderCode = request.Data.OrderCode;
-                var amount = request.Data.Amount;
-
-                // TODO: xử lý logic cộng tiền, lưu lịch sử
-                // await yourService.ProcessRechargeAsync(orderCode, amount);
-
-                return Ok(new { success = true });
+                return BadRequest(new ResponseModel<object>
+                {
+                    Data = null,
+                    Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
             }
-
-            return BadRequest("Payment failed or code invalid");
         }
 
         private static string ComputeHmacSHA256(string data, string key)

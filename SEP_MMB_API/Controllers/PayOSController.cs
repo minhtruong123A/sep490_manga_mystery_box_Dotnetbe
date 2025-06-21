@@ -1,8 +1,10 @@
 ﻿using BusinessObjects.Dtos.PayOS;
 using BusinessObjects.Dtos.Schema_Response;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Net.payOS.Types;
 using Services.Interface;
+using Services.Service;
 
 namespace SEP_MMB_API.Controllers
 {
@@ -11,21 +13,23 @@ namespace SEP_MMB_API.Controllers
     public class PayOSController : ControllerBase
     {
         private readonly IPayOSService _payOSService;
+        private readonly IAuthService _authService;
 
-        public PayOSController(IPayOSService payOSService)
+        public PayOSController(IPayOSService payOSService, IAuthService authService)
         {
             _payOSService = payOSService;
+            _authService = authService;
         }
 
+        [Authorize(Roles = "user")]
         [HttpPost("create-payment")]
         public async Task<ActionResult<ResponseModel<object>>> CreatePayment([FromBody] CreatePaymentRequest req)
         {
             try
             {
-                long orderCode = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
                 var items = req.Items.Select(x => new ItemData(x.Name, 1, x.Price)).ToList();
                 int totalAmount = items.Sum(i => i.price * i.quantity);
-
                 if (totalAmount <= 0)
                 {
                     return BadRequest(new ResponseModel<object>
@@ -37,7 +41,14 @@ namespace SEP_MMB_API.Controllers
                     });
                 }
 
-                var result = await _payOSService.CreatePaymentLinkAsync(orderCode, totalAmount, "Recharge", items);
+                long orderCode = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                var result = await _payOSService.CreatePaymentLinkAsync(
+                    orderCode,
+                    totalAmount,
+                    "Recharge",
+                    items,
+                    account.Id
+                );
 
                 return Ok(new ResponseModel<object>
                 {
@@ -61,21 +72,6 @@ namespace SEP_MMB_API.Controllers
                     ErrorCode = 400
                 });
             }
-        }
-
-        [HttpGet("test-create")]
-        public async Task<IActionResult> TestCreate()
-        {
-            long orderCode = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            var items = new List<ItemData> { new ItemData("Gói test VIP", 1, 20000) };
-            var result = await _payOSService.CreatePaymentLinkAsync(
-                orderCode,
-                amount: 20000,
-                description: "Test giao diện thanh toán",
-                items: items
-            );
-
-            return Redirect(result.checkoutUrl);
         }
     }
 }

@@ -253,5 +253,34 @@ namespace SEP_MMB_API.Controllers
                 });
             }
         }
+
+        [Tags("Server Test BACKEND Only")]
+        [Authorize(Roles = "user")]
+        [HttpGet("test-create")]
+        public async Task<IActionResult> TestCreate()
+        {
+            var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+            long orderCode = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            var items = new List<ItemData> { new ItemData("Gói test VIP", 1, 20000) };
+            var result = await _payOSService.CreatePaymentLinkAsync(
+                orderCode,
+                amount: 20000,
+                description: "Test giao diện thanh toán",
+                items: items,
+                userId: account.Id
+            );
+
+            return Ok(new ResponseModel<object>
+            {
+                Data = new
+                {
+                    checkoutUrl = result.checkoutUrl,
+                    qrCode = result.qrCode,
+                    orderCode = result.orderCode
+                },
+                Success = true,
+                Error = null
+            });
+        }
     }
 }

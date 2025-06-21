@@ -132,6 +132,9 @@ builder.Services.AddScoped<IMangaBoxRepository, MangaBoxRepository>();
 builder.Services.AddScoped<ISellProductRepository, SellProductRepository>();
 builder.Services.AddScoped<IUserCollectionRepository, UserCollectionRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<ITransactionHistoryRepository, TransactionHistoryRepository>();
+builder.Services.AddScoped<IUseDigitalWalletRepository, UseDigitalWalletRepository>();
+builder.Services.AddScoped<IPayOSRepository, PayOSRepository>();
 
 //UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

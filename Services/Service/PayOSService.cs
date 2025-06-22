@@ -55,7 +55,7 @@ namespace Services.Service
                     Ammount = 0,
                     IsActive = true
                 };
-                await _unitOfWork.useDigitalWalletRepository.AddAsync(newWallet);
+                await _unitOfWork.UseDigitalWalletRepository.AddAsync(newWallet);
                 walletId = newWallet.Id;
                 var updateUser = Builders<User>.Update.Set(x => x.WalletId, walletId);
                 await _unitOfWork.UserRepository.UpdateFieldAsync(x => x.Id == user.Id, updateUser);
@@ -70,12 +70,12 @@ namespace Services.Service
                 TransactionCode = orderCode.ToString()
             };
 
-            await _unitOfWork.transactionHistoryRepository.AddAsync(transaction);
+            await _unitOfWork.TransactionHistoryRepository.AddAsync(transaction);
             await _unitOfWork.SaveChangesAsync();
 
             return paymentResult;
         }
 
-        public async Task<bool> ProcessRechargeAsync(string orderCode, int amount) => await _unitOfWork.payOSRepository.RechargeWalletAsync(orderCode, amount);
+        public async Task<bool> ProcessRechargeAsync(string orderCode, int amount) => await _unitOfWork.PayOSRepository.RechargeWalletAsync(orderCode, amount);
     }
 }

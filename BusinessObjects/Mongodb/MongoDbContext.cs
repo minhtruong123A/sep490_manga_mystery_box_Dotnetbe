@@ -54,5 +54,8 @@ namespace BusinessObjects.Mongodb
         public IMongoCollection<SellProduct> SellProducts => _database.GetCollection<SellProduct>("SellProduct");
         public IMongoCollection<Comment> Comments => _database.GetCollection<Comment>("Comment");
         public IMongoCollection<TransactionHistory> TransactionHistories => _database.GetCollection<TransactionHistory>("TransactionHistory");
+        public IMongoCollection<Cart> Carts => _database.GetCollection<Cart>("Cart");
+        public IMongoCollection<CartBox> CartBoxes => _database.GetCollection<CartBox>("CartBox");
+        public IMongoCollection<CartProduct> CartProducts => _database.GetCollection<CartProduct>("CartProduct");
     }
 }

@@ -31,5 +31,15 @@ namespace BusinessObjects.Mongodb
             var document = await pipeline.FirstOrDefaultAsync();
             return document == null ? default : selector(document);
         }
+
+        public static string? TryGetString(this BsonDocument doc, string key)
+        {
+            return doc.Contains(key) && !doc[key].IsBsonNull ? doc[key].AsString : null;
+        }
+
+        public static IMongoCollection<BsonDocument> WithBson<T>(this IMongoCollection<T> collection)
+        {
+            return collection.Database.GetCollection<BsonDocument>(collection.CollectionNamespace.CollectionName);
+        }
     }
 }

@@ -16,7 +16,6 @@ namespace SEP_MMB_API.Controllers
     public class SellProductController : ControllerBase
     {
         private readonly ISellProductService _sellProductService;
-        //private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAuthService _authService;
 
         public SellProductController(ISellProductService sellProductService, IAuthService authService)

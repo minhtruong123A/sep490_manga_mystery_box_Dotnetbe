@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Net.payOS;
 using Net.payOS.Types;
+using Services.Helper;
 using Services.Interface;
 using System.Text;
 
@@ -30,7 +31,7 @@ namespace SEP_MMB_API.Controllers
             {
                 var checksumKey = _config["PayOS:ChecksumKey"];
                 var rawData = Newtonsoft.Json.JsonConvert.SerializeObject(request.Data);
-                var computedSignature = ComputeHmacSHA256(rawData, checksumKey);
+                var computedSignature = HmacHelper.ComputeHmacSHA256(rawData, checksumKey);
 
                 if (computedSignature != request.Signature)
                 {
@@ -86,13 +87,6 @@ namespace SEP_MMB_API.Controllers
                     ErrorCode = 400
                 });
             }
-        }
-
-        private static string ComputeHmacSHA256(string data, string key)
-        {
-            using var hmac = new System.Security.Cryptography.HMACSHA256(Encoding.UTF8.GetBytes(key));
-            var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
-            return BitConverter.ToString(hash).Replace("-", "").ToLower();
         }
     }
 }

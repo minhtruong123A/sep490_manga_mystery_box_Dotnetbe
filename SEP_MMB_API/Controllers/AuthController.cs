@@ -59,7 +59,6 @@ namespace SEP_MMB_API.Controllers
                     Data = new UserTokenDto()
                     {
                         AccessToken = accessToken ?? "",
-                        RefreshToken = refreshToken ?? "",
                         TokenType = tokenType ?? "",
                         UserName = account.Username ?? "",
                         RoleId = account.RoleId ?? "",

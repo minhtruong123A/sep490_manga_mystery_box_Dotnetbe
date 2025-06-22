@@ -1,4 +1,5 @@
 ﻿using BusinessObjects;
+using BusinessObjects.Dtos.TransactionHistory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,5 +10,6 @@ namespace DataAccessLayers.Interface
 {
     public interface ITransactionHistoryRepository : IGenericRepository<TransactionHistory>
     {
+        Task<List<TransactionHistoryDto>> GetTransactionsByWalletIdAsync(string walletId);
     }
 }

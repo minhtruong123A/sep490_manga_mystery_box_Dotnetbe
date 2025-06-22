@@ -14,9 +14,10 @@ namespace DataAccessLayers.Interface
         ISellProductRepository SellProductRepository { get; }
         IUserCollectionRepository UserCollectionRepository { get; }
         ICommentRepository CommentRepository { get; }
-        ITransactionHistoryRepository transactionHistoryRepository { get; }
-        IPayOSRepository payOSRepository { get; }
-        IUseDigitalWalletRepository useDigitalWalletRepository {  get; }
+        ITransactionHistoryRepository TransactionHistoryRepository { get; }
+        IPayOSRepository PayOSRepository { get; }
+        IUseDigitalWalletRepository UseDigitalWalletRepository {  get; }
+        public ICartRepository CartRepository { get; }
         Task SaveChangesAsync();
     }
 }

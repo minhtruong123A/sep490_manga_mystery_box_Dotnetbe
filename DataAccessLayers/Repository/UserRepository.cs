@@ -21,7 +21,6 @@ namespace DataAccessLayers.Repository
             _users = context.GetCollection<User>("User");
         }
 
-        //Authen
         public async Task<User?> GetSystemAccountByAccountEmailAndPassword(string accountEmail, string password)
         {
             return await _users.Find(m => m.Email == accountEmail && m.Password == password).SingleOrDefaultAsync();

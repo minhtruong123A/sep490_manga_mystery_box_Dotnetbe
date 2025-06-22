@@ -17,6 +17,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using BusinessObjects.Dtos.PayOS;
 using Net.payOS;
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 var devPassword = builder.Configuration["DevSettings:DevPassword"];
@@ -31,8 +33,13 @@ builder.Services.AddSingleton(new PayOS(config.ClientId, config.ApiKey, config.C
 //inject PayOSConfig
 builder.Services.Configure<PayOSConfig>(builder.Configuration.GetSection("PayOS"));
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
+// enable Swagger to detect API endpoints
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    }); builder.Services.AddEndpointsApiExplorer();
+
 //if (!builder.Environment.IsProduction())
 //{
 builder.Services.AddSwaggerGen(c =>
@@ -135,6 +142,7 @@ builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<ITransactionHistoryRepository, TransactionHistoryRepository>();
 builder.Services.AddScoped<IUseDigitalWalletRepository, UseDigitalWalletRepository>();
 builder.Services.AddScoped<IPayOSRepository, PayOSRepository>();
+builder.Services.AddScoped<ICartRepository, CartRepository>();
 
 //UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -148,9 +156,12 @@ builder.Services.AddScoped<IUserCollectionService, UserCollectionService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IModerationService, ModerationService>();
 builder.Services.AddScoped<IPayOSService, PayOSService>();
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<ITransactionHistoryService, TransactionHistoryService>();
 
 //AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+
 
 //JWT Authentication
 builder.Services.AddAuthentication(options =>

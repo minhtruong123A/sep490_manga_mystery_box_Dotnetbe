@@ -1,4 +1,5 @@
-﻿using MongoDB.Driver;
+﻿using BusinessObjects.Dtos.Product;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;

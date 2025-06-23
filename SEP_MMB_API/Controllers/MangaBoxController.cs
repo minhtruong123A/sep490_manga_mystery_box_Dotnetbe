@@ -16,7 +16,7 @@ namespace SEP_MMB_API.Controllers
             _mangaBoxService = mangaBoxService;
         }
 
-        [HttpGet("get-all-mystory-box")]
+        [HttpGet("get-all-mystery-box")]
         public async Task<ActionResult<ResponseModel<List<MangaBoxGetAllDto>>>> GetMangaBoxDetails()
         {
             try

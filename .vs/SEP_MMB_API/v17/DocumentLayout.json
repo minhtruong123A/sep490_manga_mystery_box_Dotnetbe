@@ -3,12 +3,24 @@
   "WorkspaceRootPath": "D:\\Github\\sep490_manga_mystery_box_Dotnetbe\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}|DataAccessLayers\\DataAccessLayers.csproj|d:\\github\\sep490_manga_mystery_box_dotnetbe\\dataaccesslayers\\repository\\usercollectionrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}|DataAccessLayers\\DataAccessLayers.csproj|solutionrelative:dataaccesslayers\\repository\\usercollectionrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|d:\\github\\sep490_manga_mystery_box_dotnetbe\\sep_mmb_api\\controllers\\userproductcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C67B785-E34F-4CF2-8058-7C2397AFF04B}|SEP_MMB_API\\SEP_MMB_API.csproj|solutionrelative:sep_mmb_api\\controllers\\userproductcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}|DataAccessLayers\\DataAccessLayers.csproj|d:\\github\\sep490_manga_mystery_box_dotnetbe\\dataaccesslayers\\repository\\userboxrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}|DataAccessLayers\\DataAccessLayers.csproj|solutionrelative:dataaccesslayers\\repository\\userboxrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}|DataAccessLayers\\DataAccessLayers.csproj|d:\\github\\sep490_manga_mystery_box_dotnetbe\\dataaccesslayers\\interface\\iuserproductrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}|DataAccessLayers\\DataAccessLayers.csproj|solutionrelative:dataaccesslayers\\interface\\iuserproductrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}|DataAccessLayers\\DataAccessLayers.csproj|d:\\github\\sep490_manga_mystery_box_dotnetbe\\dataaccesslayers\\repository\\userproductrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}|DataAccessLayers\\DataAccessLayers.csproj|solutionrelative:dataaccesslayers\\repository\\userproductrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{20727481-E8BE-431D-B6EA-B7046E6E7275}|Services\\Services.csproj|d:\\github\\sep490_manga_mystery_box_dotnetbe\\services\\interface\\iuserproductservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{20727481-E8BE-431D-B6EA-B7046E6E7275}|Services\\Services.csproj|solutionrelative:services\\interface\\iuserproductservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{20727481-E8BE-431D-B6EA-B7046E6E7275}|Services\\Services.csproj|d:\\github\\sep490_manga_mystery_box_dotnetbe\\services\\service\\userproductservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{20727481-E8BE-431D-B6EA-B7046E6E7275}|Services\\Services.csproj|solutionrelative:services\\service\\userproductservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,8 +30,73 @@
       "DocumentGroups": [
         {
           "DockedHeight": 337,
-          "SelectedChildIndex": 37,
+          "SelectedChildIndex": 4,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "UserProductRepository.cs",
+              "DocumentMoniker": "D:\\Github\\sep490_manga_mystery_box_Dotnetbe\\DataAccessLayers\\Repository\\UserProductRepository.cs",
+              "RelativeDocumentMoniker": "DataAccessLayers\\Repository\\UserProductRepository.cs",
+              "ToolTip": "D:\\Github\\sep490_manga_mystery_box_Dotnetbe\\DataAccessLayers\\Repository\\UserProductRepository.cs",
+              "RelativeToolTip": "DataAccessLayers\\Repository\\UserProductRepository.cs",
+              "ViewState": "AgIAABgAAAAAAAAAAAAAwB4AAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-23T08:38:38.609Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "IUserProductRepository.cs",
+              "DocumentMoniker": "D:\\Github\\sep490_manga_mystery_box_Dotnetbe\\DataAccessLayers\\Interface\\IUserProductRepository.cs",
+              "RelativeDocumentMoniker": "DataAccessLayers\\Interface\\IUserProductRepository.cs",
+              "ToolTip": "D:\\Github\\sep490_manga_mystery_box_Dotnetbe\\DataAccessLayers\\Interface\\IUserProductRepository.cs",
+              "RelativeToolTip": "DataAccessLayers\\Interface\\IUserProductRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAABTAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-23T08:38:33.943Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "IUserProductService.cs",
+              "DocumentMoniker": "D:\\Github\\sep490_manga_mystery_box_Dotnetbe\\Services\\Interface\\IUserProductService.cs",
+              "RelativeDocumentMoniker": "Services\\Interface\\IUserProductService.cs",
+              "ToolTip": "D:\\Github\\sep490_manga_mystery_box_Dotnetbe\\Services\\Interface\\IUserProductService.cs",
+              "RelativeToolTip": "Services\\Interface\\IUserProductService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAABkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-23T08:36:49.814Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "UserProductService.cs",
+              "DocumentMoniker": "D:\\Github\\sep490_manga_mystery_box_Dotnetbe\\Services\\Service\\UserProductService.cs",
+              "RelativeDocumentMoniker": "Services\\Service\\UserProductService.cs",
+              "ToolTip": "D:\\Github\\sep490_manga_mystery_box_Dotnetbe\\Services\\Service\\UserProductService.cs",
+              "RelativeToolTip": "Services\\Service\\UserProductService.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAYwDoAAABHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-23T08:36:46.066Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UserProductController.cs",
+              "DocumentMoniker": "D:\\Github\\sep490_manga_mystery_box_Dotnetbe\\SEP_MMB_API\\Controllers\\UserProductController.cs",
+              "RelativeDocumentMoniker": "SEP_MMB_API\\Controllers\\UserProductController.cs",
+              "ToolTip": "D:\\Github\\sep490_manga_mystery_box_Dotnetbe\\SEP_MMB_API\\Controllers\\UserProductController.cs",
+              "RelativeToolTip": "SEP_MMB_API\\Controllers\\UserProductController.cs",
+              "ViewState": "AgIAACUAAAAAAAAAAAAswEsAAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-23T08:36:00.969Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
@@ -163,32 +240,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "UserBoxRepository.cs",
-              "DocumentMoniker": "D:\\Github\\sep490_manga_mystery_box_Dotnetbe\\DataAccessLayers\\Repository\\UserBoxRepository.cs",
-              "RelativeDocumentMoniker": "DataAccessLayers\\Repository\\UserBoxRepository.cs",
-              "ToolTip": "D:\\Github\\sep490_manga_mystery_box_Dotnetbe\\DataAccessLayers\\Repository\\UserBoxRepository.cs",
-              "RelativeToolTip": "DataAccessLayers\\Repository\\UserBoxRepository.cs",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-17T10:18:16.159Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "UserCollectionRepository.cs",
-              "DocumentMoniker": "D:\\Github\\sep490_manga_mystery_box_Dotnetbe\\DataAccessLayers\\Repository\\UserCollectionRepository.cs",
-              "RelativeDocumentMoniker": "DataAccessLayers\\Repository\\UserCollectionRepository.cs",
-              "ToolTip": "D:\\Github\\sep490_manga_mystery_box_Dotnetbe\\DataAccessLayers\\Repository\\UserCollectionRepository.cs",
-              "RelativeToolTip": "DataAccessLayers\\Repository\\UserCollectionRepository.cs",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-17T10:18:14.352Z",
-              "EditorCaption": ""
             }
           ]
         },

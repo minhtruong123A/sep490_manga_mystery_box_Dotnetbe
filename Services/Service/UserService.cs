@@ -2,7 +2,6 @@
 using BusinessObjects;
 using BusinessObjects.Dtos.User;
 using DataAccessLayers.Interface;
-using DataAccessLayers.UnitOfWork;
 using Services.Interface;
 using System;
 using System.Collections.Generic;

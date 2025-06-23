@@ -131,6 +131,7 @@ builder.Services.AddScoped<IMangaBoxService, MangaBoxService>();
 builder.Services.AddScoped<ISellProductService, SellProductService>();
 builder.Services.AddScoped<IUserCollectionService, UserCollectionService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<IModerationService, ModerationService>();
 
 //AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

@@ -1,6 +1,6 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Dtos.Product;
-using DataAccessLayers.UnitOfWork;
+using DataAccessLayers.Interface;
 using Services.Interface;
 using System;
 using System.Collections.Generic;
@@ -22,6 +22,7 @@ namespace Services.Service
         public async Task<List<SellProductGetAllDto>> GetAllProductOnSaleAsync() => await _uniUnitOfWork.SellProductRepository.GetAllProductOnSaleAsync();
         public async Task<List<SellProductGetAllDto>> GetAllProductOnSaleOfUserAsync(string id) => await _uniUnitOfWork.SellProductRepository.GetAllProductOnSaleOfUserIdAsync(id);
         public async Task<SellProductDetailDto> GetProductDetailByIdAsync(string id) => await _uniUnitOfWork.SellProductRepository.GetProductDetailByIdAsync(id);
+
 
     }
 }

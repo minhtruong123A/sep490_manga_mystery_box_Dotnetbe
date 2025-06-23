@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Dtos.UserCollection;
+using DataAccessLayers.Interface;
 using DataAccessLayers.UnitOfWork;
 using Services.Interface;
 using System;

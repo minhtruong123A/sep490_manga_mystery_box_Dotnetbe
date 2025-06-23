@@ -116,5 +116,14 @@ namespace DataAccessLayers.Repository
                 (c.Content == null || c.Content.Trim() == "")
             ).SingleOrDefaultAsync();
         }
+
+        public async Task<Comment?> GetCommentOnlyByUserAndProductAsync(string userId, string productId)
+        {
+            return await _comments.Find(c =>
+                c.UserId == userId &&
+                c.SellProductId == productId &&
+                c.Rating == -1
+            ).SingleOrDefaultAsync();
+        }
     }
 }

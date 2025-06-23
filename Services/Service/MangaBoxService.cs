@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Dtos.MangaBox;
-using DataAccessLayers.UnitOfWork;
+using DataAccessLayers.Interface;
 using Services.Interface;
 using System;
 using System.Collections.Generic;

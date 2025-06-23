@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using BusinessObjects.Dtos.MangaBox;
 using BusinessObjects.Dtos.UserCollection;
 using BusinessObjects.Dtos.Comment;
+using BusinessObjects.Dtos.ProductInMangaBox;
 
 namespace Services.AutoMapper
 {
@@ -23,9 +24,11 @@ namespace Services.AutoMapper
             CreateMap<MangaBoxDto, MangaBox>()
                       .ForMember(dest => dest.Id, opt => opt.Ignore());
             CreateMap<UserCollectionDto, UserCollection>()
-                     .ForMember(dest => dest.Id, opt => opt.Ignore());
+                      .ForMember(dest => dest.Id, opt => opt.Ignore());
             CreateMap<CommentCreateDto, Comment>()
-         .ForMember(dest => dest.Id, opt => opt.Ignore());
+                      .ForMember(dest => dest.Id, opt => opt.Ignore());
+            CreateMap<ProductInMangaBoxDto, ProductInMangaBox>()
+                      .ForMember(dest => dest.Id, opt => opt.Ignore());
         }
     }
 }

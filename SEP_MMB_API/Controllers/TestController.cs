@@ -3,6 +3,7 @@ using BusinessObjects;
 using BusinessObjects.Dtos;
 using BusinessObjects.Dtos.Auth;
 using BusinessObjects.Dtos.MangaBox;
+using BusinessObjects.Dtos.ProductInMangaBox;
 using BusinessObjects.Dtos.Schema_Response;
 using BusinessObjects.Dtos.User;
 using BusinessObjects.Dtos.UserCollection;
@@ -27,8 +28,9 @@ namespace SEP_MMB_API.Controllers
         private readonly ICommentService _commentService;
         private readonly IMapper _mapper;
         private readonly IPayOSService _payOSService;
+        private readonly IProductInMangaBoxService _productInMangaBoxService;
 
-        public TestController(IUserService userService, IAuthService authService, IMangaBoxService mailboxService, IMapper mapper, IUserCollectionService userCollectionService, ICommentService commentService, IPayOSService payOSService)
+        public TestController(IUserService userService, IAuthService authService, IMangaBoxService mailboxService, IMapper mapper, IUserCollectionService userCollectionService, ICommentService commentService, IPayOSService payOSService, IProductInMangaBoxService productInMangaBoxService)
         {
             _userService = userService;
             _authService = authService;
@@ -37,6 +39,7 @@ namespace SEP_MMB_API.Controllers
             _commentService = commentService;
             _mapper = mapper;
             _payOSService = payOSService;
+            _productInMangaBoxService = productInMangaBoxService;
         }
 
         [Tags("Server Test Fetch API Only")]
@@ -210,6 +213,34 @@ namespace SEP_MMB_API.Controllers
                 return Ok(new ResponseModel<MangaBox>
                 {
                     Data = addedMangabox,
+                    Success = true,
+                    Error = null
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string>
+                {
+                    Data = null,
+                    Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
+
+        [Tags("Server Test BACKEND Only")]
+        [HttpPost("add-product-in-manga-box")]
+        public async Task<ActionResult<ResponseModel<MangaBoxDto>>> AddProductInMangaBox([FromQuery] ProductInMangaBoxDto productInMangaBox)
+        {
+            try
+            {
+                var productInMangaBoxMap = _mapper.Map<ProductInMangaBox>(productInMangaBox);
+                //productInMangaBoxMap.Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
+                await _productInMangaBoxService.CreateProductInMangaBoxAsync(productInMangaBoxMap);
+                return Ok(new ResponseModel<string>
+                {
+                    Data = "Added successfully",
                     Success = true,
                     Error = null
                 });

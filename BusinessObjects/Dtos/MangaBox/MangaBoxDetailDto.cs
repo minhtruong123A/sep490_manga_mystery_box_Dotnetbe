@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BusinessObjects.Dtos.Product;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,5 +16,6 @@ namespace BusinessObjects.Dtos.MangaBox
         public int MysteryBoxPrice { get; set; }
         public string CollectionTopic { get; set; }
         public string UrlImage { get; set; }
+        public List<ProductInBoxDto> Products { get; set; }
     }
 }

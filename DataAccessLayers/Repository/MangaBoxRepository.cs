@@ -1,5 +1,6 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Dtos.MangaBox;
+using BusinessObjects.Dtos.Product;
 using BusinessObjects.Mongodb;
 using DataAccessLayers.Interface;
 using DataAccessLayers.Pipelines;
@@ -19,11 +20,18 @@ namespace DataAccessLayers.Repository
         private readonly IMongoCollection<MangaBox> _mangaBoxCollection;
         private readonly IMongoCollection<MysteryBox> _mysteryBoxCollection;
         private readonly IMongoCollection<Collection> _collectionCollection;
+        private readonly IMongoCollection<ProductInMangaBox> _productInMangaBoxCollection;
+        private readonly IMongoCollection<Product> _productCollection;
+        private readonly IMongoCollection<Rarity> _rarityCollection;
+
         public MangaBoxRepository(MongoDbContext context) : base(context.GetCollection<MangaBox>("MangaBox"))
         {
             _mangaBoxCollection = context.GetCollection<MangaBox>("MangaBox");
             _mysteryBoxCollection = context.GetCollection<MysteryBox>("MysteryBox");
             _collectionCollection = context.GetCollection<Collection>("Collection");
+            _productInMangaBoxCollection = context.GetCollection<ProductInMangaBox>("ProductInMangaBox");
+            _productCollection = context.GetCollection<Product>("Product");
+            _rarityCollection = context.GetCollection<Rarity>("Rarity");
         }
 
         //getallwwithdetail
@@ -100,8 +108,29 @@ namespace DataAccessLayers.Repository
         {
             var mangaBox = await _mangaBoxCollection.AsQueryable().FirstOrDefaultAsync(c => c.Id.ToString() == id);
             if (mangaBox is null) return null;
+
             var mysteryBoxTask = _mysteryBoxCollection.AsQueryable().FirstOrDefaultAsync(c => c.Id.ToString() == mangaBox.MysteryBoxId.Trim());
             var collectionTask = _collectionCollection.AsQueryable().FirstOrDefaultAsync(c => c.Id.ToString() == mangaBox.CollectionTopicId.Trim());
+
+            var productInMangaBoxes = await _productInMangaBoxCollection.AsQueryable().Where(p => p.MangaBoxId == id).ToListAsync();
+            var productIds = productInMangaBoxes.Select(p => p.ProductId).Distinct().ToList();
+            var products = await _productCollection.AsQueryable().Where(p => productIds.Contains(p.Id)).ToListAsync();
+            var rarityIds = products.Select(p => p.RarityId).Distinct().ToList();
+            var rarities = await _rarityCollection.AsQueryable().Where(r => rarityIds.Contains(r.Id)).ToListAsync();
+            var productDtos = productInMangaBoxes.Select(p =>
+            {
+                var product = products.FirstOrDefault(prod => prod.Id == p.ProductId);
+                var rarity = rarities.FirstOrDefault(r => r.Id == product?.RarityId);
+
+                return new ProductInBoxDto
+                {
+                    ProductId = product?.Id ?? "",
+                    ProductName = product?.Name ?? "Unknown",
+                    UrlImage = product?.UrlImage ?? "",
+                    RarityName = rarity?.Name ?? "Unknown",
+                    Chance = p.Chance
+                };
+            }).ToList();
             await Task.WhenAll(mysteryBoxTask, collectionTask);
 
             var mysteryBox = mysteryBoxTask.Result;
@@ -115,7 +144,8 @@ namespace DataAccessLayers.Repository
                 MysteryBoxDescription = mysteryBox?.Description ?? "No description",
                 MysteryBoxPrice = mysteryBox?.Price ?? 0,
                 UrlImage = mysteryBox?.UrlImage,
-                CollectionTopic = collection?.Topic ?? "Unknown"
+                CollectionTopic = collection?.Topic ?? "Unknown",
+                Products = productDtos
             };
         }
     }

@@ -22,6 +22,7 @@ namespace DataAccessLayers.Interface
         Task DeleteAllAsync();
         Task UpdateAsync(string id, T entity);
         Task<bool> ExistsAsync(Expression<Func<T, bool>> expression);
+        Task<T?> GetOneAsync(Expression<Func<T, bool>> expression);
         Task UpdateFieldAsync(Expression<Func<T, bool>> filter, UpdateDefinition<T> update);
     }
 }

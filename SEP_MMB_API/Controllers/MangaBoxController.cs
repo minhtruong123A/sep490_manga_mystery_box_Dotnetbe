@@ -44,26 +44,38 @@ namespace SEP_MMB_API.Controllers
         [HttpGet("get-mystery-box-detail/{id}")]
         public async Task<IActionResult> GetById(string id)
         {
-            var data = await _mangaBoxService.GetByIdWithDetailsAsync(id);
-            if (data == null)
+            try
             {
-                return NotFound(new ResponseModel<string>
+                var data = await _mangaBoxService.GetByIdWithDetailsAsync(id);
+                if (data == null)
+                {
+                    return NotFound(new ResponseModel<string>
+                    {
+                        Success = false,
+                        Data = null,
+                        Error = "MangaBox not found",
+                        ErrorCode = 404
+                    });
+                }
+
+                return Ok(new ResponseModel<MangaBoxDetailDto>
+                {
+                    Success = true,
+                    Data = data,
+                    Error = null,
+                    ErrorCode = 0
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string>
                 {
                     Success = false,
                     Data = null,
-                    Error = "MangaBox not found",
-                    ErrorCode = 404
+                    Error = ex.Message,
+                    ErrorCode = 400
                 });
             }
-
-            return Ok(new ResponseModel<MangaBoxDetailDto>
-            {
-                Success = true,
-                Data = data,
-                Error = null,
-                ErrorCode = 0
-            });
         }
-
     }
 }

@@ -19,6 +19,7 @@ using BusinessObjects.Dtos.PayOS;
 using Net.payOS;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization;
+using Services.Helper.Supabase;
 
 var builder = WebApplication.CreateBuilder(args);
 var devPassword = builder.Configuration["DevSettings:DevPassword"];
@@ -32,6 +33,12 @@ builder.Services.AddSingleton(new PayOS(config.ClientId, config.ApiKey, config.C
 
 //inject PayOSConfig
 builder.Services.Configure<PayOSConfig>(builder.Configuration.GetSection("PayOS"));
+
+//Supabase config
+builder.Services.Configure<SupabaseSettings>(
+    builder.Configuration.GetSection("Supabase")
+);
+builder.Services.AddSingleton<ISupabaseStorageHelper, SupabaseStorageHelper>();
 
 // enable Swagger to detect API endpoints
 builder.Services.AddControllers()
@@ -143,6 +150,8 @@ builder.Services.AddScoped<ITransactionHistoryRepository, TransactionHistoryRepo
 builder.Services.AddScoped<IUseDigitalWalletRepository, UseDigitalWalletRepository>();
 builder.Services.AddScoped<IPayOSRepository, PayOSRepository>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<IProductInMangaBoxRepository,  ProductInMangaBoxRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 //UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -158,6 +167,10 @@ builder.Services.AddScoped<IModerationService, ModerationService>();
 builder.Services.AddScoped<IPayOSService, PayOSService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ITransactionHistoryService, TransactionHistoryService>();
+builder.Services.AddScoped<IUseDigitalWalletService, UseDigitalWalletService>();
+builder.Services.AddScoped<ISignedUrlService, SignedUrlService>();
+builder.Services.AddScoped<IProductInMangaBoxService,  ProductInMangaBoxService>();
+builder.Services.AddScoped<IProductService, ProductService>();
 
 //AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

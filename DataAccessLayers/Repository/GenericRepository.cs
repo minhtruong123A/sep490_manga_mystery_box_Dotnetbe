@@ -74,6 +74,11 @@ namespace DataAccessLayers.Repository
             return await _collection.Find(expression).AnyAsync();
         }
 
+        public async Task<T?> GetOneAsync(Expression<Func<T, bool>> expression)
+        {
+            return await _collection.Find(expression).FirstOrDefaultAsync();
+        }
+
         public async Task DeleteAllAsync()
         {
             await _collection.DeleteManyAsync(Builders<T>.Filter.Empty);

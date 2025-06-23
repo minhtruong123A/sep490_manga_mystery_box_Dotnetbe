@@ -15,10 +15,14 @@ namespace SEP_MMB_API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IUseDigitalWalletService _useDigitalWalletService;
+        private readonly ISignedUrlService _signedUrlService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, IUseDigitalWalletService useDigitalWalletService, ISignedUrlService signedUrlService)
         {
             _authService = authService;
+            _useDigitalWalletService = useDigitalWalletService;
+            _signedUrlService = signedUrlService;
         }
 
         [HttpPost("login")]
@@ -53,6 +57,8 @@ namespace SEP_MMB_API.Controllers
             try
             {
                 var (account, accessToken, refreshToken, tokenType) = await _authService.GetUserWithTokens(HttpContext);
+                var walletAmount = await _useDigitalWalletService.GetWalletByIdAsync(account.WalletId);
+                var signedProfileImage = await _signedUrlService.GetSignedUrlIfAvailableAsync(account.ProfileImage);
 
                 return Ok(new ResponseModel<UserTokenDto>()
                 {
@@ -60,7 +66,10 @@ namespace SEP_MMB_API.Controllers
                     {
                         AccessToken = accessToken ?? "",
                         TokenType = tokenType ?? "",
+                        UserId = account.Id ?? "",
                         UserName = account.Username ?? "",
+                        Amount = walletAmount?.Ammount ?? 0,
+                        ProfileImage = signedProfileImage ?? "",
                         RoleId = account.RoleId ?? "",
                     },
                     Error = null,

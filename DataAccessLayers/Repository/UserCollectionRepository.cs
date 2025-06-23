@@ -24,8 +24,8 @@ namespace DataAccessLayers.Repository
         {
             _userCollection = context.GetCollection<UserCollection>("UserCollection");
             _collection = context.GetCollection<Collection>("Collection");
-            _userProductCollection = context.GetCollection<UserProduct>("UserProductCollection");
-            _productCollection = context.GetCollection<Product>("ProductCollection");
+            _userProductCollection = context.GetCollection<UserProduct>("User_Product");
+            _productCollection = context.GetCollection<Product>("Product");
         }
 
         public async Task<List<UserCollectionGetAllDto>> GetAllWithDetailsAsync(string userId)

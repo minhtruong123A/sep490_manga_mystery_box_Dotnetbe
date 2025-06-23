@@ -1,47 +1,45 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using BusinessObjects;
+﻿using BusinessObjects.Dtos.Product;
 using BusinessObjects.Dtos.Schema_Response;
-using BusinessObjects.Dtos.User;
+using BusinessObjects.Dtos.UserCollection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
 using Services.Service;
-using BusinessObjects.Dtos.UserCollection;
+
 namespace SEP_MMB_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserCollectionController : ControllerBase
+    public class UserProductController : ControllerBase
     {
-        private readonly IUserCollectionService _userCollectionService;
+        private readonly IUserProductService _userProductService;
         private readonly IAuthService _authService;
-
-        public UserCollectionController(IUserCollectionService userCollectionService, IAuthService authService)
+       public UserProductController(IUserProductService userProductService, IAuthService authService)
         {
-            _userCollectionService = userCollectionService;
+            _userProductService = userProductService;
             _authService = authService;
         }
 
         [Authorize]
-        [HttpGet("get-all-collection-of-profile")]
-        public async Task<ActionResult<ResponseModel<List<UserCollectionGetAllDto>>>> GetAllCollectionOfProfile(string token)
+        [HttpGet("get-all-product-of-collection")]
+        public async Task<ActionResult<ResponseModel<List<CollectionProductsDto>>>> GetAllProductOfCollection(string token, string collectionId)
         {
             try
             {
                 var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
 
-                var collectionDto = await _userCollectionService.GetAllWithDetailsAsync(account.Id.ToString());
+                var productsDto = await _userProductService.GetAllWithDetailsAsync(account.Id.ToString(), collectionId);
 
-                return Ok(new ResponseModel<List<UserCollectionGetAllDto>>
+                return Ok(new ResponseModel<List<CollectionProductsDto>>
                 {
-                    Data = collectionDto,
+                    Data = productsDto,
                     Error = null,
                     Success = true
                 });
             }
             catch (Exception ex)
             {
-                return BadRequest(new ResponseModel<List<UserCollectionGetAllDto>>
+                return BadRequest(new ResponseModel<List<CollectionProductsDto>>
                 {
                     Data = null,
                     Error = ex.Message,
@@ -52,25 +50,19 @@ namespace SEP_MMB_API.Controllers
         }
 
         [Authorize]
-        [HttpPost("create-new-collection")]
-        public async Task<ActionResult<ResponseModel<string>>> CreateUserCollection([FromHeader] string collectionId)
+        [HttpPost("add-cards-to-collection")]
+        public async Task<ActionResult<ResponseModel<string>>> AddCardsToOwnCollection([FromBody] AddCardsToCollectionDto dto)
         {
             try
             {
-
                 var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                string userId = account.Id.ToString();
 
-                var userCollection = new UserCollection
-                {
-                    UserId = account.Id.ToString(),
-                    CollectionId = collectionId.ToString()
-                };
-
-                await _userCollectionService.CreateUserCollectionAsync(userCollection);
+                await _userProductService.AddCardsToCollectionAsync(userId, dto.CollectionId, dto.ProductIds);
 
                 return Ok(new ResponseModel<string>
                 {
-                    Data = "Collection created successfully",
+                    Data = "Cards added successfully",
                     Success = true
                 });
             }
@@ -85,7 +77,6 @@ namespace SEP_MMB_API.Controllers
                 });
             }
         }
-
 
     }
 }

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BusinessObjects.Dtos.Schema_Response;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Services.Interface;
 
 namespace SEP_MMB_API.Controllers
@@ -9,24 +11,37 @@ namespace SEP_MMB_API.Controllers
     {
         private readonly ISupabaseStorageHelper _supabaseStorageHelper;
         private readonly HttpClient _httpClient;
-
-        public ImageProxyController(ISupabaseStorageHelper supabaseStorageHelper)
+        private readonly IMemoryCache _cache;
+        public ImageProxyController(ISupabaseStorageHelper supabaseStorageHelper, IMemoryCache cache)
         {
             _supabaseStorageHelper = supabaseStorageHelper;
             _httpClient = new HttpClient();
+            _cache = cache;
         }
 
         [HttpGet("{*path}")]
-        public async Task<IActionResult> ProxyImage(string path)
+        public async Task<ActionResult<ResponseModel<object>>> ProxyImage(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
-                return BadRequest("Path is required.");
+            {
+                return BadRequest(new ResponseModel<object>
+                {
+                    Data = null,
+                    Success = false,
+                    Error = "Path is required.",
+                    ErrorCode = 400
+                });
+            }
 
             try
             {
-                var signedUrl = await _supabaseStorageHelper.CreateSignedUrlAsync(path);
-
-                Console.WriteLine($"[Signed URL] = {signedUrl}");
+                var cacheKey = $"signed_url_{path}";
+                if (!_cache.TryGetValue(cacheKey, out string signedUrl))
+                {
+                    signedUrl = await _supabaseStorageHelper.CreateSignedUrlAsync(path);
+                    var cacheOptions = new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(4) };
+                    _cache.Set(cacheKey, signedUrl, cacheOptions);
+                }
 
                 var response = await _httpClient.GetAsync(signedUrl);
                 if (!response.IsSuccessStatusCode) return StatusCode((int)response.StatusCode, "Failed to fetch image from Supabase.");
@@ -38,7 +53,13 @@ namespace SEP_MMB_API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Proxy failed: {ex.Message}");
+                return StatusCode(400, new ResponseModel<object>
+                {
+                    Data = null,
+                    Success = false,
+                    Error = $"Proxy failed: {ex.Message}",
+                    ErrorCode = 400
+                });
             }
         }
     }

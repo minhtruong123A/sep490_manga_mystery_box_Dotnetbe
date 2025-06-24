@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\SEP_MMB_API.props" />
-</Project>

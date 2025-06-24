@@ -18,7 +18,6 @@ using System.Text.RegularExpressions;
 using BusinessObjects.Dtos.PayOS;
 using Net.payOS;
 using System.Text.Json.Serialization;
-using System.Text.Json.Serialization;
 using Services.Helper.Supabase;
 
 var builder = WebApplication.CreateBuilder(args);

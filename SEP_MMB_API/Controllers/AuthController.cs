@@ -16,13 +16,11 @@ namespace SEP_MMB_API.Controllers
     {
         private readonly IAuthService _authService;
         private readonly IUseDigitalWalletService _useDigitalWalletService;
-        private readonly ISignedUrlService _signedUrlService;
 
-        public AuthController(IAuthService authService, IUseDigitalWalletService useDigitalWalletService, ISignedUrlService signedUrlService)
+        public AuthController(IAuthService authService, IUseDigitalWalletService useDigitalWalletService)
         {
             _authService = authService;
             _useDigitalWalletService = useDigitalWalletService;
-            _signedUrlService = signedUrlService;
         }
 
         [HttpPost("login")]

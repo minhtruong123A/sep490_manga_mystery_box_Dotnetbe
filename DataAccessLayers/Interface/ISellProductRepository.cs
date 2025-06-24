@@ -11,8 +11,8 @@ namespace DataAccessLayers.Interface
 {
     public interface ISellProductRepository : IGenericRepository<SellProduct>
     {
-        Task<bool> CreateSellProductAsync(SellProductCreateDto dto, string userId);
+        Task<int> CreateSellProductAsync(SellProductCreateDto dto, string userId);
         Task<List<SellProductGetAllDto>> GetAllProductOnSaleAsync();
-        Task<SellProductDetailDto> GetProductDetailByIdAsync(string id);
+        Task<SellProductDetailDto?> GetProductDetailByIdAsync(string id);
     }
 }

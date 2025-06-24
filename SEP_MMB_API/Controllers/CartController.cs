@@ -21,6 +21,34 @@ namespace SEP_MMB_API.Controllers
         }
 
         [Authorize(Roles = "user")]
+        [HttpGet("view-cart")]
+        public async Task<ActionResult<ResponseModel<CartViewDto>>> ViewCart()
+        {
+            try
+            {
+                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var cart = await _cartService.ViewCartAsync(account.Id);
+                return Ok(new ResponseModel<CartViewDto>
+                {
+                    Data = cart,
+                    Success = true,
+                    Error = null,
+                    ErrorCode = 0
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<CartViewDto>
+                {
+                    Data = null,
+                    Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
+
+        [Authorize(Roles = "user")]
         [HttpPost("add-to-cart")]
         public async Task<ActionResult<ResponseModel<object>>> AddToCart([FromQuery] AddToCartRequestDto request)
         {
@@ -117,34 +145,6 @@ namespace SEP_MMB_API.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new ResponseModel<object>
-                {
-                    Data = null,
-                    Success = false,
-                    Error = ex.Message,
-                    ErrorCode = 400
-                });
-            }
-        }
-
-        [Authorize(Roles = "user")]
-        [HttpGet("view-cart")]
-        public async Task<ActionResult<ResponseModel<CartViewDto>>> ViewCart()
-        {
-            try
-            {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var cart = await _cartService.ViewCartAsync(account.Id);
-                return Ok(new ResponseModel<CartViewDto>
-                {
-                    Data = cart,
-                    Success = true,
-                    Error = null,
-                    ErrorCode = 0
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ResponseModel<CartViewDto>
                 {
                     Data = null,
                     Success = false,

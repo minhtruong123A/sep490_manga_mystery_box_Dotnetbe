@@ -21,7 +21,7 @@ namespace Services.Service
             _supabaseStorageHelper = storageHelper;
         }
 
-        public async Task<bool> CreateSellProductAsync(SellProductCreateDto dto, string userId) => await _uniUnitOfWork.SellProductRepository.CreateSellProductAsync(dto, userId);
+        public async Task<int> CreateSellProductAsync(SellProductCreateDto dto, string userId) => await _uniUnitOfWork.SellProductRepository.CreateSellProductAsync(dto, userId);
 
         public async Task<List<SellProductGetAllDto>> GetAllProductOnSaleAsync() => await _uniUnitOfWork.SellProductRepository.GetAllProductOnSaleAsync();
 

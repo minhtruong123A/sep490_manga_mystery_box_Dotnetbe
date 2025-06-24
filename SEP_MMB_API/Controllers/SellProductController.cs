@@ -24,28 +24,6 @@ namespace SEP_MMB_API.Controllers
             _authService = authService;
         }
 
-        //error api
-        //[Authorize]
-        //[HttpPost("create-sell-product")]
-        //public async Task<ActionResult<ResponseModel<object>>> CreateSellProduct([FromBody] SellProductCreateDto dto)
-        //{
-        //    var response = new ResponseModel<object>();
-        //    try
-        //    {
-        //        var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-        //        await _sellProductService.CreateSellProductAsync(dto, account.Id);
-        //        response.Success = true;
-        //        return Ok(response);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        response.Success = false;
-        //        response.Error = ex.Message;
-        //        response.ErrorCode = 400;
-        //        return BadRequest(response);
-        //    }
-        //}
-
         [HttpGet("get-all-product-on-sale")]
         public async Task<ActionResult<ResponseModel<List<SellProductGetAllDto>>>> GetAllProductOnSale()
         {
@@ -105,6 +83,34 @@ namespace SEP_MMB_API.Controllers
                     Error = ex.Message,
                     ErrorCode = 400
                 });
+            }
+        }
+
+        [Authorize(Roles = "user")]
+        [HttpPost("create-sell-product")]
+        public async Task<ActionResult<ResponseModel<object>>> CreateSellProduct([FromBody] SellProductCreateDto dto)
+        {
+            var response = new ResponseModel<object>();
+            try
+            {
+                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                int exchangeCode = await _sellProductService.CreateSellProductAsync(dto, account.Id);
+                
+                response.Success = true;
+                response.Data = new
+                {
+                    Message = "Sell Product created successfully.",
+                    ExchangeCode = exchangeCode
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Error = ex.Message;
+                response.ErrorCode = 400;
+                return BadRequest(response);
             }
         }
     }

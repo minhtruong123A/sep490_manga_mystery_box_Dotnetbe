@@ -29,6 +29,9 @@ namespace Services.Helper.Supabase
 
             var expireSeconds = expiresIn ?? _settings.SignedUrlExpireSeconds;
             var requestUrl = $"{_settings.Url}/storage/v1/object/sign/{_settings.Bucket}/{path}";
+
+            Console.WriteLine($"Signing Supabase URL: {requestUrl}");
+
             var body = new { expiresIn = expireSeconds };
             var requestContent = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(requestUrl, requestContent);
@@ -42,7 +45,7 @@ namespace Services.Helper.Supabase
             var signedResponse = JsonSerializer.Deserialize<SupabaseSignedUrlResponse>(responseContent);
             if (signedResponse?.signedURL == null) throw new Exception("Signed URL not found in response");
 
-            var fullUrl = $"{_settings.Url}{signedResponse.signedURL}";
+            var fullUrl = $"{_settings.Url}/storage/v1/{signedResponse.signedURL}";
 
             return fullUrl;
         }

@@ -92,7 +92,16 @@ namespace DataAccessLayers.Repository
             var productList = productTask.Result;
             var userList = userTask.Result;
             var userProductList = userProductTask.Result;
-            var collections = await _mongoDbContext.Collections.AsQueryable().Where(c => userProductList.Any(up => up.CollectionId == c.Id.ToString())).ToListAsync();
+            //var collections = await _mongoDbContext.Collections.AsQueryable().Where(c => userProductList.Any(up => up.CollectionId == c.Id.ToString())).ToListAsync();
+
+            var collectionIds = userProductList.Select(up => up.CollectionId).ToHashSet();
+            var rarityIds = productList.Select(up => up.RarityId).ToHashSet();
+            var collectionsTask = _mongoDbContext.Collections.AsQueryable().Where(c => collectionIds.Contains(c.Id.ToString())) .ToListAsync();
+            var raritiesTask = _mongoDbContext.Rarities.AsQueryable().Where(r => rarityIds.Contains(r.Id.ToString())).ToListAsync();
+            await Task.WhenAll(collectionsTask, raritiesTask);
+
+            var collections = collectionsTask.Result;
+            var rarities = raritiesTask.Result;
 
             return sellProductList.Select(sellProduct =>
             {
@@ -100,6 +109,7 @@ namespace DataAccessLayers.Repository
                 var user = userList.FirstOrDefault(c => c.Id.ToString() == sellProduct.SellerId);
                 var userProduct = userProductList.FirstOrDefault(c => c.ProductId == sellProduct.ProductId);
                 var collection = collections.FirstOrDefault(c => c.Id.ToString() == userProduct?.CollectionId);
+                var rarity = rarities.FirstOrDefault(r => r.Id.ToString() == product?.RarityId);
 
                 return new SellProductGetAllDto
                 {
@@ -108,7 +118,8 @@ namespace DataAccessLayers.Repository
                     Price = sellProduct.Price,
                     Username = user?.Username ?? "Unknown",
                     Topic = collection?.Topic ?? "Unknown",
-                    UrlImage = product?.UrlImage
+                    UrlImage = product?.UrlImage,
+                    RarityName = rarity?.Name ?? "Unknown"
                 };
             }).ToList();
         }

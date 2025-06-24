@@ -58,7 +58,6 @@ namespace SEP_MMB_API.Controllers
             {
                 var (account, accessToken, refreshToken, tokenType) = await _authService.GetUserWithTokens(HttpContext);
                 var walletAmount = await _useDigitalWalletService.GetWalletByIdAsync(account.WalletId);
-                var signedProfileImage = await _signedUrlService.GetSignedUrlIfAvailableAsync(account.ProfileImage);
 
                 return Ok(new ResponseModel<UserTokenDto>()
                 {
@@ -69,7 +68,7 @@ namespace SEP_MMB_API.Controllers
                         UserId = account.Id ?? "",
                         UserName = account.Username ?? "",
                         Amount = walletAmount?.Ammount ?? 0,
-                        ProfileImage = signedProfileImage ?? "",
+                        ProfileImage = account.ProfileImage ?? "",
                         RoleId = account.RoleId ?? "",
                     },
                     Error = null,

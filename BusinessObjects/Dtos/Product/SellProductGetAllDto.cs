@@ -14,5 +14,6 @@ namespace BusinessObjects.Dtos.Product
         public string Username { get; set; }
         public string Topic { get; set; }
         public string UrlImage { get; set; }
+        public string RarityName { get; set; }
     }
 }

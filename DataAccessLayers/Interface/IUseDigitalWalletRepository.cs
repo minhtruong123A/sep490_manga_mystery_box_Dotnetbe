@@ -9,5 +9,6 @@ namespace DataAccessLayers.Interface
 {
     public interface IUseDigitalWalletRepository : IGenericRepository<UseDigitalWallet>
     {
+        Task<UseDigitalWallet?> GetWalletByIdAsync(string id);
     }
 }

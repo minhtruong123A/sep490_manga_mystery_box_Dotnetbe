@@ -19,6 +19,6 @@ namespace Services.Service
             _uniUnitOfWork = unitOfWork;
         }
 
-        public async Task<UseDigitalWallet?> GetWalletByIdAsync(string id) => await _uniUnitOfWork.UseDigitalWalletRepository.GetOneAsync(c => c.Id == id);
+        public async Task<UseDigitalWallet?> GetWalletByIdAsync(string id) => await _uniUnitOfWork.UseDigitalWalletRepository.GetWalletByIdAsync(id);
     }
 }

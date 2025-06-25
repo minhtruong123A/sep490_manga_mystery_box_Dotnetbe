@@ -1,5 +1,6 @@
 ﻿using BusinessObjects;
 using DataAccessLayers.Interface;
+using MongoDB.Bson;
 using Services.Interface;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,11 @@ namespace Services.Service
             _uniUnitOfWork = unitOfWork;
         }
 
-        public async Task<UseDigitalWallet?> GetWalletByIdAsync(string id) => await _uniUnitOfWork.UseDigitalWalletRepository.GetWalletByIdAsync(id);
+        public async Task<UseDigitalWallet?> GetWalletByIdAsync(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id) || !ObjectId.TryParse(id, out var objectId)) return null;
+
+            return await _uniUnitOfWork.UseDigitalWalletRepository.GetOneAsync(c => c.Id == id);
+        }
     }
 }

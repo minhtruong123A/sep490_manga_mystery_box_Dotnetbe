@@ -75,8 +75,9 @@ namespace DataAccessLayers.Repository
                     Id = mangabox.Id.ToString(),
                     MysteryBoxName = mysteryBox?.Name ?? "Unknown",
                     MysteryBoxPrice = mysteryBox?.Price ?? 0,
-                    UrlImage = mysteryBox?.UrlImage,
-                    CollectionTopic = collection?.Topic ?? "Unknown"
+                    UrlImage = mysteryBox?.UrlImage ?? "Unknonwn",
+                    CollectionTopic = collection?.Topic ?? "Unknown",
+                    CreatedAt = mangabox?.CreatedAt ?? null
                 };
             }).ToList();
         }

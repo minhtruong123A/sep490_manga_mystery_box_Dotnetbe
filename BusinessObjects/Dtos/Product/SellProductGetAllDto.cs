@@ -10,10 +10,11 @@ namespace BusinessObjects.Dtos.Product
     {
         public string Id { get; set; }
         public string Name { get; set; } 
-        public int Price { get; set; }
+        public int? Price { get; set; }
         public string Username { get; set; }
         public string Topic { get; set; }
         public string UrlImage { get; set; }
         public string RarityName { get; set; }
+        public DateTime? CreatedAt { get; set; }
     }
 }

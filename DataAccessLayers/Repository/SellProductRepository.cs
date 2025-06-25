@@ -135,11 +135,12 @@ namespace DataAccessLayers.Repository
                 {
                     Id = sellProduct.Id.ToString(),
                     Name = product?.Name ?? "Unknown",
-                    Price = sellProduct.Price,
+                    Price = sellProduct?.Price ?? null,
                     Username = user?.Username ?? "Unknown",
                     Topic = collection?.Topic ?? "Unknown",
                     UrlImage = product?.UrlImage ?? "Unknown",
-                    RarityName = rarity?.Name ?? "Unknown"
+                    RarityName = rarity?.Name ?? "Unknown",
+                    CreatedAt = sellProduct?.CreatedAt ?? null,
                 };
             }).ToList();
         }

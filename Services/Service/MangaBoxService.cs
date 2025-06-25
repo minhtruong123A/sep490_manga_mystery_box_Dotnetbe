@@ -15,11 +15,9 @@ namespace Services.Service
     public class MangaBoxService : IMangaBoxService
     {
         private readonly IUnitOfWork _uniUnitOfWork;
-        private readonly ISupabaseStorageHelper _supabaseStorageHelper;
-        public MangaBoxService(IUnitOfWork unitOfWork, ISupabaseStorageHelper supabaseStorageHelper)
+        public MangaBoxService(IUnitOfWork unitOfWork)
         {
             _uniUnitOfWork = unitOfWork;
-            _supabaseStorageHelper = supabaseStorageHelper;
         }
 
         public async Task<MangaBox> AddAsync(MangaBox mangaBox) => await _uniUnitOfWork.MangaBoxRepository.AddAsync(mangaBox);

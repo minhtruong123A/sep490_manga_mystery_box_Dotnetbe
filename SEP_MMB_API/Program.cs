@@ -271,6 +271,30 @@ app.UseCors("AllowAll");
 app.UseIpRateLimiting();
 
 app.UseAuthentication();
+
+// Middleware avoid refresh token call API
+app.Use(async (context, next) =>
+{
+    var endpoint = context.GetEndpoint();
+    var hasAuthorizeAttribute = endpoint?.Metadata?.GetMetadata<Microsoft.AspNetCore.Authorization.AuthorizeAttribute>() != null;
+    if (hasAuthorizeAttribute)
+    {
+        var user = context.User;
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            var isRefreshToken = user.Claims.FirstOrDefault(c => c.Type == "is_refresh_token")?.Value;
+            if (isRefreshToken == "true")
+            {
+                context.Response.StatusCode = 403;
+                await context.Response.WriteAsync("Refresh tokens are not allowed to access this API.");
+                return;
+            }
+        }
+    }
+
+    await next();
+});
+
 app.UseAuthorization();
 
 // Csrf cookie middleware

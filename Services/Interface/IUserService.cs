@@ -11,7 +11,7 @@ namespace Services.Interface
     public interface IUserService
     {
         Task<List<UserInformationDto>> GetAllUsersAsync();
-        Task<User?> GetUserByIdAsync(string id);
+        Task<UserInformationDto> GetUserByIdAsync(string id);
         Task CreateUserAsync(User user);
         Task UpdateUserAsync(string id, User user);
         Task DeleteUserAsync(string id);

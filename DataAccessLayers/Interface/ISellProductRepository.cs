@@ -9,10 +9,11 @@ using System.Threading.Tasks;
 
 namespace DataAccessLayers.Interface
 {
-    public interface ISellProductRepository : IGenericRepository<SellProduct>
-    {
-        Task<int> CreateSellProductAsync(SellProductCreateDto dto, string userId);
-        Task<List<SellProductGetAllDto>> GetAllProductOnSaleAsync();
-        Task<SellProductDetailDto?> GetProductDetailByIdAsync(string id);
-    }
+        public interface ISellProductRepository : IGenericRepository<SellProduct>
+        {
+                Task<int> CreateSellProductAsync(SellProductCreateDto dto, string userId);
+                Task<List<SellProductGetAllDto>> GetAllProductOnSaleAsync();
+                Task<List<SellProductGetAllDto>> GetAllProductOnSaleOfUserIdAsync(string id);
+                Task<SellProductDetailDto?> GetProductDetailByIdAsync(string id);
+        }
 }

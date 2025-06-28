@@ -6,20 +6,22 @@ using System.Threading.Tasks;
 
 namespace DataAccessLayers.Interface
 {
-    public interface IUnitOfWork
-    {
-        IUserRepository UserRepository { get; }
-        IEmailVerificationRepository EmailVerificationRepository { get; }
-        IMangaBoxRepository MangaBoxRepository { get; }
-        ISellProductRepository SellProductRepository { get; }
-        IUserCollectionRepository UserCollectionRepository { get; }
-        ICommentRepository CommentRepository { get; }
-        ITransactionHistoryRepository TransactionHistoryRepository { get; }
-        IPayOSRepository PayOSRepository { get; }
-        IUseDigitalWalletRepository UseDigitalWalletRepository {  get; }
-        ICartRepository CartRepository { get; }
-        IProductInMangaBoxRepository ProductInMangaBoxRepository { get; }
-        IProductRepository ProductRepository { get; }
-        Task SaveChangesAsync();
-    }
+        public interface IUnitOfWork
+        {
+                IUserRepository UserRepository { get; }
+                IEmailVerificationRepository EmailVerificationRepository { get; }
+                IMangaBoxRepository MangaBoxRepository { get; }
+                ISellProductRepository SellProductRepository { get; }
+                IUserCollectionRepository UserCollectionRepository { get; }
+                ICommentRepository CommentRepository { get; }
+                ITransactionHistoryRepository TransactionHistoryRepository { get; }
+                IPayOSRepository PayOSRepository { get; }
+                IUseDigitalWalletRepository UseDigitalWalletRepository { get; }
+                ICartRepository CartRepository { get; }
+                IProductInMangaBoxRepository ProductInMangaBoxRepository { get; }
+                IProductRepository ProductRepository { get; }
+                IUserBoxRepository UserBoxRepository { get; }
+                IUserProductRepository UserProductRepository { get; }
+                Task SaveChangesAsync();
+        }
 }

@@ -1,14 +1,15 @@
 ﻿using AutoMapper;
-using BusinessObjects.Dtos.User;
 using BusinessObjects;
+using BusinessObjects.Dtos.Comment;
+using BusinessObjects.Dtos.MangaBox;
+using BusinessObjects.Dtos.User;
+using BusinessObjects.Dtos.UserBox;
+using BusinessObjects.Dtos.UserCollection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BusinessObjects.Dtos.MangaBox;
-using BusinessObjects.Dtos.UserCollection;
-using BusinessObjects.Dtos.Comment;
 using BusinessObjects.Dtos.ProductInMangaBox;
 
 namespace Services.AutoMapper
@@ -17,18 +18,26 @@ namespace Services.AutoMapper
     {
         public MappingProfile()
         {
-            //Entity to DTO
+            // Entity to DTO
             CreateMap<User, UserInformationDto>();
+            CreateMap<UserBox, UserBoxGetAllDto>()
+                .ForMember(dest => dest.BoxTitle, opt => opt.Ignore());
 
-            //DTO to Entity
+            CreateMap<UserCollection, UserCollectionGetAllDto>()
+                .ForMember(dest => dest.CollectionTopic, opt => opt.Ignore())
+                .ForMember(dest => dest.Image, opt => opt.Ignore())
+                .ForMember(dest => dest.Count, opt => opt.Ignore());
+
+            // DTO to Entity
             CreateMap<MangaBoxDto, MangaBox>()
-                      .ForMember(dest => dest.Id, opt => opt.Ignore());
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
             CreateMap<UserCollectionDto, UserCollection>()
                       .ForMember(dest => dest.Id, opt => opt.Ignore());
             CreateMap<CommentCreateDto, Comment>()
                       .ForMember(dest => dest.Id, opt => opt.Ignore());
             CreateMap<ProductInMangaBoxDto, ProductInMangaBox>()
                       .ForMember(dest => dest.Id, opt => opt.Ignore());
+
         }
     }
 }

@@ -25,7 +25,7 @@ namespace SEP_MMB_API.Controllers
         }
 
         [HttpGet("get-all-product-on-sale-of-user")]
-        public async Task<ActionResult<ResponseModel<List<SellProductGetAllDto>>>> GetAllProductOnSaleOfUser(string token)
+        public async Task<ActionResult<ResponseModel<List<SellProductGetAllDto>>>> GetAllProductOnSaleOfUser()
         {
             try
             {

@@ -20,9 +20,10 @@ namespace SEP_MMB_API.Controllers
             _authService = authService;
         }
 
+        //check codex
         [Authorize]
         [HttpGet("get-all-product-of-collection")]
-        public async Task<ActionResult<ResponseModel<List<CollectionProductsDto>>>> GetAllProductOfCollection(string token, string collectionId)
+        public async Task<ActionResult<ResponseModel<List<CollectionProductsDto>>>> GetAllProductOfCollection(string collectionId)
         {
             try
             {

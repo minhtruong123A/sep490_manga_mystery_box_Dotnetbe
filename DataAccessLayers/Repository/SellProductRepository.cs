@@ -146,18 +146,18 @@ namespace DataAccessLayers.Repository
         }
         public async Task<List<SellProductGetAllDto>> GetAllProductOnSaleOfUserIdAsync(string id)
         {
-            var sellProductList = await _mongoDbContext.SellProducts.AsQueryable().Where(c => c.IsSell && c.SellerId.Equals(id)).ToListAsync();
+            var sellProductList = await _sellProductCollection.AsQueryable().Where(c => c.IsSell && c.SellerId.Equals(id)).ToListAsync();
             var productIds = sellProductList.Select(c => c.ProductId).ToHashSet();
             var sellerIds = sellProductList.Select(c => c.SellerId).ToHashSet();
-            var productTask = _mongoDbContext.Products.AsQueryable().Where(c => productIds.Contains(c.Id.ToString())).ToListAsync();
-            var userTask = _mongoDbContext.Users.AsQueryable().Where(c => sellerIds.Contains(c.Id.ToString())).ToListAsync();
-            var userProductTask = _mongoDbContext.UserProducts.AsQueryable().Where(c => productIds.Contains(c.ProductId)).ToListAsync();
+            var productTask = _productCollection.AsQueryable().Where(c => productIds.Contains(c.Id.ToString())).ToListAsync();
+            var userTask = _userCollection.AsQueryable().Where(c => sellerIds.Contains(c.Id.ToString())).ToListAsync();
+            var userProductTask = _userProductCollection.AsQueryable().Where(c => productIds.Contains(c.ProductId)).ToListAsync();
             await Task.WhenAll(productTask, userTask, userProductTask);
 
             var productList = productTask.Result;
             var userList = userTask.Result;
             var userProductList = userProductTask.Result;
-            var collections = await _mongoDbContext.Collections.AsQueryable().Where(c => userProductList.Any(up => up.CollectionId == c.Id.ToString())).ToListAsync();
+            var collections = await _collections.AsQueryable().Where(c => userProductList.Any(up => up.CollectionId == c.Id.ToString())).ToListAsync();
 
             return sellProductList.Select(sellProduct =>
             {

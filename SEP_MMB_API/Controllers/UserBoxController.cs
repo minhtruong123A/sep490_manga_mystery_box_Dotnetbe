@@ -23,10 +23,11 @@ namespace SEP_MMB_API.Controllers
             _userBoxService = userBoxService;
             _authService = authService;
         }
-
+        
+        //check code
         [Authorize]
         [HttpGet("get-all-box-of-profile")]
-        public async Task<ActionResult<ResponseModel<List<UserBoxGetAllDto>>>> GetAllCollectionOfProfile(string token)
+        public async Task<ActionResult<ResponseModel<List<UserBoxGetAllDto>>>> GetAllCollectionOfProfile()
         {
             try
             {

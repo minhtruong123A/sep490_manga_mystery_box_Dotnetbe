@@ -48,7 +48,7 @@ namespace SEP_MMB_API.Controllers
 
         [Authorize]
         [HttpGet("get-profile")]
-        public async Task<ActionResult<ResponseModel<List<UserInformationDto>>>> GetByToken(string token)
+        public async Task<ActionResult<ResponseModel<List<UserInformationDto>>>> GetByToken()
         {
             try
             {

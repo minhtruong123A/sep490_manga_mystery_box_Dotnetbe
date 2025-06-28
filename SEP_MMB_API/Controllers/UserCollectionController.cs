@@ -24,7 +24,7 @@ namespace SEP_MMB_API.Controllers
 
         [Authorize]
         [HttpGet("get-all-collection-of-profile")]
-        public async Task<ActionResult<ResponseModel<List<UserCollectionGetAllDto>>>> GetAllCollectionOfProfile(string token)
+        public async Task<ActionResult<ResponseModel<List<UserCollectionGetAllDto>>>> GetAllCollectionOfProfile()
         {
             try
             {

@@ -1,4 +1,5 @@
-﻿using BusinessObjects.Dtos.Product;
+﻿using BusinessObjects;
+using BusinessObjects.Dtos.Product;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DataAccessLayers.Interface
 {
-    public interface IProductRepository
+    public interface IProductRepository : IGenericRepository<Product>
     {
         Task<ProductWithRarityDto?> GetProductWithRarityByIdAsync(string productId);
     }

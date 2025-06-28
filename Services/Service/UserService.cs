@@ -31,8 +31,13 @@ namespace Services.Service
         }
 
         //basic CRUD User
-        public async Task<User?> GetUserByIdAsync(string id) =>  await _uniUnitOfWork.UserRepository.GetByIdAsync(id);
-        
+        //get profile by user ID
+        public async Task<UserInformationDto> GetUserByIdAsync(string id)
+        {
+           var user = await _uniUnitOfWork.UserRepository.GetByIdAsync(id);
+           var userDto = _mapper.Map<UserInformationDto>(user);
+           return userDto;
+        }
 
         public async Task CreateUserAsync(User user) => await _uniUnitOfWork.UserRepository.AddAsync(user);
 

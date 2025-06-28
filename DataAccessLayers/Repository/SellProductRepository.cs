@@ -144,7 +144,39 @@ namespace DataAccessLayers.Repository
                 };
             }).ToList();
         }
+        public async Task<List<SellProductGetAllDto>> GetAllProductOnSaleOfUserIdAsync(string id)
+        {
+            var sellProductList = await _sellProductCollection.AsQueryable().Where(c => c.IsSell && c.SellerId.Equals(id)).ToListAsync();
+            var productIds = sellProductList.Select(c => c.ProductId).ToHashSet();
+            var sellerIds = sellProductList.Select(c => c.SellerId).ToHashSet();
+            var productTask = _productCollection.AsQueryable().Where(c => productIds.Contains(c.Id.ToString())).ToListAsync();
+            var userTask = _userCollection.AsQueryable().Where(c => sellerIds.Contains(c.Id.ToString())).ToListAsync();
+            var userProductTask = _userProductCollection.AsQueryable().Where(c => productIds.Contains(c.ProductId)).ToListAsync();
+            await Task.WhenAll(productTask, userTask, userProductTask);
 
+            var productList = productTask.Result;
+            var userList = userTask.Result;
+            var userProductList = userProductTask.Result;
+            var collections = await _collections.AsQueryable().Where(c => userProductList.Any(up => up.CollectionId == c.Id.ToString())).ToListAsync();
+
+            return sellProductList.Select(sellProduct =>
+            {
+                var product = productList.FirstOrDefault(c => c.Id.ToString() == sellProduct.ProductId);
+                var user = userList.FirstOrDefault(c => c.Id.ToString() == sellProduct.SellerId);
+                var userProduct = userProductList.FirstOrDefault(c => c.ProductId == sellProduct.ProductId);
+                var collection = collections.FirstOrDefault(c => c.Id.ToString() == userProduct?.CollectionId);
+
+                return new SellProductGetAllDto
+                {
+                    Id = sellProduct.Id.ToString(),
+                    Name = product?.Name ?? "Unknown",
+                    Price = sellProduct.Price,
+                    Username = user?.Username ?? "Unknown",
+                    Topic = collection?.Topic ?? "Unknown",
+                    UrlImage = product?.UrlImage
+                };
+            }).ToList();
+        }
         //getproductonsalebyid
         //public async Task<SellProductDetailDto> GetProductDetailByIdAsync(string id)
         //{

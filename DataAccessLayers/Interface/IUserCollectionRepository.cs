@@ -1,4 +1,5 @@
 ﻿using BusinessObjects;
+using BusinessObjects.Dtos.UserCollection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +11,6 @@ namespace DataAccessLayers.Interface
 {
     public interface IUserCollectionRepository : IGenericRepository<UserCollection>
     {
+        Task<List<UserCollectionGetAllDto>> GetAllWithDetailsAsync(string userId);
     }
 }

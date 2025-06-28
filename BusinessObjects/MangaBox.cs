@@ -18,5 +18,6 @@ namespace BusinessObjects
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public int Status { get; set; }
+        public string Title { get; set; }
     }
 }

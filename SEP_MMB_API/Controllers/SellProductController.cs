@@ -24,6 +24,32 @@ namespace SEP_MMB_API.Controllers
             _authService = authService;
         }
 
+        [HttpGet("get-all-product-on-sale-of-user")]
+        public async Task<ActionResult<ResponseModel<List<SellProductGetAllDto>>>> GetAllProductOnSaleOfUser()
+        {
+            try
+            {
+                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var result = await _sellProductService.GetAllProductOnSaleOfUserAsync(account.Id);
+                return Ok(new ResponseModel<List<SellProductGetAllDto>>
+                {
+                    Data = result,
+                    Error = null,
+                    Success = true
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<SellProductGetAllDto>
+                {
+                    Data = null,
+                    Error = ex.Message,
+                    Success = false,
+                    ErrorCode = 400
+                });
+            }
+        }
+
         [HttpGet("get-all-product-on-sale")]
         public async Task<ActionResult<ResponseModel<List<SellProductGetAllDto>>>> GetAllProductOnSale()
         {
@@ -95,7 +121,7 @@ namespace SEP_MMB_API.Controllers
             {
                 var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
                 int exchangeCode = await _sellProductService.CreateSellProductAsync(dto, account.Id);
-                
+
                 response.Success = true;
                 response.Data = new
                 {

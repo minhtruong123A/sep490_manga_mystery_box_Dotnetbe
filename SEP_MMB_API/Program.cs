@@ -170,6 +170,7 @@ builder.Services.AddScoped<IUseDigitalWalletService, UseDigitalWalletService>();
 builder.Services.AddScoped<ISignedUrlService, SignedUrlService>();
 builder.Services.AddScoped<IProductInMangaBoxService,  ProductInMangaBoxService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IImageService, ImageService>();
 
 //AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

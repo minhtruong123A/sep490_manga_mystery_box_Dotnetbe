@@ -13,5 +13,6 @@ namespace DataAccessLayers.Interface
         //Task<List<MangaBoxDetailDto>> GetAllWithDetailsAsync();
         Task<List<MangaBoxGetAllDto>> GetAllWithDetailsAsync();
         Task<MangaBoxDetailDto?> GetByIdWithDetailsAsync(string id);
+        Task<MysteryBox?> FindMysteryBoxByUrlImageAsync(string urlImage);
     }
 }

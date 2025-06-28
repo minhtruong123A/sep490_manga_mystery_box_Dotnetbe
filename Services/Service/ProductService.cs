@@ -27,11 +27,11 @@ namespace Services.Service
             var dto = await _unitOfWork.ProductRepository.GetProductWithRarityByIdAsync(productId);
             if (dto == null) return null;
 
-            if (!string.IsNullOrEmpty(dto.UrlImage))
-            {
-                var signedUrl = await _supabaseStorageHelper.CreateSignedUrlAsync(dto.UrlImage);
-                dto.UrlImage = signedUrl ?? dto.UrlImage;
-            }
+            //if (!string.IsNullOrEmpty(dto.UrlImage))
+            //{
+            //    var signedUrl = await _supabaseStorageHelper.CreateSignedUrlAsync(dto.UrlImage);
+            //    dto.UrlImage = signedUrl ?? dto.UrlImage;
+            //}
 
             return dto;
         }

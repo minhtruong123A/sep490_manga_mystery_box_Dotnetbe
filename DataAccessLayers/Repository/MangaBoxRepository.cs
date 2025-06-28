@@ -149,5 +149,10 @@ namespace DataAccessLayers.Repository
                 Products = productDtos
             };
         }
+
+        public async Task<MysteryBox?> FindMysteryBoxByUrlImageAsync(string urlImage)
+        {
+            return await _mysteryBoxCollection.Find(m => m.UrlImage == urlImage).FirstOrDefaultAsync();
+        }
     }
 }

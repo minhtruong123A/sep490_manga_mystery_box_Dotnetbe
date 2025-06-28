@@ -1,7 +1,6 @@
 ﻿using DataAccessLayers.Interface;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 using Services.Interface;
 using System;
 using System.IO;
@@ -25,6 +24,16 @@ namespace Services.Service
         private readonly IMemoryCache _cache;
         private readonly IUnitOfWork _unitOfWork;
         private record CachedImage(byte[] Content, string ContentType);
+        private static readonly FontCollection _fontCollection = new();
+        private static readonly FontFamily _customFontFamily;
+        static ImageService()
+        {
+            var fontPath = Path.Combine(AppContext.BaseDirectory, "Fonts", "arial.ttf");
+            if (File.Exists(fontPath))
+            {
+                _customFontFamily = _fontCollection.Add(fontPath);
+            }
+        }
 
         public ImageService(ISupabaseStorageHelper supabaseStorageHelper, IMemoryCache cache, IUnitOfWork unitOfWork)
         {
@@ -109,16 +118,13 @@ namespace Services.Service
 
         private void ApplyIdWatermark(SixLaborsImage image, string id)
         {
+            if (_customFontFamily == null) return;
+
             string watermarkText = $"MMB{id}";
-            FontFamily fontFamily = SystemFonts.Families.FirstOrDefault(f => f.Name == "Arial");
-            if (fontFamily == default(FontFamily)) fontFamily = SystemFonts.Families.First();
-
-            int dynamicFontSize = image.Width / 70;
-            dynamicFontSize = Math.Clamp(dynamicFontSize, 10, 40);
-            Font font = fontFamily.CreateFont(dynamicFontSize, FontStyle.Regular);
-
+            int dynamicFontSize = Math.Clamp(image.Width / 70, 10, 40);
+            Font font = _customFontFamily.CreateFont(dynamicFontSize, FontStyle.Regular);
             var brush = Brushes.Solid(SixLaborsColor.White.WithAlpha(0.4f));
-            var textOptions = new RichTextOptions(font){ HorizontalAlignment = HorizontalAlignment.Center, };
+            var textOptions = new RichTextOptions(font) { HorizontalAlignment = HorizontalAlignment.Center };
             FontRectangle size = TextMeasurer.MeasureBounds(watermarkText, textOptions);
             float centerX = (image.Width - size.Width) / 2;
             float centerY = (image.Height - size.Height) / 2;

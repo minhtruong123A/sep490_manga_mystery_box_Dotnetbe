@@ -73,7 +73,6 @@ namespace SEP_MMB_API.Controllers
             }
         }
 
-        [Authorize]
         [HttpGet("get-other-profile")]
         public async Task<ActionResult<ResponseModel<List<UserInformationDto>>>> GetById(string id)
         {

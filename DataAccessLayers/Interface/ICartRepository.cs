@@ -10,5 +10,6 @@ namespace DataAccessLayers.Interface
         Task<List<CartBox>> GetCartBoxesByCartIdAsync(string cartId);
         Task RemoveFromCartAsync(string userId, string? sellProductId = null, string? mangaBoxId = null);
         Task ClearCartAsync(string userId);
+        Task<bool> UpdateItemQuantityAsync(string cartId, string itemId, int quantity);
     }
 }

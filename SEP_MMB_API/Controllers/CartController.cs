@@ -87,6 +87,51 @@ namespace SEP_MMB_API.Controllers
         }
 
         [Authorize(Roles = "user")]
+        [HttpPut("update-quantity")]
+        public async Task<ActionResult<ResponseModel<object>>> UpdateQuantity([FromBody] UpdateCartItemDto request)
+        {
+            try
+            {
+                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                if (request.Quantity < 0) return BadRequest(new ResponseModel<object> { Success = false, Error = "Quantity cannot be negative." });
+
+                var updatedItem = await _cartService.UpdateItemQuantityAsync(account.Id, request.Id, request.Quantity);
+                return Ok(new ResponseModel<UpdateCartItemDto>
+                {
+                    Data = updatedItem,
+                    Success = true
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new ResponseModel<object>
+                {
+                    Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 404
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new ResponseModel<object>
+                {
+                    Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, new ResponseModel<object>
+                {
+                    Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
+
+        [Authorize(Roles = "user")]
         [HttpDelete("remove-from-cart")]
         public async Task<ActionResult<ResponseModel<object>>> RemoveFromCart([FromQuery] string? sellProductId, [FromQuery] string? mangaBoxId)
         {

@@ -75,5 +75,20 @@ namespace Services.Service
         public async Task RemoveFromCartAsync(string userId, string? sellProductId = null, string? mangaBoxId = null) => await _unitOfWork.CartRepository.RemoveFromCartAsync(userId, sellProductId, mangaBoxId);
 
         public async Task ClearCartAsync(string userId) => await _unitOfWork.CartRepository.ClearCartAsync(userId);
+
+        public async Task<UpdateCartItemDto> UpdateItemQuantityAsync(string userId, string itemId, int newQuantity)
+        {
+            var cart = await _unitOfWork.CartRepository.GetCartByUserIdAsync(userId);
+            if (cart == null) throw new ArgumentException("Cart not found for this user.");
+
+            var success = await _unitOfWork.CartRepository.UpdateItemQuantityAsync(cart.Id, itemId, newQuantity);
+            if (!success) throw new ArgumentException("Item not found in the cart.");
+
+            return new UpdateCartItemDto
+            {
+                Id = itemId,
+                Quantity = newQuantity
+            };
+        }
     }
 }

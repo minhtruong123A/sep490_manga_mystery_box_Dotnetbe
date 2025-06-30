@@ -13,6 +13,6 @@ namespace Services.Interface
         Task<CartViewDto> ViewCartAsync(string userId);
         Task RemoveFromCartAsync(string userId, string? sellProductId = null, string? mangaBoxId = null);
         Task ClearCartAsync(string userId);
-
+        Task<UpdateCartItemDto> UpdateItemQuantityAsync(string userId, string itemId, int newQuantity);
     }
 }

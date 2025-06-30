@@ -125,6 +125,44 @@ namespace DataAccessLayers.Repository
 
         public async Task<List<CartBox>> GetCartBoxesByCartIdAsync(string cartId) => await _cartBoxCollection.Find(c => c.CartId == cartId).ToListAsync();
 
+        public async Task<bool> UpdateItemQuantityAsync(string cartId, string itemId, int quantity)
+        {
+            if (quantity < 0) throw new ArgumentException("Quantity cannot be negative.");
 
+            var cartProduct = await _cartProductCollection.Find(p => p.CartId == cartId && p.SellProductId == itemId).FirstOrDefaultAsync();
+            if (cartProduct != null)
+            {
+                var sellProduct = await _sellProductCollection.Find(sp => sp.Id == cartProduct.SellProductId).FirstOrDefaultAsync();
+                if (sellProduct == null) throw new ArgumentException("Product does not exist anymore.");
+                if (quantity > sellProduct.Quantity) throw new InvalidOperationException($"Not enough stock for product. Available: {sellProduct.Quantity}, Requested: {quantity}.");
+                if (quantity == 0)
+                {
+                    await _cartProductCollection.DeleteOneAsync(p => p.Id == cartProduct.Id);
+                }
+                else
+                {
+                    var update = Builders<CartProduct>.Update.Set(p => p.Quantity, quantity);
+                    await _cartProductCollection.UpdateOneAsync(p => p.Id == cartProduct.Id, update);
+                }
+                return true;
+            }
+
+            var cartBox = await _cartBoxCollection.Find(b => b.CartId == cartId && b.MangaBoxId == itemId).FirstOrDefaultAsync();
+            if (cartBox != null)
+            {
+                if (quantity == 0)
+                {
+                    await _cartBoxCollection.DeleteOneAsync(b => b.Id == cartBox.Id);
+                }
+                else
+                {
+                    var update = Builders<CartBox>.Update.Set(b => b.Quantity, quantity);
+                    await _cartBoxCollection.UpdateOneAsync(b => b.Id == cartBox.Id, update);
+                }
+                return true;
+            }
+
+            return false;
+        }
     }
 }

@@ -230,7 +230,8 @@ namespace DataAccessLayers.Repository
                 UserId = userResult?.Id ?? "Unknown Id",
                 Username = userResult?.Username ?? "Unknown",
                 Topic = collectionResult?.Topic ?? "Unknown",
-                RateName = rarityResult?.Name ?? "Unknown"
+                RateName = rarityResult?.Name ?? "Unknown",
+                Quantity = sellProduct.Quantity
             };
         }
     }

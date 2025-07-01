@@ -17,5 +17,6 @@ namespace BusinessObjects.Dtos.Product
         public string UrlImage { get; set; }
         public string RateName { get; set; } 
         public string Description { get; set; }
+        public int Quantity { get; set; }
     }
 }

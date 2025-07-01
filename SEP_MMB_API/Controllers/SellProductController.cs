@@ -24,12 +24,12 @@ namespace SEP_MMB_API.Controllers
             _authService = authService;
         }
 
-        [HttpGet("get-all-product-on-sale-of-user/{id}")]
-        public async Task<ActionResult<ResponseModel<List<SellProductGetAllDto>>>> GetAllProductOnSaleOfUser(string id)
+        [HttpGet("get-all-product-on-sale-of-user/{userId}")]
+        public async Task<ActionResult<ResponseModel<List<SellProductGetAllDto>>>> GetAllProductOnSaleOfUser(string userId)
         {
             try
             {
-                var result = await _sellProductService.GetAllProductOnSaleOfUserAsync(id);
+                var result = await _sellProductService.GetAllProductOnSaleOfUserAsync(userId);
                 return Ok(new ResponseModel<List<SellProductGetAllDto>>
                 {
                     Data = result,

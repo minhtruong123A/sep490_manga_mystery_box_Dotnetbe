@@ -23,31 +23,6 @@ namespace SEP_MMB_API.Controllers
             _useDigitalWalletService = useDigitalWalletService;
         }
 
-        [HttpPost("login")]
-        public async Task<ActionResult<ResponseModel<AuthResponseDto>>> Login([FromQuery] LoginDto loginDto)
-        {
-            try
-            {
-                var response = await _authService.Login(loginDto);
-                return Ok(new ResponseModel<AuthResponseDto>()
-                {
-                    Data = response,
-                    Error = null,
-                    Success = true
-                });
-            }
-            catch (Exception ex)
-            {
-                return Unauthorized(new ResponseModel<AuthResponseDto>()
-                {
-                    Data = null,
-                    Error = ex.Message,
-                    Success = false,
-                    ErrorCode = 401
-                });
-            }
-        }
-
         [Authorize]
         [HttpGet("who-am-i")]
         public async Task<ActionResult<ResponseModel<UserTokenDto>>> WhoAmI()
@@ -90,6 +65,31 @@ namespace SEP_MMB_API.Controllers
                     Error = ex.Message,
                     Success = false,
                     ErrorCode = 400
+                });
+            }
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult<ResponseModel<AuthResponseDto>>> Login([FromQuery] LoginDto loginDto)
+        {
+            try
+            {
+                var response = await _authService.Login(loginDto);
+                return Ok(new ResponseModel<AuthResponseDto>()
+                {
+                    Data = response,
+                    Error = null,
+                    Success = true
+                });
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized(new ResponseModel<AuthResponseDto>()
+                {
+                    Data = null,
+                    Error = ex.Message,
+                    Success = false,
+                    ErrorCode = 401
                 });
             }
         }

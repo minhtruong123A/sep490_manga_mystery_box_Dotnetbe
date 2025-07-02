@@ -23,6 +23,10 @@ namespace Services.Service
 
                 public async Task<int> CreateSellProductAsync(SellProductCreateDto dto, string userId) => await _uniUnitOfWork.SellProductRepository.CreateSellProductAsync(dto, userId);
 
+                public async Task<bool> UpdateSellProductAsync(UpdateSellProductDto dto) => await _uniUnitOfWork.SellProductRepository.UpdateSellProductAsync(dto);
+
+                public async Task<bool> ChangestatusSellProductAsync(string id) => await _uniUnitOfWork.SellProductRepository.ChangestatusSellProductAsync(id);
+
                 public async Task<List<SellProductGetAllDto>> GetAllProductOnSaleOfUserAsync(string id) => await _uniUnitOfWork.SellProductRepository.GetAllProductOnSaleOfUserIdAsync(id);
 
                 public async Task<List<SellProductGetAllDto>> GetAllProductOnSaleAsync() => await _uniUnitOfWork.SellProductRepository.GetAllProductOnSaleAsync();

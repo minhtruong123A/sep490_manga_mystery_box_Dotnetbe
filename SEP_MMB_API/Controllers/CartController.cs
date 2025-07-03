@@ -172,17 +172,17 @@ namespace SEP_MMB_API.Controllers
 
         [Authorize(Roles = "user")]
         [HttpDelete("clear-all-cart")]
-        public async Task<ActionResult<ResponseModel<object>>> ClearCart()
+        public async Task<ActionResult<ResponseModel<object>>> ClearCart([FromQuery] string type = "all")
         {
             try
             {
                 var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                await _cartService.ClearCartAsync(account.Id);
+                await _cartService.ClearCartAsync(account.Id, type);
 
                 return Ok(new ResponseModel<object>
                 {
                     Success = true,
-                    Data = new { message = "Cart cleared successfully." },
+                    Data = new { message = $"Cart cleared ({type}) successfully." },
                     Error = null,
                     ErrorCode = 0
                 });

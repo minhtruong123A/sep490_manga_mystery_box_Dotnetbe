@@ -98,7 +98,7 @@ namespace SEP_MMB_API.Controllers
 
         [Authorize(Roles = "user")]
         [HttpPost("create-report")]
-        public async Task<ActionResult<ResponseModel<object>>> CreateReport([FromBody]ReportCreateDto dto, string userId)
+        public async Task<ActionResult<ResponseModel<object>>> CreateReport([FromBody]ReportCreateDto dto)
         {
             var response = new ResponseModel<object>();
             try

@@ -110,13 +110,26 @@ namespace DataAccessLayers.Repository
             }
         }
 
-        public async Task ClearCartAsync(string userId)
+        public async Task ClearCartAsync(string userId, string type)
         {
             var cart = await _cartCollection.Find(c => c.UserId == userId).FirstOrDefaultAsync();
             if (cart == null) return;
 
-            await _cartProductCollection.DeleteManyAsync(p => p.CartId == cart.Id);
-            await _cartBoxCollection.DeleteManyAsync(b => b.CartId == cart.Id);
+            switch (type.ToLower())
+            {
+                case "product":
+                    await _cartProductCollection.DeleteManyAsync(p => p.CartId == cart.Id);
+                    break;
+                case "box":
+                    await _cartBoxCollection.DeleteManyAsync(b => b.CartId == cart.Id);
+                    break;
+                case "all":
+                    await _cartProductCollection.DeleteManyAsync(p => p.CartId == cart.Id);
+                    await _cartBoxCollection.DeleteManyAsync(b => b.CartId == cart.Id);
+                    break;
+                default:
+                    throw new ArgumentException("Invalid cart clear type. Must be 'product', 'box', or 'all'.");
+            }
         }
 
         public async Task<Cart?> GetCartByUserIdAsync(string userId) => await _cartCollection.Find(c => c.UserId == userId).FirstOrDefaultAsync();

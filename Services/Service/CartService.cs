@@ -74,7 +74,7 @@ namespace Services.Service
 
         public async Task RemoveFromCartAsync(string userId, string? sellProductId = null, string? mangaBoxId = null) => await _unitOfWork.CartRepository.RemoveFromCartAsync(userId, sellProductId, mangaBoxId);
 
-        public async Task ClearCartAsync(string userId) => await _unitOfWork.CartRepository.ClearCartAsync(userId);
+        public async Task ClearCartAsync(string userId, string type) => await _unitOfWork.CartRepository.ClearCartAsync(userId, type);
 
         public async Task<UpdateCartItemDto> UpdateItemQuantityAsync(string userId, string itemId, int newQuantity)
         {

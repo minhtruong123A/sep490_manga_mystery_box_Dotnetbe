@@ -12,7 +12,7 @@ namespace Services.Interface
         Task AddToCartAsync(string userId, string? sellProductId = null, string? mangaBoxId = null);
         Task<CartViewDto> ViewCartAsync(string userId);
         Task RemoveFromCartAsync(string userId, string? sellProductId = null, string? mangaBoxId = null);
-        Task ClearCartAsync(string userId);
+        Task ClearCartAsync(string userId, string type);
         Task<UpdateCartItemDto> UpdateItemQuantityAsync(string userId, string itemId, int newQuantity);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Dtos.Product;
+using BusinessObjects.Enum;
 using BusinessObjects.Mongodb;
 using DataAccessLayers.Interface;
 using DataAccessLayers.Pipelines;
@@ -22,6 +23,13 @@ namespace DataAccessLayers.Repository
         private readonly IMongoCollection<User> _userCollection;
         private readonly IMongoCollection<Collection> _collections;
         private readonly IMongoCollection<Rarity> _rarityCollection;
+        private readonly IMongoCollection<ProductOrder> _productOrderCollection;
+        private readonly IMongoCollection<UseDigitalWallet> _walletCollection;
+        private readonly IMongoCollection<DigitalPaymentSession> _paymentSessionCollection;
+        private readonly IMongoCollection<UserCollection> _userCollectionCollection;
+        private readonly IMongoCollection<OrderHistory> _orderHistoryCollection;
+        private readonly IMongoCollection<ProductInMangaBox> _productInMangaBoxCollection;
+        private readonly IMongoCollection<MangaBox> _mangaBoxCollection;
         public SellProductRepository(MongoDbContext context) : base(context.GetCollection<SellProduct>("SellProduct"))
         {
             _sellProductCollection = context.GetCollection<SellProduct>("SellProduct");
@@ -30,6 +38,13 @@ namespace DataAccessLayers.Repository
             _userCollection = context.GetCollection<User>("User");
             _collections = context.GetCollection<Collection>("Collection");
             _rarityCollection = context.GetCollection<Rarity>("Rarity");
+            _productOrderCollection = context.GetCollection<ProductOrder>("ProductOrder");
+            _walletCollection = context.GetCollection<UseDigitalWallet>("UseDigitalWallet");
+            _paymentSessionCollection = context.GetCollection<DigitalPaymentSession>("DigitalPaymentSession");
+            _userCollectionCollection = context.GetCollection<UserCollection>("UserCollection");
+            _orderHistoryCollection = context.GetCollection<OrderHistory>("OrderHistory");
+            _productInMangaBoxCollection = context.GetCollection<ProductInMangaBox>("ProductInMangaBox");
+            _mangaBoxCollection = context.GetCollection<MangaBox>("MangaBox");
         }
 
         public async Task<int> CreateSellProductAsync(SellProductCreateDto dto, string userId)
@@ -234,5 +249,100 @@ namespace DataAccessLayers.Repository
                 Quantity = sellProduct.Quantity
             };
         }
+
+        public async Task<string> BuySellProductAsync(string buyerId, string sellProductId, int quantity)
+        {
+            if (quantity <= 0) throw new Exception("Quantity must be greater than 0");
+
+            var sellProduct = await _sellProductCollection.Find(x => x.Id == sellProductId).FirstOrDefaultAsync() ?? throw new Exception("SellProduct not found");
+            if (sellProduct.SellerId == buyerId) throw new Exception("You cannot buy your own product");
+            if (!sellProduct.IsSell || sellProduct.Quantity < quantity) throw new Exception("Not enough product quantity available for sale");
+
+            var user = await _userCollection.Find(x => x.Id == buyerId).FirstOrDefaultAsync() ?? throw new Exception("User not found");
+            var wallet = await _walletCollection.Find(x => x.Id == user.WalletId).FirstOrDefaultAsync();
+            var totalPrice = sellProduct.Price * quantity;
+
+            if (wallet == null || wallet.Ammount < totalPrice) throw new Exception("Insufficient balance");
+
+            wallet.Ammount -= totalPrice;
+            await _walletCollection.ReplaceOneAsync(x => x.Id == wallet.Id, wallet);
+
+            sellProduct.Quantity -= quantity;
+            if (sellProduct.Quantity == 0)
+            {
+                sellProduct.IsSell = false;
+                sellProduct.UpdatedAt = DateTime.UtcNow;
+            }
+            await _sellProductCollection.ReplaceOneAsync(x => x.Id == sellProduct.Id, sellProduct);
+
+            var productOrder = new ProductOrder
+            {
+                SellId = sellProduct.SellerId,
+                BuyerId = buyerId,
+                ProductId = sellProduct.ProductId,
+                Amount = totalPrice
+            };
+            await _productOrderCollection.InsertOneAsync(productOrder);
+
+            var orderHistory = new OrderHistory
+            {
+                ProductOrderId = productOrder.Id,
+                BoxOrderId = null,
+                Datetime = DateTime.UtcNow,
+                Status = (int)TransactionStatus.Success
+            };
+            await _orderHistoryCollection.InsertOneAsync(orderHistory);
+
+            var paymentSession = new DigitalPaymentSession
+            {
+                WalletId = wallet.Id,
+                OrderId = orderHistory.Id,
+                Type = DigitalPaymentSessionType.SellProduct.ToString(),
+                Amount = totalPrice,
+                IsWithdraw = false
+            };
+            await _paymentSessionCollection.InsertOneAsync(paymentSession);
+
+            var productInBox = await _productInMangaBoxCollection.Find(p => p.ProductId == sellProduct.ProductId).FirstOrDefaultAsync() ?? throw new Exception("ProductInMangaBox not found");
+            var mangaBox = await _mangaBoxCollection.Find(m => m.Id == productInBox.MangaBoxId).FirstOrDefaultAsync() ?? throw new Exception("MangaBox not found");
+           
+            var collectionId = mangaBox.CollectionTopicId;
+            var existingUserCollection = await _userCollectionCollection.Find(c => c.UserId == buyerId && c.CollectionId == collectionId).FirstOrDefaultAsync();
+            if (existingUserCollection == null)
+            {
+                var newUserCollection = new UserCollection
+                {
+                    UserId = buyerId,
+                    CollectionId = collectionId
+                };
+                await _userCollectionCollection.InsertOneAsync(newUserCollection);
+            }
+
+            var existingUserProduct = await _userProductCollection.Find(up => up.CollectorId == buyerId && up.ProductId == sellProduct.ProductId).FirstOrDefaultAsync();
+            if (existingUserProduct != null)
+            {
+                var update = Builders<UserProduct>.Update.Inc(x => x.Quantity, quantity);
+                await _userProductCollection.UpdateOneAsync(x => x.Id == existingUserProduct.Id, update);
+            }
+            else
+            {
+                if(existingUserCollection == null) throw new Exception("empty UserCollection");
+
+                var newUserProduct = new UserProduct
+                {
+                    ProductId = sellProduct.ProductId,
+                    CollectorId = buyerId,
+                    Quantity = quantity,
+                    CollectedAt = DateTime.UtcNow,
+                    CollectionId = existingUserCollection.Id
+                };
+                await _userProductCollection.InsertOneAsync(newUserProduct);
+            }
+
+            return orderHistory.Id;
+        }
+
+
+
     }
 }

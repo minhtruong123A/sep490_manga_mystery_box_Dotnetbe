@@ -55,6 +55,7 @@ namespace DataAccessLayers.Repository
 
                 return new UserCollectionGetAllDto
                 {
+                    Id = col.Id,
                     UserId = col.UserId,
                     CollectionId = col.CollectionId,
                     CollectionTopic = topic,

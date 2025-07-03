@@ -22,7 +22,7 @@ namespace SEP_MMB_API.Controllers
 
         //check codex
         [Authorize]
-        [HttpGet("get-all-product-of-collection")]
+        [HttpGet("get-all-product-of-user-collection")]
         public async Task<ActionResult<ResponseModel<List<CollectionProductsDto>>>> GetAllProductOfCollection(string collectionId)
         {
             try

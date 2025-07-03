@@ -18,9 +18,6 @@ namespace Services.Service
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<List<TransactionHistoryDto>> GetTransactionHistoryAsync(string walletId)
-        {
-            return await _unitOfWork.TransactionHistoryRepository.GetTransactionsByWalletIdAsync(walletId);
-        }
+        public async Task<List<TransactionHistoryDto>> GetTransactionHistoryAsync(string walletId) => await _unitOfWork.TransactionHistoryRepository.GetTransactionsByWalletIdAsync(walletId);
     }
 }

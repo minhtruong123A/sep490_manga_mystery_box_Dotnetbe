@@ -14,6 +14,6 @@ namespace Services.Interface
         Task<List<SellProductGetAllDto>> GetAllProductOnSaleAsync();
         Task<List<SellProductGetAllDto>> GetAllProductOnSaleOfUserAsync(string id);
         Task<SellProductDetailDto> GetProductDetailByIdAsync(string id);
-
+        Task<string> BuySellProductAsync(string buyerId, string sellProductId, int quantity);
     }
 }

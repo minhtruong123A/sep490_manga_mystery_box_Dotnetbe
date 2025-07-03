@@ -138,5 +138,39 @@ namespace SEP_MMB_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [Authorize(Roles = "user")]
+        [HttpPost("buy-sell-product")]
+        public async Task<ActionResult<ResponseModel<BuySellProductResponseDto>>> BuySellProduct([FromBody] BuySellProductRequestDto request)
+        {
+            try
+            {
+                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var orderId = await _sellProductService.BuySellProductAsync(account.Id, request.SellProductId, request.Quantity);
+
+                return Ok(new ResponseModel<BuySellProductResponseDto>
+                {
+                    Success = true,
+                    Data = new BuySellProductResponseDto
+                    {
+                        Message = "Buy product on sale successfully!",
+                        OrderId = orderId
+                    },
+                    Error = null,
+                    ErrorCode = 0
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<BuySellProductResponseDto>
+                {
+                    Success = false,
+                    Data = null,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
+
     }
 }

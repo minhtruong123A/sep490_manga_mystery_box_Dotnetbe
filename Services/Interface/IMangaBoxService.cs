@@ -13,5 +13,6 @@ namespace Services.Interface
         Task<MangaBox> AddAsync(MangaBox mangaBox);
         Task<List<MangaBoxGetAllDto>> GetAllWithDetailsAsync();
         Task<MangaBoxDetailDto?> GetByIdWithDetailsAsync(string id);
+        Task<string> BuyBoxAsync(string userId, string boxId, int quantity);
     }
 }

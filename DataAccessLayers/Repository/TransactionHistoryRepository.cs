@@ -22,12 +22,16 @@ namespace DataAccessLayers.Repository
 
         public async Task<List<TransactionHistoryDto>> GetTransactionsByWalletIdAsync(string walletId)
         {
-            var filter = Builders<TransactionHistory>.Filter.Eq(t => t.WalletId, walletId);
+            var filter = Builders<TransactionHistory>.Filter.And(
+                  Builders<TransactionHistory>.Filter.Eq(t => t.WalletId, walletId),
+                  Builders<TransactionHistory>.Filter.Eq(t => t.Type, (int)TransactionType.Recharge)
+              ); 
             var transactions = await _transactionCollection.Find(filter).ToListAsync();
 
             var result = transactions.Select(t => new TransactionHistoryDto
             {
                 Id = t.Id.ToString(),
+                Type = (TransactionType)t.Type,
                 Status = (TransactionStatus)t.Status,
                 Amount = t.Amount,
                 TransactionCode = t.TransactionCode,

@@ -29,8 +29,9 @@ namespace SEP_MMB_API.Controllers
         private readonly IMapper _mapper;
         private readonly IPayOSService _payOSService;
         private readonly IProductInMangaBoxService _productInMangaBoxService;
+        private readonly IUseDigitalWalletService _useDigitalWalletService;
 
-        public TestController(IUserService userService, IAuthService authService, IMangaBoxService mailboxService, IMapper mapper, IUserCollectionService userCollectionService, ICommentService commentService, IPayOSService payOSService, IProductInMangaBoxService productInMangaBoxService)
+        public TestController(IUserService userService, IAuthService authService, IMangaBoxService mailboxService, IMapper mapper, IUserCollectionService userCollectionService, ICommentService commentService, IPayOSService payOSService, IProductInMangaBoxService productInMangaBoxService, IUseDigitalWalletService useDigitalWalletService)
         {
             _userService = userService;
             _authService = authService;
@@ -40,6 +41,7 @@ namespace SEP_MMB_API.Controllers
             _mapper = mapper;
             _payOSService = payOSService;
             _productInMangaBoxService = productInMangaBoxService;
+            _useDigitalWalletService = useDigitalWalletService;
         }
 
         [Tags("Server Test Fetch API Only")]
@@ -114,7 +116,7 @@ namespace SEP_MMB_API.Controllers
 
                 var token = authHeader.Substring("Bearer ".Length).Trim();
                 var handler = new JwtSecurityTokenHandler();
-                
+
                 handler.ValidateToken(token, _authService.GetValidationParameters(), out _);
 
                 return Ok(new ResponseModel<BoolWrapper>
@@ -312,6 +314,36 @@ namespace SEP_MMB_API.Controllers
                 Success = true,
                 Error = null
             });
+        }
+
+        [Tags("Server Test Fetch API Only")]
+        [Authorize(Roles = "user")]
+        [HttpPut("update-user-wallet")]
+        public async Task<ActionResult<ResponseModel<string>>> UpdateWallet([FromQuery] int amount)
+        {
+            try
+            {
+                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var transactionCode = await _useDigitalWalletService.UpdateWalletWithTransactionAsync(account.Id, amount);
+
+                return Ok(new ResponseModel<string>
+                {
+                    Success = true,
+                    Data = transactionCode,
+                    Error = null,
+                    ErrorCode = 0
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string>
+                {
+                    Success = false,
+                    Data = null,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
         }
     }
 }

@@ -153,6 +153,7 @@ builder.Services.AddScoped<IProductInMangaBoxRepository,  ProductInMangaBoxRepos
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IUserBoxRepository, UserBoxRepository>();
 builder.Services.AddScoped<IUserProductRepository, UserProductRepository>();
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
 
 
 //UnitOfWork
@@ -175,7 +176,7 @@ builder.Services.AddScoped<IProductInMangaBoxService,  ProductInMangaBoxService>
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IUserProductService, UserProductService>();
-builder.Services.AddScoped<IUserBoxService, UserBoxService>();
+builder.Services.AddScoped<IReportService, ReportService>();
 
 //AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

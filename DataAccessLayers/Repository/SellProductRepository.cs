@@ -70,8 +70,12 @@ namespace DataAccessLayers.Repository
 
         public async Task<bool> UpdateSellProductAsync(UpdateSellProductDto dto)
         {
+            var sellProduct = await _sellProductCollection.Find(x => x.Id.Equals(dto.Id)).FirstOrDefaultAsync();
+            if (sellProduct.IsSell == true)
+            {
+                return false;
+            }
             var filter = Builders<SellProduct>.Filter.Eq(x => x.Id, dto.Id);
-
             var update = Builders<SellProduct>.Update
                 .Set(x => x.Description, dto.Description)
                 .Set(x => x.Price, dto.Price)
@@ -87,6 +91,10 @@ namespace DataAccessLayers.Repository
             var filter = Builders<SellProduct>.Filter.Eq(x => x.Id, id);
             bool status;
             var sellProduct = await _sellProductCollection.Find(x=>x.Id.Equals(id)).FirstOrDefaultAsync();
+            if(sellProduct.Quantity <= 0)
+            {
+                return false;
+            }
             if(sellProduct.IsSell == true)
             {
                 status = false;

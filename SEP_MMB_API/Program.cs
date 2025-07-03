@@ -151,6 +151,9 @@ builder.Services.AddScoped<IPayOSRepository, PayOSRepository>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<IProductInMangaBoxRepository,  ProductInMangaBoxRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IUserBoxRepository, UserBoxRepository>();
+builder.Services.AddScoped<IUserProductRepository, UserProductRepository>();
+
 
 //UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -171,6 +174,8 @@ builder.Services.AddScoped<ISignedUrlService, SignedUrlService>();
 builder.Services.AddScoped<IProductInMangaBoxService,  ProductInMangaBoxService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<IUserProductService, UserProductService>();
+builder.Services.AddScoped<IUserBoxService, UserBoxService>();
 
 //AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

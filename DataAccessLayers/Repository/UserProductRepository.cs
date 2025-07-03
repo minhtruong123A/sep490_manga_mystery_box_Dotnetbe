@@ -27,11 +27,11 @@ namespace DataAccessLayers.Repository
             _userProductCollection = context.GetCollection<UserProduct>("User_Product");
             _productCollection = context.GetCollection<Product>("Product");
         }
-        public async Task<List<CollectionProductsDto>> GetAllWithDetailsAsync(string userId, string collectionId)
+        public async Task<List<CollectionProductsDto>> GetAllWithDetailsAsync(string userId, string userCollectionId)
         {
             
             var userProducts = await _userProductCollection
-                .Find(p => p.CollectorId == userId && p.CollectionId == collectionId)
+                .Find(p => p.CollectorId == userId && p.CollectionId == userCollectionId)
                 .ToListAsync();
 
             if (!userProducts.Any())
@@ -56,7 +56,7 @@ namespace DataAccessLayers.Repository
                 return new CollectionProductsDto
                 {
                     Id = p.Id.ToString(),
-                    CollectionId = p.CollectionId,
+                    CollectionId = userCollectionId,
                     ProductId = productId,
                     Quantity = p.Quantity,
                     CollectedAt = p.CollectedAt,

@@ -16,10 +16,12 @@ namespace DataAccessLayers.Repository
     {
         private readonly IMongoCollection<UserBox> _userBoxCollection;
         private readonly IMongoCollection<MangaBox> _mangaBoxCollection;
+        private readonly IMongoCollection<Collection> _collectionCollection; 
         public UserBoxRepository(MongoDbContext context) : base(context.GetCollection<UserBox>("UserBox"))
         {
             _userBoxCollection = context.GetCollection<UserBox>("UserBox");
             _mangaBoxCollection = context.GetCollection<MangaBox>("MangaBox");
+            _collectionCollection = context.GetCollection<Collection>("Collection");
         }
 
         public async Task<List<UserBoxGetAllDto>> GetAllWithDetailsAsync(string userId)

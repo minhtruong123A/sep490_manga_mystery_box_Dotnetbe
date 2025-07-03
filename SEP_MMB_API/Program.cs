@@ -149,7 +149,7 @@ builder.Services.AddScoped<ITransactionHistoryRepository, TransactionHistoryRepo
 builder.Services.AddScoped<IUseDigitalWalletRepository, UseDigitalWalletRepository>();
 builder.Services.AddScoped<IPayOSRepository, PayOSRepository>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
-builder.Services.AddScoped<IProductInMangaBoxRepository,  ProductInMangaBoxRepository>();
+builder.Services.AddScoped<IProductInMangaBoxRepository, ProductInMangaBoxRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IMysteryBoxRepository, MysteryBoxRepository>();
 builder.Services.AddScoped<IBoxOrderRepository, BoxOrderRepository>();
@@ -158,7 +158,7 @@ builder.Services.AddScoped<IOrderHistoryRepository, OrderHistoryRepository>();
 builder.Services.AddScoped<IDigitalPaymentSessionRepository, DigitalPaymentSessionRepository>();
 builder.Services.AddScoped<IUserBoxRepository, UserBoxRepository>();
 builder.Services.AddScoped<IUserProductRepository, UserProductRepository>();
-
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
 
 //UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -176,12 +176,13 @@ builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ITransactionHistoryService, TransactionHistoryService>();
 builder.Services.AddScoped<IUseDigitalWalletService, UseDigitalWalletService>();
 builder.Services.AddScoped<ISignedUrlService, SignedUrlService>();
-builder.Services.AddScoped<IProductInMangaBoxService,  ProductInMangaBoxService>();
+builder.Services.AddScoped<IProductInMangaBoxService, ProductInMangaBoxService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IOrderHistoryService, OrderHistoryService>();
 builder.Services.AddScoped<IUserBoxService, UserBoxService>();
 builder.Services.AddScoped<IUserProductService, UserProductService>();
+builder.Services.AddScoped<IReportService, ReportService>();
 
 //AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

@@ -139,6 +139,7 @@ namespace SEP_MMB_API.Controllers
             }
         }
 
+
         [Authorize(Roles = "user")]
         [HttpPost("buy-sell-product")]
         public async Task<ActionResult<ResponseModel<BuySellProductResponseDto>>> BuySellProduct([FromBody] BuySellProductRequestDto request)
@@ -172,5 +173,60 @@ namespace SEP_MMB_API.Controllers
             }
         }
 
+        [Authorize(Roles = "user")]
+        [HttpPut("update-sell-product")]
+        public async Task<ActionResult<ResponseModel<object>>> UpdateSellProduct([FromBody] UpdateSellProductDto dto)
+        {
+            var response = new ResponseModel<object>();
+            try
+            {
+
+                bool exchangeCode = await _sellProductService.UpdateSellProductAsync(dto);
+
+                response.Success = true;
+                response.Data = new
+                {
+                    Message = "Sell Product updated successfully.",
+                    ExchangeCode = exchangeCode
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Error = ex.Message;
+                response.ErrorCode = 400;
+                return BadRequest(response);
+            }
+        }
+
+        [Authorize(Roles = "user")]
+        [HttpPut("turn-on/off-sell-product")]
+        public async Task<ActionResult<ResponseModel<object>>> ChangeStatusSellProduct(string sellProductId)
+        {
+            var response = new ResponseModel<object>();
+            try
+            {
+
+                bool exchangeCode = await _sellProductService.ChangestatusSellProductAsync(sellProductId);
+
+                response.Success = true;
+                response.Data = new
+                {
+                    Message = "Sell Product updated successfully.",
+                    ExchangeCode = exchangeCode
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Error = ex.Message;
+                response.ErrorCode = 400;
+                return BadRequest(response);
+            }
+        }
     }
 }

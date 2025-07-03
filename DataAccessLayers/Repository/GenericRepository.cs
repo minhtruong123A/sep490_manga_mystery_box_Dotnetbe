@@ -88,5 +88,10 @@ namespace DataAccessLayers.Repository
         {
             await _collection.UpdateOneAsync(filter, update);
         }
+
+        public async Task<List<T>> FilterByAsync(Expression<Func<T, bool>> filter)
+        {
+            return await _collection.Find(filter).ToListAsync();
+        }
     }
 }

@@ -8,6 +8,7 @@ using Services.Interface;
 using Services.Service;
 using BusinessObjects.Dtos.UserCollection;
 using BusinessObjects.Dtos.UserBox;
+using BusinessObjects.Dtos.Product;
 
 namespace SEP_MMB_API.Controllers
 {
@@ -23,7 +24,7 @@ namespace SEP_MMB_API.Controllers
             _userBoxService = userBoxService;
             _authService = authService;
         }
-        
+
         //check code
         [Authorize]
         [HttpGet("get-all-box-of-profile")]
@@ -45,6 +46,34 @@ namespace SEP_MMB_API.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new ResponseModel<List<UserCollectionGetAllDto>>
+                {
+                    Data = null,
+                    Error = ex.Message,
+                    Success = false,
+                    ErrorCode = 400
+                });
+            }
+        }
+
+        [Authorize(Roles = "user")]
+        [HttpPost("open-box/{userBoxId}")]
+        public async Task<ActionResult<ResponseModel<ProductResultDto>>> OpenBoxAsync(string userBoxId)
+        {
+            try
+            {
+                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var result = await _userBoxService.OpenMysteryBoxAsync(userBoxId, account.Id.ToString());
+
+                return Ok(new ResponseModel<ProductResultDto>
+                {
+                    Data = result,
+                    Error = null,
+                    Success = true
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<ProductResultDto>
                 {
                     Data = null,
                     Error = ex.Message,

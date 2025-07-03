@@ -57,5 +57,9 @@ namespace BusinessObjects.Mongodb
         public IMongoCollection<Cart> Carts => _database.GetCollection<Cart>("Cart");
         public IMongoCollection<CartBox> CartBoxes => _database.GetCollection<CartBox>("CartBox");
         public IMongoCollection<CartProduct> CartProducts => _database.GetCollection<CartProduct>("CartProduct");
+        public IMongoCollection<BoxOrder> BoxOrders => _database.GetCollection<BoxOrder>("BoxOrder");
+        public IMongoCollection<ProductOrder> ProductOrders => _database.GetCollection<ProductOrder>("ProductOrder");
+        public IMongoCollection<OrderHistory> OrderHistories => _database.GetCollection<OrderHistory>("OrderHistory");
+        public IMongoCollection<DigitalPaymentSession> DigitalPaymentSessions => _database.GetCollection<DigitalPaymentSession>("DigitalPaymentSession");
     }
 }

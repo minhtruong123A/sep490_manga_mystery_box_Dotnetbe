@@ -24,5 +24,6 @@ namespace DataAccessLayers.Interface
         Task<bool> ExistsAsync(Expression<Func<T, bool>> expression);
         Task<T?> GetOneAsync(Expression<Func<T, bool>> expression);
         Task UpdateFieldAsync(Expression<Func<T, bool>> filter, UpdateDefinition<T> update);
+        Task<List<T>> FilterByAsync(Expression<Func<T, bool>> filter);
     }
 }

@@ -27,7 +27,6 @@ namespace SEP_MMB_API.Controllers
             {
                 var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
                 var walletId = account.WalletId;
-
                 var transactions = await _transactionHistoryService.GetTransactionHistoryAsync(walletId);
 
                 return Ok(new ResponseModel<List<TransactionHistoryDto>>

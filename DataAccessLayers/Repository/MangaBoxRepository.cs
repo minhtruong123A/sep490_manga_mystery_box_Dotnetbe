@@ -82,9 +82,6 @@ namespace DataAccessLayers.Repository
             }).ToList();
         }
 
-
-
-
         //getallwithdetailbyid
         //public async Task<MangaBoxDetailDto?> GetByIdWithDetailsAsync(string id)
         //{

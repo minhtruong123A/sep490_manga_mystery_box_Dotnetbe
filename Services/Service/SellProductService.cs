@@ -28,7 +28,10 @@ namespace Services.Service
                 public async Task<List<SellProductGetAllDto>> GetAllProductOnSaleAsync() => await _uniUnitOfWork.SellProductRepository.GetAllProductOnSaleAsync();
 
                 public async Task<SellProductDetailDto?> GetProductDetailByIdAsync(string id) => await _uniUnitOfWork.SellProductRepository.GetProductDetailByIdAsync(id);
-                ////if (product is { UrlImage: not null and not "" }) cu phap moi .NET8+ moi biet @@
-                //if (product != null && !string.IsNullOrEmpty(product.UrlImage)) product.UrlImage = await _supabaseStorageHelper.CreateSignedUrlAsync(product.UrlImage);
-        }
+        ////if (product is { UrlImage: not null and not "" }) cu phap moi .NET8+ moi biet @@
+        //if (product != null && !string.IsNullOrEmpty(product.UrlImage)) product.UrlImage = await _supabaseStorageHelper.CreateSignedUrlAsync(product.UrlImage);
+
+                public async Task<string> BuySellProductAsync(string buyerId, string sellProductId, int quantity) => await _uniUnitOfWork.SellProductRepository.BuySellProductAsync(buyerId, sellProductId, quantity);
+
+    }
 }

@@ -1,7 +1,10 @@
 ﻿using BusinessObjects.Dtos.MangaBox;
 using BusinessObjects.Dtos.Schema_Response;
+using BusinessObjects.Dtos.UserBox;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
+using Services.Service;
 
 namespace SEP_MMB_API.Controllers
 {
@@ -10,10 +13,12 @@ namespace SEP_MMB_API.Controllers
     public class MangaBoxController : ControllerBase
     {
         private readonly IMangaBoxService _mangaBoxService;
+        private readonly IAuthService _authService;
 
-        public MangaBoxController(IMangaBoxService mangaBoxService)
+        public MangaBoxController(IMangaBoxService mangaBoxService, IAuthService authService)
         {
             _mangaBoxService = mangaBoxService;
+            _authService = authService;
         }
 
         [HttpGet("get-all-mystery-box")]
@@ -69,6 +74,39 @@ namespace SEP_MMB_API.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new ResponseModel<string>
+                {
+                    Success = false,
+                    Data = null,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
+
+        [Authorize(Roles = "user")]
+        [HttpPost("buy-mystery-box")]
+        public async Task<ActionResult<ResponseModel<BuyBoxResponseDto>>> BuyBox([FromBody] BuyBoxRequestDto request)
+        {
+            try
+            {
+                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var transactionCode = await _mangaBoxService.BuyBoxAsync(account.Id, request.MangaBoxId, request.Quantity);
+
+                return Ok(new ResponseModel<BuyBoxResponseDto>
+                {
+                    Success = true,
+                    Data = new BuyBoxResponseDto
+                    {
+                        Message = "Buy mystery box successfully!",
+                        TransactionCode = transactionCode
+                    },
+                    Error = null,
+                    ErrorCode = 0
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<BuyBoxResponseDto>
                 {
                     Success = false,
                     Data = null,

@@ -30,9 +30,8 @@ namespace DataAccessLayers.Repository
 
             // 2. Lấy danh sách Box tương ứng
             var boxIds = userBox.Select(c => c.BoxId).ToList();
-            var boxTask = _mangaBoxCollection.Find(c => boxIds.Contains(c.Id.ToString())).ToListAsync();
-            await Task.WhenAll(boxTask);
-            var boxes = boxTask.Result.ToDictionary(c => c.Id.ToString());
+            var boxTask = await _mangaBoxCollection.Find(c => boxIds.Contains(c.Id.ToString())).ToListAsync();
+            var boxes = boxTask.ToDictionary(c => c.Id.ToString());
 
             // 3. Mapping sang DTO
             return userBox.Select(box =>
@@ -43,7 +42,7 @@ namespace DataAccessLayers.Repository
                     UserId = box.UserId,
                     BoxId = box.BoxId,
                     Quantity = box.Quantity,
-                    BoxTitle = matchedBox?.Title ?? "Unknown",  // fallback nếu không tìm thấy
+                    BoxTitle = matchedBox.Title,
                     UpdatedAt = box.UpdatedAt
                 };
             }).ToList();

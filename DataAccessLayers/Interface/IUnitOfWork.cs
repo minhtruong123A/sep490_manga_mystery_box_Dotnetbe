@@ -22,6 +22,7 @@ namespace DataAccessLayers.Interface
                 IProductRepository ProductRepository { get; }
                 IUserBoxRepository UserBoxRepository { get; }
                 IUserProductRepository UserProductRepository { get; }
+                IReportRepository ReportRepository { get; }
                 Task SaveChangesAsync();
         }
 }

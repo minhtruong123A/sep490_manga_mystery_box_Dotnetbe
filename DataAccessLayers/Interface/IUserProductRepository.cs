@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DataAccessLayers.Interface
 {
-    public interface IUserProductRepository
+    public interface IUserProductRepository : IGenericRepository<UserProduct>
     {
         Task AddManyAsync(IEnumerable<UserProduct> items);
         Task<List<CollectionProductsDto>> GetAllWithDetailsAsync(string userId, string collectionId);

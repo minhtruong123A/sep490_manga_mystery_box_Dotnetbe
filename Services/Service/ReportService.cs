@@ -15,7 +15,7 @@ namespace Services.Service
         private readonly IUnitOfWork _uniUnitOfWork;
         public ReportService(IUnitOfWork uniUnitOfWork) 
         { 
-        _uniUnitOfWork = uniUnitOfWork;
+            _uniUnitOfWork = uniUnitOfWork;
         }
 
         public async Task<bool> CreateReportAsync(ReportCreateDto dto, string userId) => await _uniUnitOfWork.ReportRepository.CreateReportAsync(dto, userId);
@@ -26,6 +26,6 @@ namespace Services.Service
            return result.ToList();
         }
 
-        public async Task<List<Report>> GetAllReportOfUser(string userId) => await _uniUnitOfWork.ReportRepository.GetAllReportOfUserAsync(userId);
+        public async Task<List<Report>> GetAllReportOfUserAsync(string userId) => await _uniUnitOfWork.ReportRepository.GetAllReportOfUserAsync(userId);
     }
 }

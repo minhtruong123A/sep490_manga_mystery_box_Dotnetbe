@@ -83,6 +83,51 @@ namespace DataAccessLayers.Repository
             return ExchangeCode;
         }
 
+        public async Task<bool> UpdateSellProductAsync(UpdateSellProductDto dto)
+        {
+            var sellProduct = await _sellProductCollection.Find(x => x.Id.Equals(dto.Id)).FirstOrDefaultAsync();
+            if (sellProduct.IsSell == true)
+            {
+                return false;
+            }
+            var filter = Builders<SellProduct>.Filter.Eq(x => x.Id, dto.Id);
+            var update = Builders<SellProduct>.Update
+                .Set(x => x.Description, dto.Description)
+                .Set(x => x.Price, dto.Price)
+                .Set(x => x.UpdatedAt, DateTime.Now);
+
+            var result = await _sellProductCollection.UpdateOneAsync(filter, update);
+
+            return true;
+        }
+
+        public async Task<bool> ChangestatusSellProductAsync(string id)
+        {
+            var filter = Builders<SellProduct>.Filter.Eq(x => x.Id, id);
+            bool status;
+            var sellProduct = await _sellProductCollection.Find(x=>x.Id.Equals(id)).FirstOrDefaultAsync();
+            if(sellProduct.Quantity <= 0)
+            {
+                return false;
+            }
+            if(sellProduct.IsSell == true)
+            {
+                status = false;
+            }
+            else
+            {
+                status = true;
+            }
+
+            var update = Builders<SellProduct>.Update
+                .Set(x => x.IsSell, status);
+                
+
+            var result = await _sellProductCollection.UpdateOneAsync(filter, update);
+
+            return true;
+        }
+
         private async Task<int> GenerateUniqueExchangeCodeAsync()
         {
             var rng = new Random();

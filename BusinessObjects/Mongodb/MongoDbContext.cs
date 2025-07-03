@@ -61,5 +61,6 @@ namespace BusinessObjects.Mongodb
         public IMongoCollection<ProductOrder> ProductOrders => _database.GetCollection<ProductOrder>("ProductOrder");
         public IMongoCollection<OrderHistory> OrderHistories => _database.GetCollection<OrderHistory>("OrderHistory");
         public IMongoCollection<DigitalPaymentSession> DigitalPaymentSessions => _database.GetCollection<DigitalPaymentSession>("DigitalPaymentSession");
+        public IMongoCollection<Report> Report => _database.GetCollection<Report>("Report");
     }
 }

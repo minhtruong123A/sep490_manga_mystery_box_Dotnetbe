@@ -30,6 +30,7 @@ namespace DataAccessLayers.Repository
         private readonly IMongoCollection<OrderHistory> _orderHistoryCollection;
         private readonly IMongoCollection<ProductInMangaBox> _productInMangaBoxCollection;
         private readonly IMongoCollection<MangaBox> _mangaBoxCollection;
+        private readonly IMongoCollection<TransactionFee> _transactionFeeCollection;
         public SellProductRepository(MongoDbContext context) : base(context.GetCollection<SellProduct>("SellProduct"))
         {
             _sellProductCollection = context.GetCollection<SellProduct>("SellProduct");
@@ -45,6 +46,7 @@ namespace DataAccessLayers.Repository
             _orderHistoryCollection = context.GetCollection<OrderHistory>("OrderHistory");
             _productInMangaBoxCollection = context.GetCollection<ProductInMangaBox>("ProductInMangaBox");
             _mangaBoxCollection = context.GetCollection<MangaBox>("MangaBox");
+            _transactionFeeCollection = context.GetCollection<TransactionFee>("TransactionFee");
         }
 
         public async Task<int> CreateSellProductAsync(SellProductCreateDto dto, string userId)
@@ -297,97 +299,197 @@ namespace DataAccessLayers.Repository
 
         public async Task<string> BuySellProductAsync(string buyerId, string sellProductId, int quantity)
         {
+            ValidateQuantity(quantity);
+
+            var sellProduct = await GetSellProductAsync(sellProductId);
+            ValidateBuyer(sellProduct, buyerId);
+            ValidateStock(sellProduct, quantity);
+
+            var buyer = await GetUserAsync(buyerId);
+            var buyerWallet = await GetWalletAsync(buyer.WalletId);
+            int totalPrice = sellProduct.Price * quantity;
+            EnsureSufficientFunds(buyerWallet, totalPrice);
+
+            var seller = await GetUserAsync(sellProduct.SellerId);
+            var sellerWallet = await GetWalletAsync(seller.WalletId);
+
+            var feeInfo = CalculateFee(totalPrice);
+            await ProcessWalletsAsync(buyerWallet, sellerWallet, feeInfo);
+            await UpdateSellProductStockAsync(sellProduct, quantity);
+
+            var (buyerOrder, buyerHistory, buyerPayment) = await CreateBuyerRecordsAsync(buyerId, sellProduct, totalPrice, buyerWallet.Id);
+            var (sellerOrder, sellerHistory, sellerPayment) = await CreateSellerRecordsAsync(seller.Id, buyerId, sellProduct, feeInfo, sellerWallet.Id);
+            await LogTransactionFeeAsync(seller.Id, sellProduct.ProductId, sellerHistory.Id, feeInfo);
+
+            await UpdateUserCollectionAndProductAsync(buyerId, sellProduct.ProductId, quantity);
+
+            return buyerHistory.Id;
+        }
+
+        //Helper Methods Of Buy Product DO NOT FIX IT
+        private void ValidateQuantity(int quantity)
+        {
             if (quantity <= 0) throw new Exception("Quantity must be greater than 0");
+        }
 
-            var sellProduct = await _sellProductCollection.Find(x => x.Id == sellProductId).FirstOrDefaultAsync() ?? throw new Exception("SellProduct not found");
-            if (sellProduct.SellerId == buyerId) throw new Exception("You cannot buy your own product");
-            if (!sellProduct.IsSell || sellProduct.Quantity < quantity) throw new Exception("Not enough product quantity available for sale");
+        private void ValidateBuyer(SellProduct product, string buyerId)
+        {
+            if (product.SellerId == buyerId) throw new Exception("You cannot buy your own product");
+        }
 
-            var user = await _userCollection.Find(x => x.Id == buyerId).FirstOrDefaultAsync() ?? throw new Exception("User not found");
-            var wallet = await _walletCollection.Find(x => x.Id == user.WalletId).FirstOrDefaultAsync();
-            var totalPrice = sellProduct.Price * quantity;
+        private void ValidateStock(SellProduct product, int quantity)
+        {
+            if (!product.IsSell || product.Quantity < quantity) throw new Exception("Not enough product quantity available for sale");
+        }
 
-            if (wallet == null || wallet.Ammount < totalPrice) throw new Exception("Insufficient balance");
+        private void EnsureSufficientFunds(UseDigitalWallet wallet, int totalPrice)
+        {
+            if (wallet.Ammount < totalPrice) throw new Exception("Insufficient balance");
+        }
 
-            wallet.Ammount -= totalPrice;
-            await _walletCollection.ReplaceOneAsync(x => x.Id == wallet.Id, wallet);
+        private async Task<SellProduct> GetSellProductAsync(string id) => await _sellProductCollection.Find(x => x.Id == id).FirstOrDefaultAsync() ?? throw new Exception("SellProduct not found");
 
-            sellProduct.Quantity -= quantity;
-            if (sellProduct.Quantity == 0)
+        private async Task<User> GetUserAsync(string userId) => await _userCollection.Find(x => x.Id == userId).FirstOrDefaultAsync() ?? throw new Exception("User not found");
+
+        private async Task<UseDigitalWallet> GetWalletAsync(string walletId) => await _walletCollection.Find(x => x.Id == walletId).FirstOrDefaultAsync() ?? throw new Exception("Wallet not found");
+
+        private (double rate, int fee, int net) CalculateFee(int total)
+        {
+            double rate = 0.05;
+            int fee = (int)(total * rate);
+            return (rate, fee, total - fee);
+        }
+
+        private async Task ProcessWalletsAsync(UseDigitalWallet buyerWallet, UseDigitalWallet sellerWallet, (double rate, int fee, int net) feeInfo)
+        {
+            buyerWallet.Ammount -= (feeInfo.fee + feeInfo.net);
+            sellerWallet.Ammount += feeInfo.net;
+            await _walletCollection.ReplaceOneAsync(x => x.Id == buyerWallet.Id, buyerWallet);
+            await _walletCollection.ReplaceOneAsync(x => x.Id == sellerWallet.Id, sellerWallet);
+        }
+
+        private async Task UpdateSellProductStockAsync(SellProduct product, int quantity)
+        {
+            product.Quantity -= quantity;
+            if (product.Quantity == 0)
             {
-                sellProduct.IsSell = false;
-                sellProduct.UpdatedAt = DateTime.UtcNow;
+                product.IsSell = false;
+                product.UpdatedAt = DateTime.UtcNow;
             }
-            await _sellProductCollection.ReplaceOneAsync(x => x.Id == sellProduct.Id, sellProduct);
+            await _sellProductCollection.ReplaceOneAsync(x => x.Id == product.Id, product);
+        }
 
-            var productOrder = new ProductOrder
+        private async Task<(ProductOrder, OrderHistory, DigitalPaymentSession)> CreateBuyerRecordsAsync(string buyerId, SellProduct product, int total, string buyerWalletId)
+        {
+            var order = new ProductOrder
             {
-                SellId = sellProduct.SellerId,
+                SellId = product.SellerId,
                 BuyerId = buyerId,
-                ProductId = sellProduct.ProductId,
-                Amount = totalPrice
+                ProductId = product.ProductId,
+                Amount = total,
             };
-            await _productOrderCollection.InsertOneAsync(productOrder);
+            await _productOrderCollection.InsertOneAsync(order);
 
-            var orderHistory = new OrderHistory
+            var history = new OrderHistory
             {
-                ProductOrderId = productOrder.Id,
-                BoxOrderId = null,
+                ProductOrderId = order.Id,
                 Datetime = DateTime.UtcNow,
                 Status = (int)TransactionStatus.Success
             };
-            await _orderHistoryCollection.InsertOneAsync(orderHistory);
+            await _orderHistoryCollection.InsertOneAsync(history);
 
-            var paymentSession = new DigitalPaymentSession
+            var payment = new DigitalPaymentSession
             {
-                WalletId = wallet.Id,
-                OrderId = orderHistory.Id,
+                WalletId = buyerWalletId,
+                OrderId = history.Id,
                 Type = DigitalPaymentSessionType.SellProduct.ToString(),
-                Amount = totalPrice,
+                Amount = total,
                 IsWithdraw = false
             };
-            await _paymentSessionCollection.InsertOneAsync(paymentSession);
+            await _paymentSessionCollection.InsertOneAsync(payment);
 
-            var productInBox = await _productInMangaBoxCollection.Find(p => p.ProductId == sellProduct.ProductId).FirstOrDefaultAsync() ?? throw new Exception("ProductInMangaBox not found");
-            var mangaBox = await _mangaBoxCollection.Find(m => m.Id == productInBox.MangaBoxId).FirstOrDefaultAsync() ?? throw new Exception("MangaBox not found");
-           
-            var collectionId = mangaBox.CollectionTopicId;
-            var existingUserCollection = await _userCollectionCollection.Find(c => c.UserId == buyerId && c.CollectionId == collectionId).FirstOrDefaultAsync();
-            if (existingUserCollection == null)
+            return (order, history, payment);
+        }
+
+        private async Task<(ProductOrder, OrderHistory, DigitalPaymentSession)> CreateSellerRecordsAsync(string sellerId, string buyerId, SellProduct product, (double rate, int fee, int net) feeInfo, string sellerWalletId)
+        {
+            var order = new ProductOrder
             {
-                var newUserCollection = new UserCollection
-                {
-                    UserId = buyerId,
-                    CollectionId = collectionId
-                };
-                await _userCollectionCollection.InsertOneAsync(newUserCollection);
+                SellId = sellerId,
+                BuyerId = buyerId,
+                ProductId = product.ProductId,
+                Amount = feeInfo.net,
+            };
+            await _productOrderCollection.InsertOneAsync(order);
+
+            var history = new OrderHistory
+            {
+                ProductOrderId = order.Id,
+                Datetime = DateTime.UtcNow,
+                Status = (int)TransactionStatus.Success
+            };
+            await _orderHistoryCollection.InsertOneAsync(history);
+
+            var payment = new DigitalPaymentSession
+            {
+                WalletId = sellerWalletId,
+                OrderId = history.Id,
+                Type = DigitalPaymentSessionType.SellProduct.ToString(),
+                Amount = feeInfo.net,
+                IsWithdraw = false
+            };
+            await _paymentSessionCollection.InsertOneAsync(payment);
+
+            return (order, history, payment);
+        }
+
+        private async Task LogTransactionFeeAsync(string fromUserId, string productId, string referenceId, (double rate, int fee, int net) feeInfo)
+        {
+            var fee = new TransactionFee
+            {
+                ReferenceId = referenceId,
+                ReferenceType = "Order",
+                FromUserId = fromUserId,
+                ProductId = productId,
+                GrossAmount = feeInfo.net + feeInfo.fee,
+                FeeAmount = feeInfo.fee,
+                FeeRate = feeInfo.rate,
+                Type = "SellProduct",
+                CreatedAt = DateTime.UtcNow
+            };
+            await _transactionFeeCollection.InsertOneAsync(fee);
+        }
+
+        private async Task UpdateUserCollectionAndProductAsync(string buyerId, string productId, int quantity)
+        {
+            var productInBox = await _productInMangaBoxCollection.Find(p => p.ProductId == productId).FirstOrDefaultAsync() ?? throw new Exception("ProductInMangaBox not found");
+            var mangaBox = await _mangaBoxCollection.Find(m => m.Id == productInBox.MangaBoxId).FirstOrDefaultAsync() ?? throw new Exception("MangaBox not found");
+            var collectionId = mangaBox.CollectionTopicId;
+            var userCollection = await _userCollectionCollection.Find(c => c.UserId == buyerId && c.CollectionId == collectionId).FirstOrDefaultAsync();
+            if (userCollection == null)
+            {
+                userCollection = new UserCollection { UserId = buyerId, CollectionId = collectionId };
+                await _userCollectionCollection.InsertOneAsync(userCollection);
             }
 
-            var existingUserProduct = await _userProductCollection.Find(up => up.CollectorId == buyerId && up.ProductId == sellProduct.ProductId).FirstOrDefaultAsync();
-            if (existingUserProduct != null)
+            var userProduct = await _userProductCollection.Find(up => up.CollectorId == buyerId && up.ProductId == productId).FirstOrDefaultAsync();
+            if (userProduct != null)
             {
                 var update = Builders<UserProduct>.Update.Inc(x => x.Quantity, quantity);
-                await _userProductCollection.UpdateOneAsync(x => x.Id == existingUserProduct.Id, update);
+                await _userProductCollection.UpdateOneAsync(x => x.Id == userProduct.Id, update);
             }
             else
             {
-                if(existingUserCollection == null) throw new Exception("empty UserCollection");
-
                 var newUserProduct = new UserProduct
                 {
-                    ProductId = sellProduct.ProductId,
+                    ProductId = productId,
                     CollectorId = buyerId,
                     Quantity = quantity,
                     CollectedAt = DateTime.UtcNow,
-                    CollectionId = existingUserCollection.Id
+                    CollectionId = userCollection.Id
                 };
                 await _userProductCollection.InsertOneAsync(newUserProduct);
             }
-
-            return orderHistory.Id;
         }
-
-
-
     }
 }

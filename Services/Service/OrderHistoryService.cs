@@ -33,8 +33,8 @@ namespace Services.Service
                 var mysteryBoxDict = mysteryBoxes.ToDictionary(x => x.Id, x => x);
                 var orderHistories = await _unitOfWork.OrderHistoryRepository.FilterByAsync(h => boxOrders.Select(b => b.Id.ToString()).Contains(h.BoxOrderId));
                 var orderHistoryIds = orderHistories.Select(h => h.Id.ToString()).ToList();
-                var paymentSessions = await _unitOfWork.DigitalPaymentSessionRepository.FilterByAsync(p => orderHistoryIds.Contains(p.OrderId)
-                                                                                                            && p.Type == nameof(DigitalPaymentSessionType.MysteryBox));
+                var paymentSessions = await _unitOfWork.DigitalPaymentSessionRepository.FilterByAsync(p =>
+                    orderHistoryIds.Contains(p.OrderId) && p.Type == nameof(DigitalPaymentSessionType.MysteryBox));
                 var paymentDict = paymentSessions.ToDictionary(p => p.OrderId, p => p);
 
                 foreach (var orderHis in orderHistories)
@@ -58,15 +58,16 @@ namespace Services.Service
                 }
             }
 
-            var productOrders = await _unitOfWork.productOrderRepository.FilterByAsync(p => p.BuyerId == userId);
+            var productOrders = await _unitOfWork.productOrderRepository.FilterByAsync(p => p.BuyerId == userId || p.SellId == userId);
             if (productOrders != null && productOrders.Any())
             {
                 var productOrderIds = productOrders.Select(p => p.Id.ToString()).ToList();
                 var productOrderHistories = await _unitOfWork.OrderHistoryRepository.FilterByAsync(h => productOrderIds.Contains(h.ProductOrderId));
                 var productOrderHistoryIds = productOrderHistories.Select(h => h.Id.ToString()).ToList();
-                var paymentProductSessions = await _unitOfWork.DigitalPaymentSessionRepository.FilterByAsync(p => productOrderHistoryIds.Contains(p.OrderId) && p.Type == nameof(DigitalPaymentSessionType.SellProduct));
+                var paymentProductSessions = await _unitOfWork.DigitalPaymentSessionRepository.FilterByAsync(p =>
+                    productOrderHistoryIds.Contains(p.OrderId) && p.Type == nameof(DigitalPaymentSessionType.SellProduct));
                 var paymentProductDict = paymentProductSessions.ToDictionary(p => p.OrderId, p => p);
-                var productIds = productOrders.Select(p => p.ProductId).ToList();
+                var productIds = productOrders.Select(p => p.ProductId).Distinct().ToList();
                 var products = await _unitOfWork.ProductRepository.FilterByAsync(p => productIds.Contains(p.Id));
                 var productDict = products.ToDictionary(p => p.Id, p => p);
 
@@ -77,9 +78,11 @@ namespace Services.Service
                     if (!productDict.TryGetValue(productOrder.ProductId, out var product)) continue;
                     if (!paymentProductDict.TryGetValue(orderHis.Id.ToString(), out var payment)) continue;
 
+                    string type = productOrder.BuyerId == userId ? "ProductBuy" : "ProductSell";
+
                     result.Add(new OrderHistoryDto
                     {
-                        Type = "Product",
+                        Type = type,
                         ProductId = product.Id,
                         ProductName = product.Name,
                         Quantity = 1,

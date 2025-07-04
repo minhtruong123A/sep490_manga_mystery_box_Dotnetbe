@@ -436,7 +436,7 @@ namespace DataAccessLayers.Repository
                 OrderId = history.Id,
                 Type = DigitalPaymentSessionType.SellProduct.ToString(),
                 Amount = feeInfo.net,
-                IsWithdraw = false
+                IsWithdraw = true
             };
             await _paymentSessionCollection.InsertOneAsync(payment);
 

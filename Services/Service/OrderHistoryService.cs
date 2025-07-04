@@ -77,24 +77,35 @@ namespace Services.Service
                     if (productOrder == null) continue;
                     if (!productDict.TryGetValue(productOrder.ProductId, out var product)) continue;
                     if (!paymentProductDict.TryGetValue(orderHis.Id.ToString(), out var payment)) continue;
-
-                    string type = productOrder.BuyerId == userId ? "ProductBuy" : "ProductSell";
-
-                    result.Add(new OrderHistoryDto
+                    if (productOrder.BuyerId == userId && payment.Amount == productOrder.Amount)
                     {
-                        Type = type,
-                        ProductId = product.Id,
-                        ProductName = product.Name,
-                        Quantity = 1,
-                        TotalAmount = productOrder.Amount,
-                        TransactionCode = payment.Id.ToString(),
-                        PurchasedAt = orderHis.Datetime
-                    });
+                        result.Add(new OrderHistoryDto
+                        {
+                            Type = "ProductBuy",
+                            ProductId = product.Id,
+                            ProductName = product.Name,
+                            Quantity = 1,
+                            TotalAmount = productOrder.Amount,
+                            TransactionCode = payment.Id.ToString(),
+                            PurchasedAt = orderHis.Datetime
+                        });
+                    }
+                    else if (productOrder.SellId == userId && payment.Amount < productOrder.Amount)
+                    {
+                        result.Add(new OrderHistoryDto
+                        {
+                            Type = "ProductSell",
+                            ProductId = product.Id,
+                            ProductName = product.Name,
+                            Quantity = 1,
+                            TotalAmount = payment.Amount,
+                            TransactionCode = payment.Id.ToString(),
+                            PurchasedAt = orderHis.Datetime
+                        });
+                    }
                 }
             }
-
             return result.OrderByDescending(r => r.PurchasedAt).ToList();
         }
-
     }
 }

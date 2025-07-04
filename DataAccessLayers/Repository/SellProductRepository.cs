@@ -37,7 +37,7 @@ namespace DataAccessLayers.Repository
             _userProductCollection = context.GetCollection<UserProduct>("User_Product");
             _productCollection = context.GetCollection<Product>("Product");
             _userCollection = context.GetCollection<User>("User");
-            _collections = context.GetCollection<Collection>("Collection");
+            _collections = context.GetCollection<Collection>("Collection"); 
             _rarityCollection = context.GetCollection<Rarity>("Rarity");
             _productOrderCollection = context.GetCollection<ProductOrder>("ProductOrder");
             _walletCollection = context.GetCollection<UseDigitalWallet>("UseDigitalWallet");
@@ -170,15 +170,17 @@ namespace DataAccessLayers.Repository
             var productTask = _productCollection.AsQueryable().Where(c => productIds.Contains(c.Id.ToString())).ToListAsync();
             var userTask = _userCollection.AsQueryable().Where(c => sellerIds.Contains(c.Id.ToString())).ToListAsync();
             var userProductTask = _userProductCollection.AsQueryable().Where(c => productIds.Contains(c.ProductId)).ToListAsync();
-            await Task.WhenAll(productTask, userTask, userProductTask);
+            var userCollectionTask = _userCollectionCollection.AsQueryable().Where(uc => sellerIds.Contains(uc.UserId)).ToListAsync();
+            await Task.WhenAll(productTask, userTask, userProductTask, userCollectionTask);
 
             var productList = productTask.Result;
             var userList = userTask.Result;
             var userProductList = userProductTask.Result;
+            var userCollectionList = userCollectionTask.Result;
 
-            var collectionIds = userProductList.Select(up => up.CollectionId).ToHashSet();
+            var collectionIds = userCollectionList.Select(up => up.CollectionId).ToHashSet();
             var rarityIds = productList.Select(up => up.RarityId).ToHashSet();
-            var collectionsTask = _collections.AsQueryable().Where(c => collectionIds.Contains(c.Id.ToString())) .ToListAsync();
+            var collectionsTask = _collections.AsQueryable().Where(c => collectionIds.Contains(c.Id.ToString())).ToListAsync();
             var raritiesTask = _rarityCollection.AsQueryable().Where(r => rarityIds.Contains(r.Id.ToString())).ToListAsync();
             await Task.WhenAll(collectionsTask, raritiesTask);
 
@@ -190,8 +192,13 @@ namespace DataAccessLayers.Repository
                 var product = productList.FirstOrDefault(c => c.Id.ToString() == sellProduct.ProductId);
                 var user = userList.FirstOrDefault(c => c.Id.ToString() == sellProduct.SellerId);
                 var userProduct = userProductList.FirstOrDefault(c => c.ProductId == sellProduct.ProductId);
-                var collection = collections.FirstOrDefault(c => c.Id.ToString() == userProduct?.CollectionId);
-                var rarity = rarities.FirstOrDefault(r => r.Id.ToString() == product?.RarityId);
+                var userCollection = userCollectionList.FirstOrDefault(uc => uc.UserId == sellProduct.SellerId);
+                var collection = userCollection != null
+                       ? collections.FirstOrDefault(c => c.Id.ToString() == userCollection.CollectionId)
+                       : null;
+                var rarity = product != null
+                       ? rarities.FirstOrDefault(r => r.Id.ToString() == product.RarityId)
+                       : null;
 
                 return new SellProductGetAllDto
                 {
@@ -268,12 +275,16 @@ namespace DataAccessLayers.Repository
             var productTask = _productCollection.AsQueryable().FirstOrDefaultAsync(c => c.Id.ToString() == sellProduct.ProductId);
             var userTask = _userCollection.AsQueryable().FirstOrDefaultAsync(c => c.Id.ToString() == sellProduct.SellerId);
             var userProductTask = _userProductCollection.AsQueryable().FirstOrDefaultAsync(c => c.ProductId == sellProduct.ProductId);
-            await Task.WhenAll(productTask, userTask, userProductTask);
+            var userCollectionTask = _userCollectionCollection.AsQueryable().Where(uc => uc.UserId.Contains(uc.UserId)).ToListAsync();
+            await Task.WhenAll(productTask, userTask, userProductTask, userCollectionTask);
 
             var productResult = productTask.Result;
             var userResult = userTask.Result;
             var userProductResult = userProductTask.Result;
-            var collectionTask = userProductResult?.CollectionId is string colId
+            var userCollectionList = userCollectionTask.Result;
+            var firstUserCollection = userCollectionList.FirstOrDefault();
+
+            var collectionTask = firstUserCollection?.CollectionId is string colId
                 ? _collections.AsQueryable().FirstOrDefaultAsync(c => c.Id.ToString() == colId) :  Task.FromResult<Collection?>(null);
             var rarityTask = productResult?.RarityId is string rId
                 ? _rarityCollection.AsQueryable().FirstOrDefaultAsync(c => c.Id.ToString() == rId) : Task.FromResult<Rarity?>(null);

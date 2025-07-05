@@ -71,7 +71,17 @@ namespace DataAccessLayers.Repository
                     .Where(img => img != null)
                     .Take(4)
                     .ToList();
-
+                var count = userProducts
+                    .Where(up => up.CollectionId == uc.Id)
+                    .Select(up => productDict.TryGetValue(up.ProductId, out var prod)
+                        ? new Collection_sProductsImageDto
+                        {
+                            Id = up.ProductId,
+                            UrlImage = prod.UrlImage
+                        }
+                        : null)
+                    .Where(img => img != null)
+                    .ToList().Count();
                 return new UserCollectionGetAllDto
                 {
                     Id = uc.Id,
@@ -79,7 +89,7 @@ namespace DataAccessLayers.Repository
                     CollectionId = uc.CollectionId,
                     CollectionTopic = topic,
                     Image = images,
-                    Count = images.Count
+                    Count = count
                 };
             }).ToList();
 

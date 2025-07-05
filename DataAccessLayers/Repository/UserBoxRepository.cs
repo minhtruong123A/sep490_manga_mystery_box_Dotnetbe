@@ -20,6 +20,7 @@ namespace DataAccessLayers.Repository
         private readonly IMongoCollection<UserCollection> _userCollectionCollection;
         private readonly IMongoCollection<UserProduct> _userProductCollection;
         private readonly IMongoCollection<Collection> _collectionCollection;
+        private readonly IMongoCollection<MysteryBox> _mysteryBoxCollection;
 
         private readonly IMangaBoxRepository _mangaBoxRepository;
         public UserBoxRepository(MongoDbContext context, IMangaBoxRepository mangaBoxRepository) : base(context.GetCollection<UserBox>("UserBox"))
@@ -29,6 +30,7 @@ namespace DataAccessLayers.Repository
             _userCollectionCollection = context.GetCollection<UserCollection>("UserCollection");
             _userProductCollection = context.GetCollection<UserProduct>("User_Product");
             _collectionCollection = context.GetCollection<Collection>("Collection");
+            _mysteryBoxCollection = context.GetCollection<MysteryBox>("MysteryBox");
             _mangaBoxRepository = mangaBoxRepository;
         }
 
@@ -43,27 +45,35 @@ namespace DataAccessLayers.Repository
             var mangaBoxes = await _mangaBoxCollection.Find(c => boxIds.Contains(c.Id.ToString())).ToListAsync();
             var mangaBoxDict = mangaBoxes.ToDictionary(c => c.Id.ToString());
 
+
             // 3. Lấy các Collection tương ứng (dựa vào CollectionTopicId của MangaBox)
             var collectionIds = mangaBoxes.Select(c => c.CollectionTopicId).Distinct().ToList();
             var collections = await _collectionCollection.Find(c => collectionIds.Contains(c.Id.ToString())).ToListAsync();
             var collectionDict = collections.ToDictionary(c => c.Id.ToString());
 
             // 4. Mapping sang DTO
-            return userBox.Select(box =>
+            var result = new List<UserBoxGetAllDto>();
+
+            foreach (var box in userBox)
             {
                 var matchedMangaBox = mangaBoxDict.GetValueOrDefault(box.BoxId);
+                var mysteryboxBox = await _mysteryBoxCollection
+                        .Find(c => c.Id == matchedMangaBox.MysteryBoxId)
+                        .FirstOrDefaultAsync();
                 var boxTitle = collectionDict.GetValueOrDefault(matchedMangaBox?.CollectionTopicId ?? "")?.Topic ?? "Unknown";
-
-                return new UserBoxGetAllDto
+                result.Add(new UserBoxGetAllDto
                 {
                     Id = box.Id,
                     UserId = box.UserId,
                     BoxId = box.BoxId,
                     Quantity = box.Quantity,
+                    UrlImage = mysteryboxBox.UrlImage ?? "unknown",
                     BoxTitle = boxTitle,
                     UpdatedAt = box.UpdatedAt
-                };
-            }).ToList();
+                });
+            }
+
+            return result;
         }
 
         public async Task<ProductResultDto> OpenMysteryBoxAsync(string userBoxId, string userId)

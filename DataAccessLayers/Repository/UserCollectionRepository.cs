@@ -69,6 +69,7 @@ namespace DataAccessLayers.Repository
                         }
                         : null)
                     .Where(img => img != null)
+                    .Take(4)
                     .ToList();
 
                 return new UserCollectionGetAllDto

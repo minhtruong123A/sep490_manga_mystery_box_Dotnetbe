@@ -30,39 +30,59 @@ namespace DataAccessLayers.Repository
 
         public async Task<List<UserCollectionGetAllDto>> GetAllWithDetailsAsync(string userId)
         {
+            // 1. Lấy danh sách UserCollection của user
             var userCollections = await _userCollection.Find(c => c.UserId == userId).ToListAsync();
             if (!userCollections.Any()) return [];
 
-            var collectionIds = userCollections.Select(c => c.CollectionId).ToList();
-            var collectionsTask = _collection.Find(c => collectionIds.Contains(c.Id.ToString())).ToListAsync();
-            var userProductsTask = _userProductCollection.Find(c => c.CollectorId == userId && collectionIds.Contains(c.CollectionId)).ToListAsync();
-            await Task.WhenAll(collectionsTask, userProductsTask);
+            var userCollectionIds = userCollections.Select(c => c.Id).ToList();
 
-            var collections = collectionsTask.Result.ToDictionary(c => c.Id.ToString());
-            var userProducts = userProductsTask.Result;
-            var productIds = userProducts.Select(p => p.ProductId).Distinct().ToList();
-            var products = (await _productCollection.Find(p => productIds.Contains(p.Id.ToString())).ToListAsync()).ToDictionary(p => p.Id.ToString());
+            // 2. Lấy danh sách Collection để lấy Topic
+            var collectionIds = userCollections.Select(c => c.CollectionId).Distinct().ToList();
+            var collections = await _collection
+                .Find(c => collectionIds.Contains(c.Id.ToString()))
+                .ToListAsync();
+            var collectionDict = collections.ToDictionary(c => c.Id.ToString());
 
-            return userCollections.Select(col =>
+            // 3. Lấy danh sách UserProduct theo các UserCollection.Id
+            var userProducts = await _userProductCollection
+                .Find(up => userCollectionIds.Contains(up.CollectionId))
+                .ToListAsync();
+
+            // 4. Lấy danh sách Product theo ProductId
+            var productIds = userProducts.Select(up => up.ProductId).Distinct().ToList();
+            var products = await _productCollection
+                .Find(p => productIds.Contains(p.Id.ToString()))
+                .ToListAsync();
+            var productDict = products.ToDictionary(p => p.Id.ToString());
+
+            // 5. Mapping
+            var result = userCollections.Select(uc =>
             {
-                var topic = collections.GetValueOrDefault(col.CollectionId)?.Topic ?? "No topic";
+                var topic = collectionDict.GetValueOrDefault(uc.CollectionId)?.Topic ?? "No topic";
                 var images = userProducts
-                    .Where(p => p.CollectionId == col.CollectionId)
-                    .Select(p => products.TryGetValue(p.ProductId, out var prod)
-                        ? new Collection_sProductsImageDto { Id = p.ProductId, UrlImage = prod.UrlImage }
+                    .Where(up => up.CollectionId == uc.Id)
+                    .Select(up => productDict.TryGetValue(up.ProductId, out var prod)
+                        ? new Collection_sProductsImageDto
+                        {
+                            Id = up.ProductId,
+                            UrlImage = prod.UrlImage
+                        }
                         : null)
-                    .Where(p => p != null).ToList();
+                    .Where(img => img != null)
+                    .ToList();
 
                 return new UserCollectionGetAllDto
                 {
-                    Id = col.Id,
-                    UserId = col.UserId,
-                    CollectionId = col.CollectionId,
+                    Id = uc.Id,
+                    UserId = uc.UserId,
+                    CollectionId = uc.CollectionId,
                     CollectionTopic = topic,
                     Image = images,
                     Count = images.Count
                 };
             }).ToList();
+
+            return result;
         }
 
     }

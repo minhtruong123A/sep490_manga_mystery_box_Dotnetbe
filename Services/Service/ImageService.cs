@@ -70,7 +70,7 @@ namespace Services.Service
                     {
                         var encodedPath = Uri.EscapeDataString(url);
                         var proxyUrl = $"https://mmb-be-dotnet.onrender.com/api/ImageProxy/{encodedPath}";
-                        var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+                        var cts = new CancellationTokenSource(TimeSpan.FromSeconds(50));
                         await _httpClient.GetAsync(proxyUrl, cts.Token);
                     }
                     catch (Exception ex)

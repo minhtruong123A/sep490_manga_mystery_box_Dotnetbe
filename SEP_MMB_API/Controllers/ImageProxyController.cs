@@ -49,7 +49,7 @@ namespace SEP_MMB_API.Controllers
             }
         }
 
-        [HttpPost("warmup-image-cache")]
+        [HttpGet("warmup-image-cache")]
         public async Task<IActionResult> WarmupImageCache()
         {
             try

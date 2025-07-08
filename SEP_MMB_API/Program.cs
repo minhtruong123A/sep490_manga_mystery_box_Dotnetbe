@@ -327,15 +327,28 @@ app.UseAuthorization();
 // Configure the HTTP request pipeline.
 //if (!app.Environment.IsProduction())
 //{
+
+app.UsePathBase("/cs");
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Main User API");
-    c.SwaggerEndpoint("/swagger/test/swagger.json", "Dev Server Test API");
+    c.SwaggerEndpoint("/cs/swagger/v1/swagger.json", "Main User API");
+    c.SwaggerEndpoint("/cs/swagger/test/swagger.json", "Dev Server Test API");
     c.RoutePrefix = "swagger";
     c.ConfigObject.AdditionalItems["https"] = true;
     c.EnableFilter();
 });
+
+//app.UseSwagger();
+//app.UseSwaggerUI(c =>
+//{
+//    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Main User API");
+//    c.SwaggerEndpoint("/swagger/test/swagger.json", "Dev Server Test API");
+//    c.RoutePrefix = "swagger";
+//    c.ConfigObject.AdditionalItems["https"] = true;
+//    c.EnableFilter();
+//});
+
 //}
 
 app.MapControllers();

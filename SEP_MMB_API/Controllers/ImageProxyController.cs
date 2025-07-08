@@ -11,10 +11,12 @@ namespace SEP_MMB_API.Controllers
     public class ImageProxyController : ControllerBase
     {
         private readonly IImageService _imageService;
+        private readonly ILogger<ImageProxyController> _logger;
 
-        public ImageProxyController(IImageService imageService)
+        public ImageProxyController(IImageService imageService, ILogger<ImageProxyController> logger)
         {
             _imageService = imageService;
+            _logger = logger;
         }
 
         [HttpGet("{*path}")]
@@ -42,6 +44,33 @@ namespace SEP_MMB_API.Controllers
                     Data = null,
                     Success = false,
                     Error = $"Proxy failed: {ex.Message}",
+                    ErrorCode = 400
+                });
+            }
+        }
+
+        [HttpPost("warmup-image-cache")]
+        public async Task<IActionResult> WarmupImageCache()
+        {
+            try
+            {
+                await _imageService.WarmUpImageCacheAsync();
+
+                return Ok(new ResponseModel<object>
+                {
+                    Data = new { Message = "Image cache warm-up triggered successfully." },
+                    Success = true,
+                    Error = null,
+                    ErrorCode = 0
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, new ResponseModel<object>
+                {
+                    Data = null,
+                    Success = false,
+                    Error = $"Warm-up failed: {ex.Message}",
                     ErrorCode = 400
                 });
             }

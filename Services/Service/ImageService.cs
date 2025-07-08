@@ -14,6 +14,8 @@ using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Processing;
 using SixLaborsColor = SixLabors.ImageSharp.Color;
 using SixLaborsImage = SixLabors.ImageSharp.Image;
+using DataAccessLayers.Repository;
+using Microsoft.Extensions.Logging;
 
 namespace Services.Service
 {
@@ -23,6 +25,7 @@ namespace Services.Service
         private readonly HttpClient _httpClient;
         private readonly IMemoryCache _cache;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<ImageService> _logger;
         private record CachedImage(byte[] Content, string ContentType);
         private static readonly FontCollection _fontCollection = new();
         private static readonly FontFamily _customFontFamily;
@@ -35,14 +38,59 @@ namespace Services.Service
             }
         }
 
-        public ImageService(ISupabaseStorageHelper supabaseStorageHelper, IMemoryCache cache, IUnitOfWork unitOfWork)
+        public ImageService(ISupabaseStorageHelper supabaseStorageHelper, IMemoryCache cache, IUnitOfWork unitOfWork, ILogger<ImageService> logger)
         {
             _supabaseStorageHelper = supabaseStorageHelper;
             _httpClient = new HttpClient();
             _cache = cache;
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
+        //cache warm-up
+        public async Task WarmUpImageCacheAsync()
+        {
+            var mangaBoxes = await _unitOfWork.MangaBoxRepository.GetAllWithDetailsAsync();
+            var sellProducts = await _unitOfWork.SellProductRepository.GetAllProductOnSaleAsync();
+            var imageUrls = mangaBoxes.Select(m => m.UrlImage)
+                .Concat(sellProducts.Select(p => p.UrlImage))
+                .Where(url => !string.IsNullOrWhiteSpace(url))
+                .Distinct()
+                .ToList();
+            _logger.LogInformation($"[WarmUp] Found {imageUrls.Count} image URLs to preload.");
+            var throttler = new SemaphoreSlim(5);
+            var tasks = new List<Task>();
+
+            foreach (var url in imageUrls)
+            {
+                await throttler.WaitAsync();
+                var task = Task.Run(async () =>
+                {
+                    try
+                    {
+                        var encodedPath = Uri.EscapeDataString(url);
+                        var proxyUrl = $"https://mmb-be-dotnet.onrender.com/api/ImageProxy/{encodedPath}";
+                        var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+                        await _httpClient.GetAsync(proxyUrl, cts.Token);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning($"[WarmUp] Image warm-up failed for {url}: {ex.Message}");
+                    }
+                    finally
+                    {
+                        throttler.Release();
+                    }
+                });
+
+                tasks.Add(task);
+            }
+
+            await Task.WhenAll(tasks);
+            _logger.LogInformation($"[WarmUp] Image cache warm-up completed.");
+        }
+
+        // get watermark async
         public async Task<IActionResult> GetImageWithWatermarkAsync(string path)
         {
             var finalImageCacheKey = $"final_image_{path}";

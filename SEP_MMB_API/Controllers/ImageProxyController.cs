@@ -50,11 +50,11 @@ namespace SEP_MMB_API.Controllers
         }
 
         [HttpGet("warmup-image-cache")]
-        public async Task<IActionResult> WarmupImageCache()
+        public IActionResult WarmupImageCache()
         {
             try
             {
-                await _imageService.WarmUpImageCacheAsync();
+                _ = Task.Run(() => _imageService.WarmUpImageCacheAsync());
 
                 return Ok(new ResponseModel<object>
                 {

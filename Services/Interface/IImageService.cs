@@ -10,5 +10,6 @@ namespace Services.Interface
     public interface IImageService
     {
         Task<IActionResult> GetImageWithWatermarkAsync(string path);
+        Task WarmUpImageCacheAsync();
     }
 }

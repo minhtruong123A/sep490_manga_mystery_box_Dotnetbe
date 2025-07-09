@@ -72,7 +72,6 @@ namespace SEP_MMB_API.Controllers
             return Ok(created);
         }
 
-
         [HttpPost("sender/accept/{exchangeId}")]
         public async Task<IActionResult> AcceptExchange(string exchangeId)
         {

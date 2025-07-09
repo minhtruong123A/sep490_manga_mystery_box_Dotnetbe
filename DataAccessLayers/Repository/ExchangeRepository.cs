@@ -67,7 +67,6 @@ namespace DataAccessLayers.Repository
             var infos = await _exchangeInfo.Find(x => x.BuyerId == userId).ToListAsync();
             if (!infos.Any()) return [];
 
-            // Lấy toàn bộ session theo ItemGiveId (chính là session id)
             var sessionIds = infos.Select(x => x.ItemGiveId).Distinct().ToList();
             var products = await _exchangeProduct.Find(p => sessionIds.Contains(p.ExchangeId)).ToListAsync();
 
@@ -143,32 +142,37 @@ namespace DataAccessLayers.Repository
 
                 var sell = await _sellProduct.Find(x => x.ProductId == info.ItemReciveId).FirstOrDefaultAsync();
                 if (sell == null) throw new Exception("SellProduct not found");
-
-                var updateSell = await _sellProduct.UpdateOneAsync(
+                var quantity = sell.Quantity -1 ;
+                if(sell.Quantity == 1)
+                {
+                    var updateSell = await _sellProduct.UpdateOneAsync(
                     x => x.ProductId == sell.ProductId,
                     Builders<SellProduct>.Update.Set(x => x.IsSell, true)
-                );
-                if (updateSell.ModifiedCount == 0) throw new Exception("Failed to update SellProduct");
-
-
-                var filter = Builders<UserProduct>.Filter.Where(x => x.CollectorId == info.BuyerId && x.ProductId == sell.ProductId);
-                var existing = await _userProduct.Find(filter).FirstOrDefaultAsync();
-                if (existing.Quantity == 0) throw new Exception("This product is been selled or insufficient quantity");
-
-                var quantity = existing.Quantity - sell.Quantity;
-                if (existing != null)
-                {
-                    await _userProduct.UpdateOneAsync(filter,
-                        Builders<UserProduct>.Update.Inc(x => x.Quantity, quantity));
+                                                .Set(x => x.Quantity, 0 )
+                    );
+                    if (updateSell.ModifiedCount == 0) throw new Exception("Failed to update SellProduct");
                 }
+                else if(sell.Quantity > 1)
+                {
+                    var updateSell = await _sellProduct.UpdateOneAsync(
+                    x => x.ProductId == sell.ProductId,
+                    Builders<SellProduct>.Update.Set(x => x.Quantity, quantity)
+                    );
+                    if (updateSell.ModifiedCount == 0) throw new Exception("Failed to update SellProduct");
+                }
+                else
+                {
+                    throw new Exception("The product is sold out.");
+                }
+
                 var receiverId = sell.SellerId;
 
                 var exchangeProducts = await _exchangeProduct.Find(x => x.ExchangeId == session.Id).ToListAsync();
                 foreach (var ep in exchangeProducts)
                 {
-                    filter = Builders<UserProduct>.Filter.Where(x =>
+                   var filter = Builders<UserProduct>.Filter.Where(x =>
                         x.CollectorId == info.BuyerId && x.ProductId == ep.ProductExchangeId);
-                    existing = await _userProduct.Find(filter).FirstOrDefaultAsync();
+                   var existing = await _userProduct.Find(filter).FirstOrDefaultAsync();
 
                     if (existing == null)
                         throw new Exception($"UserProduct not found for productId: {ep.ProductExchangeId}");
@@ -191,12 +195,10 @@ namespace DataAccessLayers.Repository
             }
             catch(Exception ex)
             {
-                Console.WriteLine($"[AcceptExchangeAsync] Error: {ex.Message}");
-                return false;
+                throw new Exception(ex.Message);
             }
             
         }
-
 
 
         private async Task UpdateUserProduct(string userId, string productId)

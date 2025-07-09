@@ -159,6 +159,7 @@ builder.Services.AddScoped<IDigitalPaymentSessionRepository, DigitalPaymentSessi
 builder.Services.AddScoped<IUserBoxRepository, UserBoxRepository>();
 builder.Services.AddScoped<IUserProductRepository, UserProductRepository>();
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
+builder.Services.AddScoped<IExchangeRepository, ExchangeRepository>();
 
 //UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -183,6 +184,7 @@ builder.Services.AddScoped<IOrderHistoryService, OrderHistoryService>();
 builder.Services.AddScoped<IUserBoxService, UserBoxService>();
 builder.Services.AddScoped<IUserProductService, UserProductService>();
 builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IExchangeService, ExchangeService>();
 
 //AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

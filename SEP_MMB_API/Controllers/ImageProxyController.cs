@@ -49,6 +49,7 @@ namespace SEP_MMB_API.Controllers
             }
         }
 
+        [ApiExplorerSettings(IgnoreApi = true)]
         [HttpGet("warmup-image-cache")]
         public IActionResult WarmupImageCache()
         {

@@ -20,6 +20,7 @@ namespace SEP_MMB_API.Controllers
             _authService = authService;
         }
 
+        [ApiExplorerSettings(IgnoreApi = true)]
         [Authorize]
         [HttpGet("get-all-accounts")]
         public async Task<ActionResult<ResponseModel<List<UserInformationDto>>>> Get()

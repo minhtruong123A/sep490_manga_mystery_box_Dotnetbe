@@ -55,10 +55,15 @@ namespace SEP_MMB_API.Controllers
             try
             {
                 var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                await _cartService.AddToCartAsync(account.Id, request.SellProductId, request.MangaBoxId);
+                var quantity = request.Quantity ?? 1;
+                await _cartService.AddToCartAsync(account.Id, request.SellProductId, request.MangaBoxId, quantity);
                 return Ok(new ResponseModel<object>
                 {
-                    Data = new { message = "Item added to cart successfully." },
+                    Data = new
+                    {
+                        Request = request,
+                        message = "Item added to cart successfully."
+                    },
                     Success = true,
                     Error = null,
                     ErrorCode = 0

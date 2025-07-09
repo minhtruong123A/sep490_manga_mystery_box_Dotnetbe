@@ -23,10 +23,8 @@ namespace Services.Service
             _mangaBoxService = maaBoxService;
         }
 
-        public async Task AddToCartAsync(string userId, string? sellProductId = null, string? mangaBoxId = null)
-        {
-            await _unitOfWork.CartRepository.AddToCartAsync(userId, sellProductId, mangaBoxId);
-        }
+        public async Task AddToCartAsync(string userId, string? sellProductId = null, string? mangaBoxId = null, int quantity = 1) 
+            => await _unitOfWork.CartRepository.AddToCartAsync(userId, sellProductId, mangaBoxId, quantity);
 
         public async Task<CartViewDto> ViewCartAsync(string userId)
         {

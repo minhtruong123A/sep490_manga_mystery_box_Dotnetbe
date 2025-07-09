@@ -28,11 +28,12 @@ namespace DataAccessLayers.Repository
             _mangaBoxCollection = context.GetCollection<MangaBox>("MangaBox");
         }
 
-        public async Task AddToCartAsync(string userId, string? sellProductId = null, string? mangaBoxId = null)
+        public async Task AddToCartAsync(string userId, string? sellProductId = null, string? mangaBoxId = null, int quantity = 1)
         {
             if (string.IsNullOrWhiteSpace(userId)) throw new ArgumentException("UserId is required.");
             if (string.IsNullOrWhiteSpace(sellProductId) && string.IsNullOrWhiteSpace(mangaBoxId)) 
                 throw new ArgumentException("Invalid syntax when adding to cart: you must enter SellProductId or MangaBoxId.");
+            if (quantity <= 0) quantity = 1;
 
             var cart = await _cartCollection.Find(c => c.UserId == userId).FirstOrDefaultAsync();
             if (cart == null)
@@ -49,12 +50,21 @@ namespace DataAccessLayers.Repository
                 var sellProduct = await _sellProductCollection.Find(c => c.Id == sellProductId).FirstOrDefaultAsync();
                 if (sellProduct == null) throw new ArgumentException("SellProduct not existed in system!");
                 if (sellProduct.Quantity == 0) throw new ArgumentException("Out of sold!");
+
                 var existingCartProduct = await _cartProductCollection
                                                 .Find(c => c.CartId == cart.Id && c.SellProductId == sellProductId)
                                                 .FirstOrDefaultAsync();
+                int currentQuantityInCart = existingCartProduct?.Quantity ?? 0;
+                int totalQuantity = currentQuantityInCart + quantity;
+                if (totalQuantity > sellProduct.Quantity)
+                {
+                    int availableToAdd = sellProduct.Quantity - currentQuantityInCart;
+                    throw new ArgumentException($"Only {sellProduct.Quantity} item(s) in stock. You already have {currentQuantityInCart} in cart. You can add up to {availableToAdd} more.");
+                }
+
                 if (existingCartProduct != null)
                 {
-                    var update = Builders<CartProduct>.Update.Inc(c => c.Quantity, 1);
+                    var update = Builders<CartProduct>.Update.Inc(c => c.Quantity, quantity);
                     await _cartProductCollection.UpdateOneAsync(c => c.Id == existingCartProduct.Id, update);
                 }
                 else
@@ -63,7 +73,7 @@ namespace DataAccessLayers.Repository
                     {
                         CartId = cart.Id,
                         SellProductId = sellProductId,
-                        Quantity = 1
+                        Quantity = quantity
                     };
                     await _cartProductCollection.InsertOneAsync(cartProduct);
                 }
@@ -78,7 +88,7 @@ namespace DataAccessLayers.Repository
                                                .FirstOrDefaultAsync();
                 if (existingCartBox != null)
                 {
-                    var update = Builders<CartBox>.Update.Inc(c => c.Quantity, 1);
+                    var update = Builders<CartBox>.Update.Inc(c => c.Quantity, quantity);
                     await _cartBoxCollection.UpdateOneAsync(c => c.Id == existingCartBox.Id, update);
                 }
                 else
@@ -87,7 +97,7 @@ namespace DataAccessLayers.Repository
                     {
                         CartId = cart.Id,
                         MangaBoxId = mangaBoxId,
-                        Quantity = 1
+                        Quantity = quantity
                     };
                     await _cartBoxCollection.InsertOneAsync(cartBox);
                 }

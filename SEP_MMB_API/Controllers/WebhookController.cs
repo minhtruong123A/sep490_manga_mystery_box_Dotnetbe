@@ -24,6 +24,7 @@ namespace SEP_MMB_API.Controllers
             _payOSService = payOSService;
         }
 
+        [ApiExplorerSettings(IgnoreApi = true)]
         [HttpPost("payment")]
         public async Task<ActionResult<ResponseModel<object>>> HandlePaymentWebhook([FromBody] PayOSWebhookRequest request)
         {

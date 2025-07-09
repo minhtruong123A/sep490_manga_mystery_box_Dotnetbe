@@ -32,6 +32,7 @@ namespace DataAccessLayers.UnitOfWork
         public IDigitalPaymentSessionRepository _digitalPaymentSessionRepository;
         public IProductOrderRepository _productOrderRepository;
         public IReportRepository _reportRepository;
+        public IExchangeRepository _exchangeRepository;
 
 
         public IUserRepository UserRepository => _users ??= new UserRepository(_context);
@@ -54,6 +55,7 @@ namespace DataAccessLayers.UnitOfWork
         public IDigitalPaymentSessionRepository DigitalPaymentSessionRepository => _digitalPaymentSessionRepository ??= new DigitalPaymentSessionRepository(_context);
         public IProductOrderRepository productOrderRepository => _productOrderRepository ??= new ProductOrderRepository(_context);
         public IReportRepository ReportRepository => _reportRepository ??= new ReportRepository(_context);
+        public IExchangeRepository ExchangeRepository => _exchangeRepository ??= new ExchangeRepository(_context);
 
         public UnitOfWork(MongoDbContext context)
         {

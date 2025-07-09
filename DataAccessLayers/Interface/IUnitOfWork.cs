@@ -29,6 +29,7 @@ namespace DataAccessLayers.Interface
         IDigitalPaymentSessionRepository DigitalPaymentSessionRepository { get; }
         IProductOrderRepository productOrderRepository { get; }
         IReportRepository ReportRepository { get; }
+        IExchangeRepository ExchangeRepository { get; }
         Task SaveChangesAsync();
     }
 }

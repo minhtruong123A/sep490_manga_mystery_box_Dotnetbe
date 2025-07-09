@@ -58,11 +58,24 @@ namespace Services.Service
                 .Distinct()
                 .ToList();
             _logger.LogInformation($"[WarmUp] Found {imageUrls.Count} image URLs to preload.");
+            if (_cache is MemoryCache memCache)
+            {
+                memCache.Compact(0.2);
+                _logger.LogInformation("[WarmUp] Performed memory cache compaction.");
+            }
+
             var throttler = new SemaphoreSlim(5);
             var tasks = new List<Task>();
 
             foreach (var url in imageUrls)
             {
+                var finalKey = $"final_image_{url}";
+                if (_cache.TryGetValue(finalKey, out _))
+                {
+                    _logger.LogDebug($"[WarmUp] Skipped cached image: {url}");
+                    continue;
+                }
+
                 await throttler.WaitAsync();
                 var task = Task.Run(async () =>
                 {

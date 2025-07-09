@@ -72,7 +72,7 @@ namespace Services.Service
                 var finalKey = $"final_image_{url}";
                 if (_cache.TryGetValue(finalKey, out _))
                 {
-                    _logger.LogDebug($"[WarmUp] Skipped cached image: {url}");
+                    _logger.LogInformation($"[WarmUp] Skipped cached image: {url}");
                     continue;
                 }
 

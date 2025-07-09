@@ -1,0 +1,21 @@
+﻿using BusinessObjects;
+using BusinessObjects.Dtos.Exchange;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DataAccessLayers.Interface
+{
+    public interface IExchangeRepository : IGenericRepository<ExchangeInfo>
+    {
+        Task<List<ExchangeGetAllWithProductDto>> GetExchangesWithProductsByItemReciveIdAsync(string sellProductId);
+        Task<List<ExchangeGetAllWithProductDto>> GetExchangesWithProductsOfBuyerAsync(string userId);
+        Task<ExchangeInfo> CreateExchangeAsync(ExchangeInfo info, List<ExchangeProduct> products, ExchangeSession session);
+        Task<bool> AcceptExchangeAsync(string exchangeId);
+        Task<bool> CancelExchangeAsync(string exchangeId, string userId);
+        Task<bool> RejectExchangeAsync(string exchangeId, string userId);
+    }
+
+}

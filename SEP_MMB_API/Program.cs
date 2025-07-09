@@ -342,26 +342,35 @@ app.UseAuthorization();
 //if (!app.Environment.IsProduction())
 //{
 
-//app.UsePathBase("/cs");
-//app.UseSwagger();
-//app.UseSwaggerUI(c =>
-//{
-//    c.SwaggerEndpoint("/cs/swagger/v1/swagger.json", "Main User API");
-//    c.SwaggerEndpoint("/cs/swagger/test/swagger.json", "Dev Server Test API");
-//    c.RoutePrefix = "swagger";
-//    c.ConfigObject.AdditionalItems["https"] = true;
-//    c.EnableFilter();
-//});
-
+app.UsePathBase("/cs");
+app.Use((context, next) =>
+{
+    var prefix = context.Request.Headers["X-Forwarded-Prefix"].FirstOrDefault();
+    if (!string.IsNullOrEmpty(prefix))
+    {
+        context.Request.PathBase = prefix;
+    }
+    return next();
+});
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Main User API");
-    c.SwaggerEndpoint("/swagger/test/swagger.json", "Dev Server Test API");
+    c.SwaggerEndpoint("/cs/swagger/v1/swagger.json", "Main User API");
+    c.SwaggerEndpoint("/cs/swagger/test/swagger.json", "Dev Server Test API");
     c.RoutePrefix = "swagger";
     c.ConfigObject.AdditionalItems["https"] = true;
     c.EnableFilter();
 });
+
+//app.UseSwagger();
+//app.UseSwaggerUI(c =>
+//{
+//    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Main User API");
+//    c.SwaggerEndpoint("/swagger/test/swagger.json", "Dev Server Test API");
+//    c.RoutePrefix = "swagger";
+//    c.ConfigObject.AdditionalItems["https"] = true;
+//    c.EnableFilter();
+//});
 
 //}
 

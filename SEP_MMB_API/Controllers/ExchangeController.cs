@@ -22,9 +22,28 @@ namespace SEP_MMB_API.Controllers
             _authService = authService;
             _mapper = mapper;
         }
+   
+        [Authorize]
+        [HttpGet("with-products/by-receive/{sellProductId}")]
+        public async Task<IActionResult> GetAllWithProducts(string sellProductId)
+        {
+            var result = await _service.GetExchangesWithProductsByItemReciveIdAsync(sellProductId);
+            return Ok(result);
+        }
 
         [Authorize]
-        [HttpPost("create")]
+        [HttpGet("exchange-request-buyer")]
+        public async Task<IActionResult> GetAllWithProducts()
+        {
+            var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+            if (account == null) return Unauthorized();
+
+            var result = await _service.GetExchangesWithProductsByItemReciveIdAsync(account.Id);
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpPost("sender/create")]
         public async Task<IActionResult> CreateExchange([FromBody] CreateExchangeRequestDto dto)
         {
             if (dto.Products == null || !dto.Products.Any())
@@ -34,7 +53,7 @@ namespace SEP_MMB_API.Controllers
             if (account == null) return Unauthorized();
 
             var exchangeInfo = _mapper.Map<ExchangeInfo>(dto);
-            exchangeInfo.BuyerId = account.Id;                      
+            exchangeInfo.BuyerId = account.Id;
             exchangeInfo.Status = (int)ExchangeStatus.Pending;
             exchangeInfo.Datetime = DateTime.UtcNow;
 
@@ -53,26 +72,8 @@ namespace SEP_MMB_API.Controllers
             return Ok(created);
         }
 
-        [Authorize]
-        [HttpGet("with-products/by-receive/{itemReciveId}")]
-        public async Task<IActionResult> GetAllWithProducts(string itemReciveId)
-        {
-            var result = await _service.GetExchangesWithProductsByItemReciveIdAsync(itemReciveId);
-            return Ok(result);
-        }
 
-        [Authorize]
-        [HttpGet("exchange-request-buyer")]
-        public async Task<IActionResult> GetAllWithProducts()
-        {
-            var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-            if (account == null) return Unauthorized();
-
-            var result = await _service.GetExchangesWithProductsByItemReciveIdAsync(account.Id);
-            return Ok(result);
-        }
-
-        [HttpPost("accept/{exchangeId}")]
+        [HttpPost("sender/accept/{exchangeId}")]
         public async Task<IActionResult> AcceptExchange(string exchangeId)
         {
             var success = await _service.AcceptExchangeAsync(exchangeId);
@@ -81,7 +82,7 @@ namespace SEP_MMB_API.Controllers
         }
 
         [Authorize]
-        [HttpPost("cancel/{exchangeId}")]
+        [HttpPost("recipient/cancel/{exchangeId}")]
         public async Task<IActionResult> CancelExchange(string exchangeId)
         {
             var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);

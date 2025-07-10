@@ -302,6 +302,7 @@ namespace DataAccessLayers.Repository
                 Description = sellProduct.Description ?? "",
                 UserId = userResult?.Id ?? "Unknown Id",
                 Username = userResult?.Username ?? "Unknown",
+                UserProfileImage = userResult?.ProfileImage ?? "",
                 Topic = collectionResult?.Topic ?? "Unknown",
                 RateName = rarityResult?.Name ?? "Unknown",
                 Quantity = sellProduct.Quantity

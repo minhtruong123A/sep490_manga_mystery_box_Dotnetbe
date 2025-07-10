@@ -13,6 +13,7 @@ namespace BusinessObjects.Dtos.Product
         public int Price { get; set; }
         public string UserId { get; set; }
         public string Username { get; set; }
+        public string UserProfileImage { get; set; }
         public string Topic { get; set; }
         public string UrlImage { get; set; }
         public string RateName { get; set; } 

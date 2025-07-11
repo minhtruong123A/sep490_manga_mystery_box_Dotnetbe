@@ -72,7 +72,7 @@ namespace Services.Service
                 var finalKey = $"final_image_{url}";
                 if (_cache.TryGetValue(finalKey, out _))
                 {
-                    _logger.LogDebug($"[WarmUp] Skipped cached image: {url}");
+                    _logger.LogInformation($"[WarmUp] Skipped cached image: {url}");
                     continue;
                 }
 
@@ -82,9 +82,31 @@ namespace Services.Service
                     try
                     {
                         var encodedPath = Uri.EscapeDataString(url);
-                        var proxyUrl = $"https://mmb-be-dotnet.onrender.com/api/ImageProxy/{encodedPath}";
+                        //var proxyUrl = $"https://mmb-be-dotnet.onrender.com/api/ImageProxy/{encodedPath}";
+                        var proxyUrls = new[]
+                        {
+                            $"https://mmb-be-dotnet.onrender.com/api/ImageProxy/{encodedPath}",
+                            $"https://api.mmb.io.vn/cs/api/ImageProxy/{encodedPath}"
+                        };  
+
                         var cts = new CancellationTokenSource(TimeSpan.FromSeconds(50));
-                        await _httpClient.GetAsync(proxyUrl, cts.Token);
+                        //await _httpClient.GetAsync(proxyUrl, cts.Token);
+                        var warmUpTasks = proxyUrls.Select(async proxyUrl =>
+                        {
+                            try
+                            {
+                                _logger.LogInformation($"[WarmUp] Sending request to: {proxyUrl}");
+                                var response = await _httpClient.GetAsync(proxyUrl, cts.Token);
+                                response.EnsureSuccessStatusCode();
+                                _logger.LogInformation($"[WarmUp] Success: {proxyUrl}");
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogWarning($"[WarmUp] Failed to warm {proxyUrl}: {ex.Message}");
+                            }
+                        });
+
+                        await Task.WhenAll(warmUpTasks);
                     }
                     catch (Exception ex)
                     {

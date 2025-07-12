@@ -62,7 +62,7 @@ namespace DataAccessLayers.Repository
                     var product = products.FirstOrDefault(pr => pr.Id == productId);
                     return new ExchangeProductDetailDto
                     {
-                        ProductExchangeId = p.ProductExchangeId,
+                        ProductExchangeId = product?.Id ?? "unknown",
                         QuantityProductExchange = p.QuantityProductExchange,
                         Status = p.Status,
                         Image = product?.UrlImage

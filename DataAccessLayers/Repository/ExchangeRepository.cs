@@ -21,6 +21,7 @@ namespace DataAccessLayers.Repository
         private readonly IMongoCollection<ExchangeSession> _exchangeSession;
         private readonly IMongoCollection<SellProduct> _sellProduct;
         private readonly IMongoCollection<UserProduct> _userProduct;
+        private readonly IMongoCollection<Product> _product;
 
         public ExchangeRepository(MongoDbContext context) : base(context.GetCollection<ExchangeInfo>("ExchangeInfo"))
         {
@@ -29,7 +30,9 @@ namespace DataAccessLayers.Repository
             _exchangeSession = context.GetCollection<ExchangeSession>("ExchangeSession");
             _sellProduct = context.GetCollection<SellProduct>("SellProduct");
             _userProduct = context.GetCollection<UserProduct>("User_Product");
+            _product = context.GetCollection<Product>("Product");
         }
+
         public async Task<List<ExchangeGetAllWithProductDto>> GetExchangesWithProductsByItemReciveIdAsync(string userId)
         {
             var sellproducts = await _sellProduct.Find(x => x.SellerId.Equals(userId)).ToListAsync();
@@ -38,20 +41,34 @@ namespace DataAccessLayers.Repository
             var infos = await _exchangeInfo.Find(p => sellIds.Contains(p.ItemReciveId)).ToListAsync();
             if (!infos.Any()) return [];
 
-            // Lấy toàn bộ session theo ItemGiveId (chính là session id)
+
             var sessionIds = infos.Select(x => x.ItemGiveId).Distinct().ToList();
-            var products = await _exchangeProduct.Find(p => sessionIds.Contains(p.ExchangeId)).ToListAsync();
+            var eproducts = await _exchangeProduct.Find(p => sessionIds.Contains(p.ExchangeId)).ToListAsync();
+            var eproductIds = eproducts.Select(x => x.ProductExchangeId).Distinct().ToList();
+
+            var uproducts = await _userProduct.Find(p => eproductIds.Contains(p.Id)).ToListAsync();
+            var uproductIds = uproducts.Select(x => x.ProductId).Distinct().ToList();
+
+            var products = await _product.Find(p => uproductIds.Contains(p.Id)).ToListAsync();
 
             return infos.Select(info =>
             {
-                var productList = products
-                    .Where(p => p.ExchangeId == info.ItemGiveId)
-                    .Select(p => new ExchangeProductDetailDto
+                var productList = eproducts
+                .Where(p => p.ExchangeId == info.ItemGiveId)
+                .Select(p =>
+                {
+                    var up = uproducts.FirstOrDefault(x => x.Id == p.ProductExchangeId);
+                    var productId = up?.ProductId;
+                    var product = products.FirstOrDefault(pr => pr.Id == productId);
+                    return new ExchangeProductDetailDto
                     {
                         ProductExchangeId = p.ProductExchangeId,
                         QuantityProductExchange = p.QuantityProductExchange,
-                        Status = p.Status
-                    }).ToList();
+                        Status = p.Status,
+                        Image = product?.UrlImage
+                    };
+                })
+                .ToList();
 
                 return new ExchangeGetAllWithProductDto
                 {
@@ -72,18 +89,32 @@ namespace DataAccessLayers.Repository
             if (!infos.Any()) return [];
 
             var sessionIds = infos.Select(x => x.ItemGiveId).Distinct().ToList();
-            var products = await _exchangeProduct.Find(p => sessionIds.Contains(p.ExchangeId)).ToListAsync();
+            var eproducts = await _exchangeProduct.Find(p => sessionIds.Contains(p.ExchangeId)).ToListAsync();
+            var eproductIds = eproducts.Select(x => x.ProductExchangeId).Distinct().ToList();
+
+            var uproducts = await _userProduct.Find(p => eproductIds.Contains(p.Id)).ToListAsync();
+            var uproductIds = uproducts.Select(x => x.ProductId).Distinct().ToList();
+
+            var products = await _product.Find(p => uproductIds.Contains(p.Id)).ToListAsync();
 
             return infos.Select(info =>
             {
-                var productList = products
-                    .Where(p => p.ExchangeId == info.ItemGiveId)
-                    .Select(p => new ExchangeProductDetailDto
+                var productList = eproducts
+                .Where(p => p.ExchangeId == info.ItemGiveId)
+                .Select(p =>
+                {
+                    var up = uproducts.FirstOrDefault(x => x.Id == p.ProductExchangeId);
+                    var productId = up?.ProductId;
+                    var product = products.FirstOrDefault(pr => pr.Id == productId);
+                    return new ExchangeProductDetailDto
                     {
-                        ProductExchangeId = p.ProductExchangeId,
+                        ProductExchangeId = up.Id,
                         QuantityProductExchange = p.QuantityProductExchange,
-                        Status = p.Status
-                    }).ToList();
+                        Status = p.Status,
+                        Image = product?.UrlImage
+                    };
+                })
+                .ToList();
 
                 return new ExchangeGetAllWithProductDto
                 {

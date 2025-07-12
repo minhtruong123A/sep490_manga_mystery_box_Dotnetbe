@@ -10,8 +10,10 @@ namespace BusinessObjects
 {
     public class ExchangeProduct
     {
-        [BsonElement("exchange_id")]
+        [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
+        [BsonElement("exchange_id")]
         public string ExchangeId { get; set; }
         public string ProductExchangeId { get; set; }
         public int QuantityProductExchange { get; set; }

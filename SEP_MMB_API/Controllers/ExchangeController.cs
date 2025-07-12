@@ -39,7 +39,7 @@ namespace SEP_MMB_API.Controllers
             var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
             if (account == null) return Unauthorized();
 
-            var result = await _service.GetExchangesWithProductsByItemReciveIdAsync(account.Id);
+            var result = await _service.GetExchangesWithProductsOfBuyerAsync(account.Id);
             return Ok(result);
         }
 
@@ -58,7 +58,8 @@ namespace SEP_MMB_API.Controllers
             exchangeInfo.Status = (int)ExchangeStatus.Pending;
             exchangeInfo.Datetime = DateTime.UtcNow;
 
-            var session = _mapper.Map<ExchangeSession>(dto.Session);
+            var session = new ExchangeSession();
+            session.FeedbackId = null;
             session.Status = 0;
 
             var exchangeProducts = dto.Products.Select(p =>

@@ -5,6 +5,7 @@ using BusinessObjects.Mongodb;
 using DataAccessLayers.Interface;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,9 +30,12 @@ namespace DataAccessLayers.Repository
             _sellProduct = context.GetCollection<SellProduct>("SellProduct");
             _userProduct = context.GetCollection<UserProduct>("User_Product");
         }
-        public async Task<List<ExchangeGetAllWithProductDto>> GetExchangesWithProductsByItemReciveIdAsync(string sellProductId)
+        public async Task<List<ExchangeGetAllWithProductDto>> GetExchangesWithProductsByItemReciveIdAsync(string userId)
         {
-            var infos = await _exchangeInfo.Find(x => x.ItemReciveId == sellProductId).ToListAsync();
+            var sellproducts = await _sellProduct.Find(x => x.SellerId.Equals(userId)).ToListAsync();
+            var sellIds = sellproducts.Select(x => x.Id).Distinct().ToList();
+
+            var infos = await _exchangeInfo.Find(p => sellIds.Contains(p.ItemReciveId)).ToListAsync();
             if (!infos.Any()) return [];
 
             // Lấy toàn bộ session theo ItemGiveId (chính là session id)

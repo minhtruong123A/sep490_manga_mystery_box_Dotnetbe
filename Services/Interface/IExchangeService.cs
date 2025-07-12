@@ -12,7 +12,7 @@ namespace Services.Interface
     {
         Task<ExchangeInfo> CreateExchangeAsync(ExchangeInfo info, List<ExchangeProduct> products, ExchangeSession session);
         Task<bool> AcceptExchangeAsync(string exchangeId);
-        Task<List<ExchangeGetAllWithProductDto>> GetExchangesWithProductsByItemReciveIdAsync(string sellProductId);
+        Task<List<ExchangeGetAllWithProductDto>> GetExchangesWithProductsByItemReciveIdAsync(string userId);
         Task<List<ExchangeGetAllWithProductDto>> GetExchangesWithProductsOfBuyerAsync(string userId);
         Task<bool> RejectExchangeAsync(string exchangeId, string userId);
         Task<bool> CancelExchangeAsync(string exchangeId, string userId);

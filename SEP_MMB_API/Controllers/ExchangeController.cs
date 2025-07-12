@@ -24,16 +24,17 @@ namespace SEP_MMB_API.Controllers
         }
    
         [Authorize]
-        [HttpGet("with-products/by-receive/{sellProductId}")]
-        public async Task<IActionResult> GetAllWithProducts(string sellProductId)
+        [HttpGet("with-products/by-receive")]
+        public async Task<IActionResult> GetAllWithProducts()
         {
-            var result = await _service.GetExchangesWithProductsByItemReciveIdAsync(sellProductId);
+            var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+            var result = await _service.GetExchangesWithProductsByItemReciveIdAsync(account.Id);
             return Ok(result);
         }
 
         [Authorize]
         [HttpGet("exchange-request-buyer")]
-        public async Task<IActionResult> GetAllWithProducts()
+        public async Task<IActionResult> GetAllWithProductsOfBuyer()
         {
             var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
             if (account == null) return Unauthorized();

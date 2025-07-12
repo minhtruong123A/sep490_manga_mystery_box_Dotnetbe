@@ -10,7 +10,7 @@ namespace DataAccessLayers.Interface
 {
     public interface IExchangeRepository : IGenericRepository<ExchangeInfo>
     {
-        Task<List<ExchangeGetAllWithProductDto>> GetExchangesWithProductsByItemReciveIdAsync(string sellProductId);
+        Task<List<ExchangeGetAllWithProductDto>> GetExchangesWithProductsByItemReciveIdAsync(string userId);
         Task<List<ExchangeGetAllWithProductDto>> GetExchangesWithProductsOfBuyerAsync(string userId);
         Task<ExchangeInfo> CreateExchangeAsync(ExchangeInfo info, List<ExchangeProduct> products, ExchangeSession session);
         Task<bool> AcceptExchangeAsync(string exchangeId);

@@ -15,5 +15,7 @@ namespace Services.Interface
         Task<Comment> CreateRatingOnlyAsync(string sellProductId, string userId, float rating);
         Task<List<RatingWithUsernameDto>> GetAllRatingBySellProductIdAsync(string sellProductId);
         Task DeleteAllCommentAsync();
+        Task<List<string>> GetAllBadWordsAsync();
+        //Task<List<string>> GetAllAllowedShortWordsAsync();
     }
 }

@@ -19,6 +19,7 @@ namespace Services.Service
         private readonly IUnitOfWork _uniUnitOfWork;
         private readonly IModerationService _moderationService;
         private static readonly HashSet<string> BadWords = LoadBadWords();
+        private static readonly HashSet<string> AllowedShortWords = LoadAllowedShortWords();
 
         //set up reading load file
         private static HashSet<string> LoadBadWords()
@@ -30,6 +31,17 @@ namespace Services.Service
                 .Where(line => !string.IsNullOrWhiteSpace(line))
                 .Select(word => word.ToLower().Trim())
                 .ToHashSet();
+        }
+
+        private static HashSet<string> LoadAllowedShortWords()
+        {
+            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AllowedShortWords.txt");
+            if (!File.Exists(path)) throw new FileNotFoundException($"File not found: {path}");
+
+            return File.ReadAllLines(path)
+                .Where(line => !string.IsNullOrWhiteSpace(line))
+                .Select(word => word.ToLower().Trim())
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
         }
 
         public CommentService(IUnitOfWork unitOfWork, IModerationService moderationService)
@@ -82,7 +94,6 @@ namespace Services.Service
 
             return await _uniUnitOfWork.CommentRepository.CreateCommentAsync(sellProductId, userId, sanitizedContent);
         }
-
         private string ValidateCommentInput(string sellProductId, string content)
         {
             if (string.IsNullOrWhiteSpace(sellProductId)) throw new Exception("SellProductId must not be empty.");
@@ -96,7 +107,6 @@ namespace Services.Service
             return sanitized;
 
         }
-
         private bool IsMeaninglessContent(string content)
         {
             var text = content.Trim().ToLower();
@@ -108,14 +118,6 @@ namespace Services.Service
             return false;
         }
 
-        private static readonly HashSet<string> AllowedShortWords = new(StringComparer.OrdinalIgnoreCase)
-        {
-            "ok", "ổn", "ừ", "ờ", "tốt", "ko", "k", "có", "hmm", "haha", "hihi", "uh", "uk", "dạ", "vâng", "nha", "nhe", "được", "sao", "ừm", "hazz", "haizz", "ừmm", "oki", "okie", "chuẩn", "đúng", "ơ", "z", "zạ", "zị", "vs", "ko sao", "k sao", "k vấn đề", "thx", "tks", "cảm ơn", "tk", "cmn", "đg", "đang", "ngon", "xong", "huhu", "hic", "oa", "ủa", "ơ kìa", "trời", "tr", "đc", "gì", "j", "ghê", "kk", "chắc",
-
-            "yes", "no", "yeah", "yup", "nope", "sure", "fine", "great", "cool", "nice", "okay", "okie", "okey", "yessir", "alright", "amazing", "good", "bad", "maybe", "yikes", "welp", "meh", "uhm", "huh", "nah", "idk", "idc", "lol", "lmao", "omg", "zzzz", "zz", "yo", "bruh", "bro", "sis", "dude", "haha", "hehe", "yay", "hmm", "hmmm", "ouch", "oh", "eh", "tsk", "woo", "ehh", "ughh", "gah", "rip",
-
-            "ah", "eh", "uh", "hm", "hmm", "zzz", "aa", "ơ", "á", "ồ", "ồh", "ồồ", "há", "ê", "ớ", "ể", "ừ", "ờ", "o", "oà", "òa", "huh", "trời", "trời ơi", "trời má", "vl", "vãi", "chà", "chậc",
-        };
         private string SanitizeBadWords(string content)
         {
             return Regex.Replace(content, @"\p{L}+", match =>
@@ -139,10 +141,20 @@ namespace Services.Service
             }
             return sb.ToString().Normalize(NormalizationForm.FormC);
         }
-
         private static bool HasSuspiciousRepetition(string text) => (text.Distinct().Count() == 1 && text.Length >= 3) || Regex.IsMatch(text, @"(.)\1{4,}");
 
         // delete all comment
         public async Task DeleteAllCommentAsync() => await _uniUnitOfWork.CommentRepository.DeleteAllAsync();
+
+        // get all bad words
+        public Task<List<string>> GetAllBadWordsAsync()
+        {
+            return Task.FromResult(BadWords.ToList());
+        }
+
+        //public Task<List<string>> GetAllAllowedShortWordsAsync()
+        //{
+        //    return Task.FromResult(AllowedShortWords.ToList());
+        //}
     }
 }

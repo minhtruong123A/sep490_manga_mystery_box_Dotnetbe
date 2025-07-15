@@ -1,5 +1,6 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Dtos.User;
+using BusinessObjects.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +17,6 @@ namespace Services.Interface
         Task UpdateUserAsync(string id, User user);
         Task DeleteUserAsync(string id);
         Task DeleteUserByEmailAsync(string email);
+        Task<ChangePasswordResult> ChangePasswordAsync(ChangePasswordDto dto);
     }
 }

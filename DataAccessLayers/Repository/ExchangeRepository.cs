@@ -21,6 +21,10 @@ namespace DataAccessLayers.Repository
         private readonly IMongoCollection<ExchangeSession> _exchangeSession;
         private readonly IMongoCollection<SellProduct> _sellProduct;
         private readonly IMongoCollection<UserProduct> _userProduct;
+        private readonly IMongoCollection<Product> _product;
+        private readonly IMongoCollection<ProductInMangaBox> _productInMangaBox;
+        private readonly IMongoCollection<MangaBox> _mangaBox;
+        private readonly IMongoCollection<UserCollection> _userCollection;
 
         public ExchangeRepository(MongoDbContext context) : base(context.GetCollection<ExchangeInfo>("ExchangeInfo"))
         {
@@ -29,29 +33,51 @@ namespace DataAccessLayers.Repository
             _exchangeSession = context.GetCollection<ExchangeSession>("ExchangeSession");
             _sellProduct = context.GetCollection<SellProduct>("SellProduct");
             _userProduct = context.GetCollection<UserProduct>("User_Product");
+            _product = context.GetCollection<Product>("Product");
+            _productInMangaBox = context.GetCollection<ProductInMangaBox>("ProductInMangaBox");
+            _mangaBox = context.GetCollection<MangaBox>("MangaBox");
+            _userCollection = context.GetCollection<UserCollection>("UserCollection");
         }
         public async Task<List<ExchangeGetAllWithProductDto>> GetExchangesWithProductsByItemReciveIdAsync(string userId)
         {
             var sellproducts = await _sellProduct.Find(x => x.SellerId.Equals(userId)).ToListAsync();
             var sellIds = sellproducts.Select(x => x.Id).Distinct().ToList();
 
-            var infos = await _exchangeInfo.Find(p => sellIds.Contains(p.ItemReciveId)).ToListAsync();
-            if (!infos.Any()) return [];
+            var infos = await _exchangeInfo.Find(p =>
+                sellIds.Contains(p.ItemReciveId) &&
+                p.Status == (int)ExchangeStatus.Pending
+                ).ToListAsync();
 
-            // Lấy toàn bộ session theo ItemGiveId (chính là session id)
+            if (!infos.Any()) return [];
+            await RejectIfExpiredAsync(infos);
+
             var sessionIds = infos.Select(x => x.ItemGiveId).Distinct().ToList();
-            var products = await _exchangeProduct.Find(p => sessionIds.Contains(p.ExchangeId)).ToListAsync();
+            var eproducts = await _exchangeProduct.Find(p => sessionIds.Contains(p.ExchangeId)).ToListAsync();
+            var eproductIds = eproducts.Select(x => x.ProductExchangeId).Distinct().ToList();
+
+            var uproducts = await _userProduct.Find(p => eproductIds.Contains(p.Id)).ToListAsync();
+            var uproductIds = uproducts.Select(x => x.ProductId).Distinct().ToList();
+
+            var products = await _product.Find(p => uproductIds.Contains(p.Id)).ToListAsync();
 
             return infos.Select(info =>
             {
-                var productList = products
-                    .Where(p => p.ExchangeId == info.ItemGiveId)
-                    .Select(p => new ExchangeProductDetailDto
+                var productList = eproducts
+                .Where(p => p.ExchangeId == info.ItemGiveId)
+                .Select(p =>
+                {
+                    var up = uproducts.FirstOrDefault(x => x.Id == p.ProductExchangeId);
+                    var productId = up?.ProductId;
+                    var product = products.FirstOrDefault(pr => pr.Id == productId);
+                    return new ExchangeProductDetailDto
                     {
-                        ProductExchangeId = p.ProductExchangeId,
+                        ProductExchangeId = product.Id,
                         QuantityProductExchange = p.QuantityProductExchange,
-                        Status = p.Status
-                    }).ToList();
+                        Status = p.Status,
+                        Image = product?.UrlImage 
+                    };
+                })
+                .ToList();
 
                 return new ExchangeGetAllWithProductDto
                 {
@@ -70,20 +96,35 @@ namespace DataAccessLayers.Repository
         {
             var infos = await _exchangeInfo.Find(x => x.BuyerId == userId).ToListAsync();
             if (!infos.Any()) return [];
+            await RejectIfExpiredAsync(infos);
 
             var sessionIds = infos.Select(x => x.ItemGiveId).Distinct().ToList();
-            var products = await _exchangeProduct.Find(p => sessionIds.Contains(p.ExchangeId)).ToListAsync();
+            var eproducts = await _exchangeProduct.Find(p => sessionIds.Contains(p.ExchangeId)).ToListAsync();
+            var eproductIds = eproducts.Select(x => x.ProductExchangeId).Distinct().ToList();
+
+            var uproducts = await _userProduct.Find(p => eproductIds.Contains(p.Id)).ToListAsync();
+            var uproductIds = uproducts.Select(x => x.ProductId).Distinct().ToList();
+
+            var products = await _product.Find(p => uproductIds.Contains(p.Id)).ToListAsync();
 
             return infos.Select(info =>
             {
-                var productList = products
-                    .Where(p => p.ExchangeId == info.ItemGiveId)
-                    .Select(p => new ExchangeProductDetailDto
+                var productList = eproducts
+                .Where(p => p.ExchangeId == info.ItemGiveId)
+                .Select(p =>
+                {
+                    var up = uproducts.FirstOrDefault(x => x.Id == p.ProductExchangeId);
+                    var productId = up?.ProductId;
+                    var product = products.FirstOrDefault(pr => pr.Id == productId);
+                    return new ExchangeProductDetailDto
                     {
-                        ProductExchangeId = p.ProductExchangeId,
+                        ProductExchangeId = up.Id,
                         QuantityProductExchange = p.QuantityProductExchange,
-                        Status = p.Status
-                    }).ToList();
+                        Status = p.Status,
+                        Image = product?.UrlImage
+                    };
+                })
+                .ToList();
 
                 return new ExchangeGetAllWithProductDto
                 {
@@ -170,6 +211,7 @@ namespace DataAccessLayers.Repository
                 }
 
                 var receiverId = sell.SellerId;
+                var receiverProductId = sell.ProductId;
 
                 var exchangeProducts = await _exchangeProduct.Find(x => x.ExchangeId == session.Id).ToListAsync();
                 foreach (var ep in exchangeProducts)
@@ -192,8 +234,11 @@ namespace DataAccessLayers.Repository
                         throw new Exception($"Failed to update quantity for productId: {ep.ProductExchangeId}");
                 }
 
-                await UpdateUserProduct(info.BuyerId, info.ItemReciveId);
-                await UpdateUserProduct(receiverId, info.ItemGiveId);
+                await UpdateUserProduct(info.BuyerId, receiverProductId, 1);
+                foreach (var ep in exchangeProducts)
+                {
+                    await UpdateUserProduct(receiverId, ep.ProductExchangeId, ep.QuantityProductExchange);
+                }
 
                 return true;
             }
@@ -205,15 +250,48 @@ namespace DataAccessLayers.Repository
         }
 
 
-        private async Task UpdateUserProduct(string userId, string productId)
+        private async Task UpdateUserProduct(string userId, string productId, int quantity)
         {
+            
+            var productInBox = await _productInMangaBox.Find(p => p.ProductId == productId).FirstOrDefaultAsync();
+            if (productInBox == null) throw new Exception("Not found productInBox");
+
+            
+            var mangaBox = await _mangaBox.Find(m => m.Id == productInBox.MangaBoxId).FirstOrDefaultAsync();
+            if (mangaBox == null) throw new Exception("Not found mangaBox");
+
+            
+            var collectionId = mangaBox.CollectionTopicId;
+
+            
+            var userCollection = await _userCollection
+                .Find(uc => uc.UserId == userId && uc.CollectionId == collectionId)
+                .FirstOrDefaultAsync();
+
+            if (userCollection == null)
+            {
+                userCollection = new UserCollection
+                {
+                    CollectionId = collectionId,
+                    UserId = userId
+                };
+                await _userCollection.InsertOneAsync(userCollection);
+            }
+
+            userCollection = await _userCollection
+                .Find(uc => uc.UserId == userId && uc.CollectionId == collectionId)
+                .FirstOrDefaultAsync();
+
+            // Bước 5: Tiếp tục thêm hoặc cập nhật UserProduct
             var filter = Builders<UserProduct>.Filter.Where(x => x.CollectorId == userId && x.ProductId == productId);
             var existing = await _userProduct.Find(filter).FirstOrDefaultAsync();
 
             if (existing != null)
             {
-                await _userProduct.UpdateOneAsync(filter,
-                    Builders<UserProduct>.Update.Inc(x => x.Quantity, 1));
+                await _userProduct.UpdateOneAsync(
+                    filter,
+                    Builders<UserProduct>.Update.Inc(x => x.Quantity, quantity)
+                );
             }
             else
             {
@@ -221,12 +299,15 @@ namespace DataAccessLayers.Repository
                 {
                     CollectorId = userId,
                     ProductId = productId,
-                    Quantity = 1,
+                    Quantity = quantity,
+                    CollectionId = userCollection.Id,
                     CollectedAt = DateTime.UtcNow
                 };
                 await _userProduct.InsertOneAsync(newUserProduct);
             }
         }
+
+
 
 
         public async Task<bool> CancelExchangeAsync(string exchangeId, string userId)
@@ -250,6 +331,39 @@ namespace DataAccessLayers.Repository
 
             return true;
         }
+
+        private async Task RejectIfExpiredAsync(List<ExchangeInfo> infos)
+        {
+            // Lọc các exchange hết hạn và vẫn đang Pending
+            var expiredInfos = infos
+                .Where(x => x.Datetime.AddDays(7) < DateTime.UtcNow && x.Status == (int)ExchangeStatus.Pending)
+                .ToList();
+
+            if (!expiredInfos.Any()) return;
+
+            var expiredIds = expiredInfos.Select(x => x.Id).ToList();
+            var expiredSessionIds = expiredInfos.Select(x => x.ItemGiveId).ToList();
+
+            // ✅ Update ExchangeInfo -> Reject
+            var exchangeFilter = Builders<ExchangeInfo>.Filter.In(x => x.Id, expiredIds);
+            var exchangeUpdate = Builders<ExchangeInfo>.Update.Set(x => x.Status, (int)ExchangeStatus.Reject);
+            await _exchangeInfo.UpdateManyAsync(exchangeFilter, exchangeUpdate);
+
+            // ✅ Update ExchangeSession -> Status = 0 (mở lại session)
+            var sessionFilter = Builders<ExchangeSession>.Filter.In(x => x.Id, expiredSessionIds);
+            var sessionUpdate = Builders<ExchangeSession>.Update.Set(x => x.Status, 0);
+            await _exchangeSession.UpdateManyAsync(sessionFilter, sessionUpdate);
+
+            // ✅ Cập nhật lại trạng thái trong `infos` truyền vào (nếu cần xử lý tiếp)
+            foreach (var info in infos)
+            {
+                if (expiredIds.Contains(info.Id))
+                {
+                    info.Status = (int)ExchangeStatus.Reject;
+                }
+            }
+        }
+
 
 
         public async Task<bool> RejectExchangeAsync(string exchangeId, string userId)

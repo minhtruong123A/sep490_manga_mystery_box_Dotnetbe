@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObjects;
+using BusinessObjects.Dtos.Collection;
 using BusinessObjects.Dtos.UserCollection;
 using DataAccessLayers.Interface;
 using DataAccessLayers.UnitOfWork;
@@ -25,6 +26,19 @@ namespace Services.Service
 
         public async Task CreateUserCollectionAsync(UserCollection collection) => await _uniUnitOfWork.UserCollectionRepository.AddAsync(collection);
         public async Task<List<UserCollectionGetAllDto>> GetAllWithDetailsAsync(string id) => await _uniUnitOfWork.UserCollectionRepository.GetAllWithDetailsAsync(id);
+        public async Task CreateUserCollectionByUserAsync(string userId, CollectionCreateByUserDto dto)
+        {
+            var newCollection = new Collection();
+            newCollection.Topic = dto.Topic;
+            newCollection.IsSystem = dto.IsSystem;
+            await _uniUnitOfWork.CollectionRepository.AddAsync(newCollection);
+
+            var collection = await _uniUnitOfWork.CollectionRepository.FindOneAsync(x => x.Topic.Equals(dto.Topic) && x.IsSystem == false);
+            var newUserCollection = new UserCollection();
+            newUserCollection.UserId = userId;
+            newUserCollection.CollectionId = collection.Id;
+            await _uniUnitOfWork.UserCollectionRepository.AddAsync(newUserCollection);     
+        }
         
 
     }

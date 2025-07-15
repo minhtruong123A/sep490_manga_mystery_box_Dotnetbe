@@ -1,6 +1,7 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Dtos.Schema_Response;
 using BusinessObjects.Dtos.User;
+using BusinessObjects.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
@@ -98,5 +99,60 @@ namespace SEP_MMB_API.Controllers
                 });
             }
         }
+
+        [Authorize(Roles = "user")]
+        [HttpPut("profile/change-password")]
+        public async Task<ActionResult<ResponseModel<string>>> ChangePasswordAsync(ChangePasswordDto dto)
+        {
+            try
+            {
+                var result = await _userService.ChangePasswordAsync(dto);
+
+                switch (result)
+                {
+                    case ChangePasswordResult.Success:
+                        return Ok(new ResponseModel<string>
+                        {
+                            Data = "Password changed successfully",
+                            Success = true
+                        });
+
+                    case ChangePasswordResult.PasswordMismatch:
+                        return BadRequest(new ResponseModel<string>
+                        {
+                            Error = "New password and confirm password do not match",
+                            ErrorCode = 1001,
+                            Success = false
+                        });
+
+                    case ChangePasswordResult.InvalidCurrentPassword:
+                        return BadRequest(new ResponseModel<string>
+                        {
+                            Error = "Current password is incorrect",
+                            ErrorCode = 1002,
+                            Success = false
+                        });
+
+                    default:
+                        return BadRequest(new ResponseModel<string>
+                        {
+                            Error = "Unknown error",
+                            ErrorCode = 1003,
+                            Success = false
+                        });
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string>
+                {
+                    Error = ex.Message,
+                    ErrorCode = 400,
+                    Success = false
+                });
+            }
+        }
+
     }
 }

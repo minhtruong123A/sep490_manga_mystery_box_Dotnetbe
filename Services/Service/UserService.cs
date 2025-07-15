@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Dtos.User;
+using BusinessObjects.Enum;
 using DataAccessLayers.Interface;
 using Services.Interface;
 using System;
@@ -55,5 +56,7 @@ namespace Services.Service
             await _uniUnitOfWork.UserRepository.DeleteByEmailAsync(email);
             await _uniUnitOfWork.EmailVerificationRepository.DeleteByEmailAsync(email);
         }
+
+        public async Task<ChangePasswordResult> ChangePasswordAsync(ChangePasswordDto dto) => await _uniUnitOfWork.UserRepository.ChangePasswordAsync(dto);
     }
 }

@@ -69,12 +69,13 @@ namespace DataAccessLayers.Repository
                                           .ToListAsync();
             var userIds = comments.Select(c => c.UserId).Distinct().ToList();
             var users = await _users.Find(u => userIds.Contains(u.Id)).ToListAsync();
-            var userDict = users.ToDictionary(u => u.Id, u => u.Username);
+            var userDict = users.ToDictionary(u => u.Id, u => new { u.Username, u.ProfileImage }); 
             var result = comments.Select(c => new CommentWithUsernameDto
             {
                 Id = c.Id,
                 SellProductId = c.SellProductId,
-                Username = userDict.ContainsKey(c.UserId) ? userDict[c.UserId] : "Unknown",
+                Username = userDict.ContainsKey(c.UserId) ? userDict[c.UserId].Username : "Unknown",
+                ProfileImage = userDict.ContainsKey(c.UserId) ? userDict[c.UserId].ProfileImage : null,
                 Content = c.Content,
                 CreatedAt = c.CreatedAt,
                 UpdatedAt = c.UpdatedAt,
@@ -93,12 +94,13 @@ namespace DataAccessLayers.Repository
                                           .ToListAsync();
             var userIds = comments.Select(c => c.UserId).Distinct().ToList();
             var users = await _users.Find(u => userIds.Contains(u.Id)).ToListAsync();
-            var userDict = users.ToDictionary(u => u.Id, u => u.Username);
+            var userDict = users.ToDictionary(u => u.Id, u => new { u.Username, u.ProfileImage });
             var result = comments.Select(c => new RatingWithUsernameDto
             {
                 Id = c.Id,
                 SellProductId = c.SellProductId,
-                Username = userDict.ContainsKey(c.UserId) ? userDict[c.UserId] : "Unknown",
+                Username = userDict.ContainsKey(c.UserId) ? userDict[c.UserId].Username : "Unknown",
+                ProfileImage = userDict.ContainsKey(c.UserId) ? userDict[c.UserId].ProfileImage : null,
                 Rating = c.Rating,
                 CreatedAt = c.CreatedAt,
                 UpdatedAt = c.UpdatedAt,

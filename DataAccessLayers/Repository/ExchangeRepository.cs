@@ -38,6 +38,7 @@ namespace DataAccessLayers.Repository
             _mangaBox = context.GetCollection<MangaBox>("MangaBox");
             _userCollection = context.GetCollection<UserCollection>("UserCollection");
         }
+
         public async Task<List<ExchangeGetAllWithProductDto>> GetExchangesWithProductsByItemReciveIdAsync(string userId)
         {
             var sellproducts = await _sellProduct.Find(x => x.SellerId.Equals(userId)).ToListAsync();
@@ -49,15 +50,13 @@ namespace DataAccessLayers.Repository
                 ).ToListAsync();
 
             if (!infos.Any()) return [];
+            
             await RejectIfExpiredAsync(infos);
-
             var sessionIds = infos.Select(x => x.ItemGiveId).Distinct().ToList();
             var eproducts = await _exchangeProduct.Find(p => sessionIds.Contains(p.ExchangeId)).ToListAsync();
             var eproductIds = eproducts.Select(x => x.ProductExchangeId).Distinct().ToList();
-
             var uproducts = await _userProduct.Find(p => eproductIds.Contains(p.Id)).ToListAsync();
             var uproductIds = uproducts.Select(x => x.ProductId).Distinct().ToList();
-
             var products = await _product.Find(p => uproductIds.Contains(p.Id)).ToListAsync();
 
             return infos.Select(info =>
@@ -71,10 +70,10 @@ namespace DataAccessLayers.Repository
                     var product = products.FirstOrDefault(pr => pr.Id == productId);
                     return new ExchangeProductDetailDto
                     {
-                        ProductExchangeId = product.Id,
+                        ProductExchangeId = product?.Id ?? "unknown",
                         QuantityProductExchange = p.QuantityProductExchange,
                         Status = p.Status,
-                        Image = product?.UrlImage 
+                        Image = product?.UrlImage
                     };
                 })
                 .ToList();

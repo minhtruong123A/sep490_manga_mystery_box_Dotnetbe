@@ -25,6 +25,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="AllowedShortWords.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="badwords.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

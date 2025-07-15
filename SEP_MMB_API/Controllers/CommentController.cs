@@ -21,6 +21,46 @@ namespace SEP_MMB_API.Controllers
             _authService = authService;
         }
 
+        [HttpGet("get-all-badwords")]
+        public async Task<ActionResult<ResponseModel<object>>> GetAllBadWords()
+        {
+            var response = new ResponseModel<object>();
+            try
+            {
+                var badWords = await _commentService.GetAllBadWordsAsync();
+                response.Success = true;
+                response.Data = badWords;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Error = ex.Message;
+                response.ErrorCode = 400;
+                return BadRequest(response);
+            }
+        }
+
+        //[HttpGet("get-all-allow-words")]
+        //public async Task<ActionResult<ResponseModel<object>>> GetAllAllowWords()
+        //{
+        //    var response = new ResponseModel<object>();
+        //    try
+        //    {
+        //        var badWords = await _commentService.GetAllAllowedShortWordsAsync();
+        //        response.Success = true;
+        //        response.Data = badWords;
+        //        return Ok(response);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        response.Success = false;
+        //        response.Error = ex.Message;
+        //        response.ErrorCode = 400;
+        //        return BadRequest(response);
+        //    }
+        //}
+
         [HttpGet("get-all-comment-by-sellproduct/{sellProductId}")]
         public async Task<ActionResult<ResponseModel<object>>> GetAllBySellProductId(string sellProductId)
         {

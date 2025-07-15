@@ -205,6 +205,7 @@ namespace DataAccessLayers.Repository
                     Id = sellProduct.Id.ToString(),
                     Name = product?.Name ?? "Unknown",
                     Price = sellProduct?.Price ?? null,
+                    UserId = user?.Id ?? "Unknown",
                     Username = user?.Username ?? "Unknown",
                     Topic = collection?.Topic ?? "Unknown",
                     UrlImage = product?.UrlImage ?? "Unknown",

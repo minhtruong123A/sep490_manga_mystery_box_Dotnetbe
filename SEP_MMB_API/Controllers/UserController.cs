@@ -106,6 +106,8 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
+                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                dto.UserId = account.Id;
                 var result = await _userService.ChangePasswordAsync(dto);
 
                 switch (result)

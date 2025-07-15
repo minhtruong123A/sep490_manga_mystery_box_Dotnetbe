@@ -30,6 +30,7 @@ namespace DataAccessLayers.Interface
         IProductOrderRepository productOrderRepository { get; }
         IReportRepository ReportRepository { get; }
         IExchangeRepository ExchangeRepository { get; }
+        ICollectionRepository CollectionRepository { get; }
         Task SaveChangesAsync();
     }
 }

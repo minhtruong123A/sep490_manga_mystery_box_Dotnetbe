@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
 using Services.Service;
 using BusinessObjects.Dtos.UserCollection;
+using BusinessObjects.Dtos.Collection;
 namespace SEP_MMB_API.Controllers
 {
     [Route("api/[controller]")]
@@ -52,7 +53,7 @@ namespace SEP_MMB_API.Controllers
         }
 
         [Authorize]
-        [HttpPost("create-new-collection")]
+        [HttpPost("create-new-user-collection-for-system")]
         public async Task<ActionResult<ResponseModel<string>>> CreateUserCollection([FromHeader] string collectionId)
         {
             try
@@ -70,7 +71,7 @@ namespace SEP_MMB_API.Controllers
 
                 return Ok(new ResponseModel<string>
                 {
-                    Data = "Collection created successfully",
+                    Data = "UserCollection added successfully",
                     Success = true
                 });
             }
@@ -86,6 +87,34 @@ namespace SEP_MMB_API.Controllers
             }
         }
 
+        [Authorize]
+        [HttpPost("create-new-user-collection-for-user")]
+        public async Task<ActionResult<ResponseModel<string>>> CreateMyCollection([FromBody] CollectionCreateByUserDto dto)
+        {
+            try
+            {
 
+                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+
+               
+                await _userCollectionService.CreateUserCollectionByUserAsync(account.Id, dto);
+
+                return Ok(new ResponseModel<string>
+                {
+                    Data = "UserCollection created successfully",
+                    Success = true
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string>
+                {
+                    Data = null,
+                    Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
     }
 }

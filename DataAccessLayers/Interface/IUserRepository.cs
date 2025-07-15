@@ -1,4 +1,6 @@
 ﻿using BusinessObjects;
+using BusinessObjects.Dtos.User;
+using BusinessObjects.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,5 +15,6 @@ namespace DataAccessLayers.Interface
         Task<User?> GetSystemAccountByAccountName(string accountName);
         Task<User?> GetByEmailAsync(string email);
         Task DeleteByEmailAsync(string email);
+        Task<ChangePasswordResult> ChangePasswordAsync(ChangePasswordDto dto);
     }
 }

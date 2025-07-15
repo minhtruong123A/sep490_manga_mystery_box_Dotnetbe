@@ -20,4 +20,5 @@ namespace BusinessObjects
         public int Status { get; set; } // Optional
     }
 
+
 }

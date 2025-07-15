@@ -13,4 +13,5 @@ namespace BusinessObjects.Dtos.Exchange
         public int Status { get; set; }
         public string Image { get; set; }
     }
+
 }

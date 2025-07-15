@@ -57,7 +57,7 @@ namespace DataAccessLayers.Repository
                 return ChangePasswordResult.InvalidCurrentPassword;
             }
 
-            if (dto.NewPassword.Equals(dto.ConfirmPassword))
+            if (!dto.NewPassword.Equals(dto.ConfirmPassword))
             {
                 return ChangePasswordResult.PasswordMismatch;
             }

@@ -159,7 +159,7 @@ namespace DataAccessLayers.Repository
         {
             try
             {
-                var info = await _exchangeInfo.Find(x => x.Id == exchangeId).FirstOrDefaultAsync();
+                var info = await _exchangeInfo.Find(x => x.Id.Equals(exchangeId)).FirstOrDefaultAsync();
 
                 if (info == null) throw new Exception("ExchangeInfo not found"); 
 
@@ -184,14 +184,13 @@ namespace DataAccessLayers.Repository
                 if (updateSessionResult.ModifiedCount == 0) throw new Exception("Failed to update ExchangeSession");
 
 
-                var sell = await _sellProduct.Find(x => x.ProductId == info.ItemReciveId).FirstOrDefaultAsync();
-                if (sell == null) throw new Exception("SellProduct not found");
-                var quantity = sell.Quantity -1 ;
+                var sell = await _sellProduct.Find(x => x.Id.Equals(info.ItemReciveId)).FirstOrDefaultAsync();
+                if(sell == null) throw new Exception("SellProduct not found");
                 if(sell.Quantity == 1)
                 {
                     var updateSell = await _sellProduct.UpdateOneAsync(
-                    x => x.ProductId == sell.ProductId,
-                    Builders<SellProduct>.Update.Set(x => x.IsSell, true)
+                    x => x.Id == sell.Id,
+                    Builders<SellProduct>.Update.Set(x => x.IsSell, false)
                                                 .Set(x => x.Quantity, 0 )
                     );
                     if (updateSell.ModifiedCount == 0) throw new Exception("Failed to update SellProduct");
@@ -200,7 +199,7 @@ namespace DataAccessLayers.Repository
                 {
                     var updateSell = await _sellProduct.UpdateOneAsync(
                     x => x.ProductId == sell.ProductId,
-                    Builders<SellProduct>.Update.Set(x => x.Quantity, quantity)
+                    Builders<SellProduct>.Update.Inc(x => x.Quantity, -1)
                     );
                     if (updateSell.ModifiedCount == 0) throw new Exception("Failed to update SellProduct");
                 }
@@ -216,7 +215,7 @@ namespace DataAccessLayers.Repository
                 foreach (var ep in exchangeProducts)
                 {
                    var filter = Builders<UserProduct>.Filter.Where(x =>
-                        x.CollectorId == info.BuyerId && x.ProductId == ep.ProductExchangeId);
+                        x.CollectorId == info.BuyerId && x.Id == ep.ProductExchangeId);
                    var existing = await _userProduct.Find(filter).FirstOrDefaultAsync();
 
                     if (existing == null)
@@ -236,7 +235,8 @@ namespace DataAccessLayers.Repository
                 await UpdateUserProduct(info.BuyerId, receiverProductId, 1);
                 foreach (var ep in exchangeProducts)
                 {
-                    await UpdateUserProduct(receiverId, ep.ProductExchangeId, ep.QuantityProductExchange);
+                    var pro = await _userProduct.Find(x => x.Id.Equals(ep.ProductExchangeId)).FirstOrDefaultAsync();
+                    await UpdateUserProduct(receiverId, pro.ProductId, ep.QuantityProductExchange);
                 }
 
                 return true;
@@ -252,11 +252,11 @@ namespace DataAccessLayers.Repository
         private async Task UpdateUserProduct(string userId, string productId, int quantity)
         {
             
-            var productInBox = await _productInMangaBox.Find(p => p.ProductId == productId).FirstOrDefaultAsync();
+            var productInBox = await _productInMangaBox.Find(p => p.ProductId.Equals(productId)).FirstOrDefaultAsync();
             if (productInBox == null) throw new Exception("Not found productInBox");
 
             
-            var mangaBox = await _mangaBox.Find(m => m.Id == productInBox.MangaBoxId).FirstOrDefaultAsync();
+            var mangaBox = await _mangaBox.Find(m => m.Id.Equals(productInBox.MangaBoxId)).FirstOrDefaultAsync();
             if (mangaBox == null) throw new Exception("Not found mangaBox");
 
             
@@ -264,7 +264,7 @@ namespace DataAccessLayers.Repository
 
             
             var userCollection = await _userCollection
-                .Find(uc => uc.UserId == userId && uc.CollectionId == collectionId)
+                .Find(uc => uc.UserId.Equals(userId) && uc.CollectionId.Equals(collectionId))
                 .FirstOrDefaultAsync();
 
             if (userCollection == null)
@@ -278,11 +278,11 @@ namespace DataAccessLayers.Repository
             }
 
             userCollection = await _userCollection
-                .Find(uc => uc.UserId == userId && uc.CollectionId == collectionId)
+                .Find(uc => uc.UserId.Equals(userId) && uc.CollectionId.Equals(collectionId))
                 .FirstOrDefaultAsync();
 
             // Bước 5: Tiếp tục thêm hoặc cập nhật UserProduct
-            var filter = Builders<UserProduct>.Filter.Where(x => x.CollectorId == userId && x.ProductId == productId);
+            var filter = Builders<UserProduct>.Filter.Where(x => x.CollectorId.Equals(userId) && x.ProductId.Equals(productId));
             var existing = await _userProduct.Find(filter).FirstOrDefaultAsync();
 
             if (existing != null)
@@ -371,7 +371,7 @@ namespace DataAccessLayers.Repository
             if (info == null) return false;
 
 
-            var sell = await _sellProduct.Find(x => x.ProductId == info.ItemReciveId).FirstOrDefaultAsync();
+            var sell = await _sellProduct.Find(x => x.Id.Equals(info.ItemReciveId)).FirstOrDefaultAsync();
             if (sell == null || sell.SellerId != userId)  throw new Exception("You do not have the right to reject");
 
             if (info.Status != (int)ExchangeStatus.Pending) throw new Exception("Reject failed");

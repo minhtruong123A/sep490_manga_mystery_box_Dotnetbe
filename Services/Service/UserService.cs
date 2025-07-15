@@ -3,6 +3,7 @@ using BusinessObjects;
 using BusinessObjects.Dtos.User;
 using BusinessObjects.Enum;
 using DataAccessLayers.Interface;
+using MongoDB.Driver;
 using Services.Interface;
 using System;
 using System.Collections.Generic;
@@ -57,6 +58,22 @@ namespace Services.Service
             await _uniUnitOfWork.EmailVerificationRepository.DeleteByEmailAsync(email);
         }
 
-        public async Task<ChangePasswordResult> ChangePasswordAsync(ChangePasswordDto dto) => await _uniUnitOfWork.UserRepository.ChangePasswordAsync(dto);
+        public async Task<ChangePasswordResult> ChangePasswordAsync(ChangePasswordDto dto)
+        {
+            var user = await _uniUnitOfWork.UserRepository.GetByIdAsync(dto.UserId);
+            if (user == null) throw new Exception("User not found");
+
+            if (!BCrypt.Net.BCrypt.Verify(dto.CurentPassword, user.Password)) 
+            {
+                return ChangePasswordResult.InvalidCurrentPassword;
+            }
+
+            if (!dto.NewPassword.Equals(dto.ConfirmPassword))
+            {
+                return ChangePasswordResult.PasswordMismatch;
+            }
+            dto.NewPassword = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+            return await _uniUnitOfWork.UserRepository.ChangePasswordAsync(dto);
+        } 
     }
 }

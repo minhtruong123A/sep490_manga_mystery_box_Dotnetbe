@@ -49,25 +49,12 @@ namespace DataAccessLayers.Repository
 
         public async Task<ChangePasswordResult> ChangePasswordAsync(ChangePasswordDto dto)
         {
-            var user = await _users.Find(x => x.Id.Equals(dto.UserId)).FirstOrDefaultAsync();
-            if (user == null) throw new Exception("User not found");
-
-            if (user.Password.Equals(dto.CurentPassword))
-            {
-                return ChangePasswordResult.InvalidCurrentPassword;
-            }
-
-            if (!dto.NewPassword.Equals(dto.ConfirmPassword))
-            {
-                return ChangePasswordResult.PasswordMismatch;
-            }
-
             var filter = Builders<User>.Filter.Eq(x => x.Id, dto.UserId);
             var update = await _users.UpdateOneAsync(filter, Builders<User>.Update.Set(x => x.Password, dto.NewPassword));
 
             if (update.ModifiedCount == 0)
             {
-                throw new Exception($"Failed to change password for user: {user.Username}");
+                throw new Exception($"Failed to change password for user;");
             }
 
             return ChangePasswordResult.Success;

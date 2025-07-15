@@ -160,6 +160,7 @@ builder.Services.AddScoped<IUserBoxRepository, UserBoxRepository>();
 builder.Services.AddScoped<IUserProductRepository, UserProductRepository>();
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
 builder.Services.AddScoped<IExchangeRepository, ExchangeRepository>();
+builder.Services.AddScoped<ICollectionRepository, CollectionRepository>();
 
 //UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

@@ -52,12 +52,12 @@ namespace DataAccessLayers.Repository
             var user = await _users.Find(x => x.Id.Equals(dto.UserId)).FirstOrDefaultAsync();
             if (user == null) throw new Exception("User not found");
 
-            if (user.Password != dto.CurentPassword)
+            if (user.Password.Equals(dto.CurentPassword))
             {
                 return ChangePasswordResult.InvalidCurrentPassword;
             }
 
-            if (dto.NewPassword != dto.ConfirmPassword)
+            if (dto.NewPassword.Equals(dto.ConfirmPassword))
             {
                 return ChangePasswordResult.PasswordMismatch;
             }

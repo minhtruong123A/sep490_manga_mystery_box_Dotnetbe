@@ -16,6 +16,7 @@ using SixLaborsColor = SixLabors.ImageSharp.Color;
 using SixLaborsImage = SixLabors.ImageSharp.Image;
 using DataAccessLayers.Repository;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
 
 namespace Services.Service
 {
@@ -215,6 +216,21 @@ namespace Services.Service
             float offsetY = image.Height * 0.12f;
             textOptions.Origin = new PointF(centerX + offsetX, centerY + offsetY);
             image.Mutate(ctx => ctx.DrawText(textOptions, watermarkText, brush));
+        }
+
+        public async Task<string> UploadProfileImageAsync(IFormFile file, string userId)
+        {
+            if (file == null || file.Length == 0) throw new Exception("No file uploaded");
+
+            var filePath = await _supabaseStorageHelper.UploadImageAsync(file);
+            var user = await _unitOfWork.UserRepository.FindOneAsync(x => x.Id == userId);
+            
+            if (user == null) throw new Exception("User not found");
+
+            user.ProfileImage = filePath;
+            await _unitOfWork.UserRepository.UpdateAsync(userId, user);
+
+            return filePath;
         }
     }
 }

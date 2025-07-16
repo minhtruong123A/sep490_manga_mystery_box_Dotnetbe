@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,6 @@ namespace Services.Interface
     {
         Task<IActionResult> GetImageWithWatermarkAsync(string path);
         Task WarmUpImageCacheAsync();
+        Task<string> UploadProfileImageAsync(IFormFile file, string userId);
     }
 }

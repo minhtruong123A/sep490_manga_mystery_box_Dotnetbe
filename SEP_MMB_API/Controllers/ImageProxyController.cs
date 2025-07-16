@@ -1,6 +1,8 @@
 ﻿using BusinessObjects.Dtos.Schema_Response;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
+using Services.Service;
 using System;
 using System.Threading.Tasks;
 
@@ -11,12 +13,14 @@ namespace SEP_MMB_API.Controllers
     public class ImageProxyController : ControllerBase
     {
         private readonly IImageService _imageService;
+        private readonly IAuthService _authService;
         private readonly ILogger<ImageProxyController> _logger;
 
-        public ImageProxyController(IImageService imageService, ILogger<ImageProxyController> logger)
+        public ImageProxyController(IImageService imageService, ILogger<ImageProxyController> logger, IAuthService authService)
         {
             _imageService = imageService;
             _logger = logger;
+            _authService = authService;
         }
 
         [HttpGet("{*path}")]
@@ -44,6 +48,32 @@ namespace SEP_MMB_API.Controllers
                     Data = null,
                     Success = false,
                     Error = $"Proxy failed: {ex.Message}",
+                    ErrorCode = 400
+                });
+            }
+        }
+
+        [Authorize]
+        [HttpPost("upload-profile-image")]
+        public async Task<IActionResult> UploadProfileImage(IFormFile file)
+        {
+            try
+            {
+                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var filePath = await _imageService.UploadProfileImageAsync(file, account.Id);
+
+                return Ok(new ResponseModel<string>
+                {
+                    Success = true,
+                    Data = filePath
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, new ResponseModel<object>
+                {
+                    Success = false,
+                    Error = ex.Message,
                     ErrorCode = 400
                 });
             }

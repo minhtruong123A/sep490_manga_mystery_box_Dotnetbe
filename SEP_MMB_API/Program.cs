@@ -253,7 +253,7 @@ app.Use(async (context, next) =>
 //MongoDB injection filter
 app.Use(async (context, next) =>
 {
-    if (context.Request.Method is "POST" or "PUT" or "PATCH")
+    if (context.Request.Method is "POST" or "PUT" or "PATCH" && !context.Request.ContentType?.StartsWith("multipart/form-data") == true)
     {
         context.Request.EnableBuffering();
         using var reader = new StreamReader(context.Request.Body, Encoding.UTF8, false, leaveOpen: true);

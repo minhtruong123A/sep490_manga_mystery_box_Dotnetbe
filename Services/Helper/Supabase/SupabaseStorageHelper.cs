@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using System.Net.Http.Headers;
 
 
 namespace Services.Helper.Supabase
@@ -45,6 +47,27 @@ namespace Services.Helper.Supabase
             var fullUrl = $"{_settings.Url}/storage/v1/{signedResponse.signedURL}";
 
             return fullUrl;
+        }
+
+        public async Task<string> UploadImageAsync(IFormFile file)
+        {
+            if (file == null || file.Length == 0) throw new Exception("File is empty.");
+
+            var extension = Path.GetExtension(file.FileName);
+            var fileName = $"{Guid.NewGuid()}{extension}";
+            var uploadUrl = $"{_settings.Url}/storage/v1/object/{_settings.Bucket}/{fileName}";
+
+            using var content = new StreamContent(file.OpenReadStream());
+            content.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+
+            var response = await _httpClient.PostAsync(uploadUrl, content);
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Upload failed: {error}");
+            }
+
+            return fileName;
         }
     }
 }

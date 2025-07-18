@@ -13,6 +13,6 @@ namespace BusinessObjects.Dtos.User
         public string PhoneNumber { get; set; }
         public string AccountBankName { get; set; }
         public string BankNumber { get; set; }
-        public Bank Bank { get; set; }
+        public string Bankid { get; set; }
     }
 }

@@ -114,7 +114,7 @@ namespace Services.Service
             response.PhoneNumber = dto.PhoneNumber;
             response.AccountBankName = dto.AccountBankName;
             response.BankNumber = dto.BankNumber;
-            response.Bank = await _uniUnitOfWork.BankRepository.GetByIdAsync(bank.BankId);
+            response.Bankid = dto.BankId;
             return  response;
         }
     }

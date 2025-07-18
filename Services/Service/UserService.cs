@@ -93,6 +93,7 @@ namespace Services.Service
             var bank = await _uniUnitOfWork.UserBankRepository.FindOneAsync(x => x.UserId == userId);
             
             if(bank == null){
+                bank = new UserBank();
                 bank.BankNumber = dto.BankNumber;
                 bank.AccountBankName = dto.AccountBankName;
                 bank.BankId = dto.BankId;

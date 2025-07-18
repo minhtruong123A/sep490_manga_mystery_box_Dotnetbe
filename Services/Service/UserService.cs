@@ -100,11 +100,13 @@ namespace Services.Service
                 bank.UserId = userId;
                 await _uniUnitOfWork.UserBankRepository.AddAsync(bank);
             }
-            if(dto.BankNumber != null) bank.BankNumber += dto.BankNumber;
-            if(dto.AccountBankName != null) bank.AccountBankName = dto.AccountBankName;
-            if(dto.BankId!= null)bank.BankId = dto.BankId;
-            await _uniUnitOfWork.UserBankRepository.UpdateAsync(bank.Id,bank);
-
+            else 
+            {
+                if (dto.BankNumber != null) bank.BankNumber += dto.BankNumber;
+                if (dto.AccountBankName != null) bank.AccountBankName = dto.AccountBankName;
+                if (dto.BankId != null) bank.BankId = dto.BankId;
+                await _uniUnitOfWork.UserBankRepository.UpdateAsync(bank.Id, bank);
+            }
 
             if (user == null) throw new Exception("User not found");
 

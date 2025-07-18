@@ -1,4 +1,5 @@
 ﻿using BusinessObjects;
+using BusinessObjects.Dtos.Bank;
 using BusinessObjects.Dtos.Schema_Response;
 using BusinessObjects.Dtos.User;
 using Microsoft.AspNetCore.Authorization;
@@ -29,6 +30,32 @@ namespace SEP_MMB_API.Controllers
                 var response = await _bankService.GetAllAsync();
 
                 return Ok(new ResponseModel<List<Bank>>
+                {
+                    Success = true,
+                    Data = response
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, new ResponseModel<object>
+                {
+                    Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
+
+        [Authorize]
+        [HttpPost("system/add-bank")]
+        public async Task<ActionResult<ResponseModel<string>>> CreateBankAsync([FromBody] List<BankCreateDto> dto)
+        {
+            try
+            {
+
+                var response = await _bankService.CreateAsync(dto);
+
+                return Ok(new ResponseModel<string>
                 {
                     Success = true,
                     Data = response

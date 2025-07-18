@@ -53,7 +53,7 @@ namespace SEP_MMB_API.Controllers
             }
         }
 
-        [Authorize]
+        /*[Authorize]
         [HttpPost("upload-profile-image")]
         public async Task<IActionResult> UploadProfileImage(IFormFile file)
         {
@@ -77,7 +77,7 @@ namespace SEP_MMB_API.Controllers
                     ErrorCode = 400
                 });
             }
-        }
+        }*/
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [HttpGet("warmup-image-cache")]

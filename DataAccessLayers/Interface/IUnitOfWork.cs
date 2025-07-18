@@ -31,6 +31,8 @@ namespace DataAccessLayers.Interface
         IReportRepository ReportRepository { get; }
         IExchangeRepository ExchangeRepository { get; }
         ICollectionRepository CollectionRepository { get; }
+        IUserBankRepository UserBankRepository { get; }
+        IBankRepository BankRepository { get; }
         Task SaveChangesAsync();
     }
 }

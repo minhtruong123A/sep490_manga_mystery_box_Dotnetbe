@@ -161,6 +161,8 @@ builder.Services.AddScoped<IUserProductRepository, UserProductRepository>();
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
 builder.Services.AddScoped<IExchangeRepository, ExchangeRepository>();
 builder.Services.AddScoped<ICollectionRepository, CollectionRepository>();
+builder.Services.AddScoped<IUserBankRepository, UserBankRepository>();
+builder.Services.AddScoped<IBankRepository, BankRepository>();
 
 //UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -186,6 +188,7 @@ builder.Services.AddScoped<IUserBoxService, UserBoxService>();
 builder.Services.AddScoped<IUserProductService, UserProductService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IExchangeService, ExchangeService>();
+builder.Services.AddScoped<IBankService, BankService>();
 
 //AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

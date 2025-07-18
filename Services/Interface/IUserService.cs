@@ -1,6 +1,7 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Dtos.User;
 using BusinessObjects.Enum;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,5 +19,6 @@ namespace Services.Interface
         Task DeleteUserAsync(string id);
         Task DeleteUserByEmailAsync(string email);
         Task<ChangePasswordResult> ChangePasswordAsync(ChangePasswordDto dto);
+        Task<UserUpdateResponseDto> UpdateProfileAsync(IFormFile file, string userId, UserUpdateDto dto);
     }
 }

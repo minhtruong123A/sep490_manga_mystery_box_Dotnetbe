@@ -100,6 +100,32 @@ namespace SEP_MMB_API.Controllers
             }
         }
 
+        [Authorize]
+        [HttpPost("profile/update-profile")]
+        public async Task<IActionResult> UpdateProfile(IFormFile file, UserUpdateDto dto)
+        {
+            try
+            {
+                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var response = await _userService.UpdateProfileAsync(file, account.Id, dto);
+
+                return Ok(new ResponseModel<UserUpdateResponseDto>
+                {
+                    Success = true,
+                    Data = response
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, new ResponseModel<object>
+                {
+                    Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
+
         [Authorize(Roles = "user")]
         [HttpPut("profile/change-password")]
         public async Task<ActionResult<ResponseModel<string>>> ChangePasswordAsync(ChangePasswordDto dto)

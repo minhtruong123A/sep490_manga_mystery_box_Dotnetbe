@@ -3,7 +3,10 @@ using BusinessObjects;
 using BusinessObjects.Dtos.User;
 using BusinessObjects.Enum;
 using DataAccessLayers.Interface;
+using DataAccessLayers.UnitOfWork;
+using Microsoft.AspNetCore.Http;
 using MongoDB.Driver;
+using Services.Helper.Supabase;
 using Services.Interface;
 using System;
 using System.Collections.Generic;
@@ -17,11 +20,13 @@ namespace Services.Service
     {
         private readonly IUnitOfWork _uniUnitOfWork;
         private readonly IMapper _mapper;
+        private readonly IImageService _imageService;  
 
-        public UserService(IUnitOfWork unitOfWork, IMapper mapper)
+        public UserService(IUnitOfWork unitOfWork, IMapper mapper, IImageService imageService)
         {
             _uniUnitOfWork = unitOfWork;
             _mapper = mapper;
+            _imageService = imageService;
         }
 
         //get all user
@@ -74,6 +79,43 @@ namespace Services.Service
             }
             dto.NewPassword = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
             return await _uniUnitOfWork.UserRepository.ChangePasswordAsync(dto);
-        } 
+        }
+
+        public async Task<UserUpdateResponseDto> UpdateProfileAsync(IFormFile file, string userId, UserUpdateDto dto)
+        {
+            if (file == null || file.Length == 0) throw new Exception("No file uploaded");
+
+            var filePath = await _imageService.UploadProfileImageAsync(file);
+            var user = await _uniUnitOfWork.UserRepository.FindOneAsync(x => x.Id == userId);
+            var bank = await _uniUnitOfWork.UserBankRepository.FindOneAsync(x => x.UserId == userId);
+            if(bank == null){
+                bank.BankNumber = dto.BankNumber;
+                bank.AccountBankName = dto.AccountBankName;
+                bank.BankId = dto.BankId;
+                bank.UserId = userId;
+                await _uniUnitOfWork.UserBankRepository.AddAsync(bank);
+            }
+            bank.BankNumber += dto.BankNumber;
+            bank.AccountBankName = dto.AccountBankName;
+            bank.BankId = dto.BankId;
+            await _uniUnitOfWork.UserBankRepository.UpdateAsync(bank.Id,bank);
+
+
+            if (user == null) throw new Exception("User not found");
+
+            user.ProfileImage = filePath;
+            user.PhoneNumber = dto.PhoneNumber;
+            user.Username = dto.Username;
+            await _uniUnitOfWork.UserRepository.UpdateAsync(userId, user);
+
+            var response = new UserUpdateResponseDto();
+            response.Username = dto.Username;
+            response.ProfileImage = filePath;
+            response.PhoneNumber = dto.PhoneNumber;
+            response.AccountBankName = dto.AccountBankName;
+            response.BankNumber = dto.BankNumber;
+            response.Bank = await _uniUnitOfWork.BankRepository.GetByIdAsync(bank.BankId);
+            return  response;
+        }
     }
 }

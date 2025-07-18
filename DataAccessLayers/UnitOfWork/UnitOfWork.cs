@@ -34,6 +34,8 @@ namespace DataAccessLayers.UnitOfWork
         public IReportRepository _reportRepository;
         public IExchangeRepository _exchangeRepository;
         public ICollectionRepository _collectionRepository;
+        public IUserBankRepository _userBankRepository;
+        public IBankRepository _bankRepository;
 
 
         public IUserRepository UserRepository => _users ??= new UserRepository(_context);
@@ -58,6 +60,8 @@ namespace DataAccessLayers.UnitOfWork
         public IReportRepository ReportRepository => _reportRepository ??= new ReportRepository(_context);
         public IExchangeRepository ExchangeRepository => _exchangeRepository ??= new ExchangeRepository(_context);
         public ICollectionRepository CollectionRepository => _collectionRepository ??= new CollectionRepository(_context);
+        public IUserBankRepository UserBankRepository => _userBankRepository ??= new UserBankRepository(_context);
+        public IBankRepository BankRepository => _bankRepository ??= new BankRepository(_context);
 
         public UnitOfWork(MongoDbContext context)
         {

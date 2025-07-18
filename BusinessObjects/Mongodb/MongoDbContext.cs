@@ -66,5 +66,7 @@ namespace BusinessObjects.Mongodb
         public IMongoCollection<ExchangeInfo> ExchangeInfos => _database.GetCollection<ExchangeInfo>("ExchangeInfo");
         public IMongoCollection<ExchangeProduct> ExchangeProducts => _database.GetCollection<ExchangeProduct>("ExchangeProduct");
         public IMongoCollection<ExchangeSession> ExchangeSessiones => _database.GetCollection<ExchangeSession>("ExchangeSession");
+        public IMongoCollection<UserBank> UserBanks => _database.GetCollection<UserBank>("UserBank");
+        public IMongoCollection<Bank> Banks => _database.GetCollection<Bank>("Bank");
     }
 }

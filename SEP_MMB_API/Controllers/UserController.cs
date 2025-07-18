@@ -102,12 +102,12 @@ namespace SEP_MMB_API.Controllers
 
         [Authorize]
         [HttpPost("profile/update-profile")]
-        public async Task<IActionResult> UpdateProfile([FromForm]IFormFile file, [FromForm]UserUpdateDto dto)
+        public async Task<IActionResult> UpdateProfile( [FromForm]UserUpdateDto dto)
         {
             try
             {
                 var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var response = await _userService.UpdateProfileAsync(file, account.Id, dto);
+                var response = await _userService.UpdateProfileAsync(dto.UrlImage, account.Id, dto);
 
                 return Ok(new ResponseModel<UserUpdateResponseDto>
                 {

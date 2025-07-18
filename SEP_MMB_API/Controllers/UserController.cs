@@ -102,7 +102,7 @@ namespace SEP_MMB_API.Controllers
 
         [Authorize]
         [HttpPost("profile/update-profile")]
-        public async Task<IActionResult> UpdateProfile(IFormFile file, UserUpdateDto dto)
+        public async Task<IActionResult> UpdateProfile([FromForm]IFormFile file, [FromForm]UserUpdateDto dto)
         {
             try
             {

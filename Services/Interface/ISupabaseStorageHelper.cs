@@ -11,5 +11,6 @@ namespace Services.Interface
     {
         Task<string> CreateSignedUrlAsync(string path, int? expiresIn = null);
         Task<string> UploadImageAsync(IFormFile file);
+        Task DeleteImageAsync(string fileName);
     }
 }

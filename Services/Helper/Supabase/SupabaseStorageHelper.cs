@@ -69,5 +69,22 @@ namespace Services.Helper.Supabase
 
             return fileName;
         }
+
+        public async Task DeleteImageAsync(string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName)) return;
+
+            var deleteUrl = $"{_settings.Url}/storage/v1/object/{_settings.Bucket}/{fileName}";
+
+            var request = new HttpRequestMessage(HttpMethod.Delete, deleteUrl);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _settings.ServiceRoleKey);
+
+            var response = await _httpClient.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Delete failed: {error}");
+            }
+        }
     }
 }

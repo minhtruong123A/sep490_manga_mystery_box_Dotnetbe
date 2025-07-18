@@ -226,5 +226,10 @@ namespace Services.Service
 
             return filePath;
         }
+
+        public async Task DeleteProfileImageAsync(string oldFileName)
+        {
+            if (!string.IsNullOrWhiteSpace(oldFileName)) await _supabaseStorageHelper.DeleteImageAsync(oldFileName);
+        }
     }
 }

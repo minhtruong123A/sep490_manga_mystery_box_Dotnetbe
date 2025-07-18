@@ -13,5 +13,6 @@ namespace Services.Interface
         Task<IActionResult> GetImageWithWatermarkAsync(string path);
         Task WarmUpImageCacheAsync();
         Task<string> UploadProfileImageAsync(IFormFile file);
+        Task DeleteProfileImageAsync(string oldFileName);
     }
 }

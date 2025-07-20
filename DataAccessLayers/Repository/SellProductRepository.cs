@@ -208,6 +208,7 @@ namespace DataAccessLayers.Repository
                     UserId = user?.Id ?? "Unknown",
                     Username = user?.Username ?? "Unknown",
                     Topic = collection?.Topic ?? "Unknown",
+                    Quantity = sellProduct?.Quantity ?? 0,
                     UrlImage = product?.UrlImage ?? "Unknown",
                     RarityName = rarity?.Name ?? "Unknown",
                     CreatedAt = sellProduct?.CreatedAt ?? null,
@@ -222,28 +223,44 @@ namespace DataAccessLayers.Repository
             var productTask = _productCollection.AsQueryable().Where(c => productIds.Contains(c.Id.ToString())).ToListAsync();
             var userTask = _userCollection.AsQueryable().Where(c => sellerIds.Contains(c.Id.ToString())).ToListAsync();
             var userProductTask = _userProductCollection.AsQueryable().Where(c => productIds.Contains(c.ProductId)).ToListAsync();
-            await Task.WhenAll(productTask, userTask, userProductTask);
+            var userCollectionTask = _userCollectionCollection.AsQueryable().Where(uc => sellerIds.Contains(uc.UserId)).ToListAsync();
+            await Task.WhenAll(productTask, userTask, userProductTask, userCollectionTask);
 
             var productList = productTask.Result;
             var userList = userTask.Result;
             var userProductList = userProductTask.Result;
-            var collections = await _collections.AsQueryable().Where(c => userProductList.Any(up => up.CollectionId == c.Id.ToString())).ToListAsync();
+            var userCollectionList = userCollectionTask.Result;
+
+            var collectionIds = userCollectionList.Select(uc => uc.CollectionId).ToHashSet();
+            var collections = await _collections.AsQueryable().Where(c => collectionIds.Contains(c.Id.ToString())).ToListAsync();
+            var rarityIds = productList.Select(up => up.RarityId).ToHashSet();
+            var rarities = await _rarityCollection.AsQueryable().Where(r => rarityIds.Contains(r.Id.ToString())).ToListAsync();
 
             return sellProductList.Select(sellProduct =>
             {
                 var product = productList.FirstOrDefault(c => c.Id.ToString() == sellProduct.ProductId);
                 var user = userList.FirstOrDefault(c => c.Id.ToString() == sellProduct.SellerId);
                 var userProduct = userProductList.FirstOrDefault(c => c.ProductId == sellProduct.ProductId);
-                var collection = collections.FirstOrDefault(c => c.Id.ToString() == userProduct?.CollectionId);
+                var userCollection = userCollectionList.FirstOrDefault(uc => uc.UserId == sellProduct.SellerId);
+                var collection = userCollection != null
+                                ? collections.FirstOrDefault(c => c.Id.ToString() == userCollection.CollectionId)
+                                : null; 
+                var rarity = product != null
+                                ? rarities.FirstOrDefault(r => r.Id.ToString() == product.RarityId)
+                                : null;
 
                 return new SellProductGetAllDto
                 {
                     Id = sellProduct.Id.ToString(),
                     Name = product?.Name ?? "Unknown",
                     Price = sellProduct.Price,
+                    UserId = user?.Id ?? "Unknown",
                     Username = user?.Username ?? "Unknown",
                     Topic = collection?.Topic ?? "Unknown",
-                    UrlImage = product?.UrlImage
+                    RarityName = rarity?.Name ?? "Unknown",
+                    Quantity = sellProduct?.Quantity ?? 0,
+                    UrlImage = product?.UrlImage ?? "Unknown",
+                    CreatedAt = sellProduct?.CreatedAt ?? null,
                 };
             }).ToList();
         }

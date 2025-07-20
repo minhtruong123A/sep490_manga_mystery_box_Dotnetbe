@@ -60,7 +60,7 @@ namespace DataAccessLayers.Repository
                 var mysteryboxBox = await _mysteryBoxCollection
                         .Find(c => c.Id == matchedMangaBox.MysteryBoxId)
                         .FirstOrDefaultAsync();
-                var boxTitle = collectionDict.GetValueOrDefault(matchedMangaBox?.CollectionTopicId ?? "")?.Topic ?? "Unknown";
+                //var boxTitle = collectionDict.GetValueOrDefault(matchedMangaBox?.CollectionTopicId ?? "")?.Topic ?? "Unknown";
                 result.Add(new UserBoxGetAllDto
                 {
                     Id = box.Id,
@@ -68,7 +68,7 @@ namespace DataAccessLayers.Repository
                     BoxId = box.BoxId,
                     Quantity = box.Quantity,
                     UrlImage = mysteryboxBox.UrlImage ?? "unknown",
-                    BoxTitle = boxTitle,
+                    BoxTitle = mysteryboxBox.Name ?? "unknown",
                     UpdatedAt = box.UpdatedAt
                 });
             }

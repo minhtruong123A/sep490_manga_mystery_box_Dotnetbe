@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Dtos.Product;
 using BusinessObjects.Dtos.Schema_Response;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
 using Services.Service;
@@ -40,6 +41,89 @@ namespace SEP_MMB_API.Controllers
                     Data = data,
                     Error = null,
                     ErrorCode = 0
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string>
+                {
+                    Success = false,
+                    Data = null,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
+        [Authorize]
+        [HttpGet("get-product")]
+        public async Task<IActionResult> GetAll()
+        {
+            try
+            {
+                var data = await _productService.GetAllProductsWithRarityAsync();
+                if (data == null)
+                {
+                    return NotFound(new ResponseModel<string>
+                    {
+                        Success = false,
+                        Data = null,
+                        Error = "Don't have any product here",
+                        ErrorCode = 404
+                    });
+                }
+
+                return Ok(new ResponseModel<List<ProductWithRarityForModeratorDto>>
+                {
+                    Success = true,
+                    Data = data,
+                    Error = null,
+                    ErrorCode = 0
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string>
+                {
+                    Success = false,
+                    Data = null,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
+        [Authorize]
+        [HttpPatch("block-unlock-product")]
+        public async Task<IActionResult> changeStatusProduct(string id)
+        {
+            try
+            {
+                var data = await _productService.changeStatusProduct(id);
+                if (data == 0)
+                {
+                    return NotFound(new ResponseModel<string>
+                    {
+                        Success = false,
+                        Data = null,
+                        Error = "Product not found",
+                        ErrorCode = 404
+                    });
+                }
+                if (data == 1)
+                {
+                    return Ok(new ResponseModel<string>
+                    {
+                        Success = true,
+                        Data = "Block/Unblock succesfully",
+                        Error = null,
+                        ErrorCode = 0
+                    });
+                }
+                return NotFound(new ResponseModel<string>
+                {
+                    Success = false,
+                    Data = null,
+                    Error = "Faill to change status product",
+                    ErrorCode = 404
                 });
             }
             catch (Exception ex)

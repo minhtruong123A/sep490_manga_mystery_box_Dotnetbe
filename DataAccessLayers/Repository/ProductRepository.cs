@@ -38,8 +38,30 @@ namespace DataAccessLayers.Repository
                 Name = product.Name,
                 UrlImage = product.UrlImage,
                 Description = product.Description,
-                RarityName = rarity?.Name ?? "Unknown"
+                RarityName = rarity?.Name ?? "Unknown",
             };
+        }
+
+        public async Task<List<ProductWithRarityForModeratorDto>> GetAllProductsWithRarityAsync()
+        {
+            var products = await _productCollection.Find(_ => true).ToListAsync();
+
+            var tasks = products.Select(async product =>
+            {
+                var rarity = await _rarityCollection.Find(r => r.Id == product.RarityId).FirstOrDefaultAsync();
+                return new ProductWithRarityForModeratorDto
+                {
+                    ProductId = product.Id,
+                    Name = product.Name,
+                    UrlImage = product.UrlImage,
+                    Description = product.Description,
+                    RarityName = rarity?.Name ?? "Unknown",     
+                    is_Block = product.Is_Block
+                };
+            });
+
+            var results = await Task.WhenAll(tasks);
+            return results.ToList();
         }
     }
 }

@@ -10,5 +10,7 @@ namespace Services.Interface
     public interface IProductService
     {
         Task<ProductWithRarityDto?> GetProductWithRarityByIdAsync(string productId);
+        Task<List<ProductWithRarityForModeratorDto>> GetAllProductsWithRarityAsync();
+        Task<int> changeStatusProduct(string id);
     }
 }

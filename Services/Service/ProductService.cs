@@ -36,5 +36,24 @@ namespace Services.Service
 
             return dto;
         }
+        public async Task<List<ProductWithRarityForModeratorDto>> GetAllProductsWithRarityAsync() => await _unitOfWork.ProductRepository.GetAllProductsWithRarityAsync();
+
+        public async Task<int> changeStatusProduct(string id)
+        {
+            var product =  await _unitOfWork.ProductRepository.GetByIdAsync(id);
+            if (product == null) return 0;
+
+
+            if (product.Is_Block) 
+            {
+                product.Is_Block = false;
+            }else
+            {
+                product.Is_Block = true;
+            }
+            await _unitOfWork.ProductRepository.UpdateAsync(product.Id,product);
+            await _unitOfWork.SaveChangesAsync();
+            return 1;
+        }
     }
 }

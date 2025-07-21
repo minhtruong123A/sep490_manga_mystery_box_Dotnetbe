@@ -11,6 +11,7 @@ namespace BusinessObjects.Dtos.Exchange
         public string Id { get; set; }
         public string BuyerId { get; set; }
         public string ItemReciveId { get; set; }
+        public string IamgeItemRecive {  get; set; }
         public string ItemGiveId { get; set; }
         public int Status { get; set; }
         public DateTime Datetime { get; set; }

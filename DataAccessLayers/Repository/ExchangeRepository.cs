@@ -43,6 +43,10 @@ namespace DataAccessLayers.Repository
         {
             var sellproducts = await _sellProduct.Find(x => x.SellerId.Equals(userId)).ToListAsync();
             var sellIds = sellproducts.Select(x => x.Id).Distinct().ToList();
+            var sellps = sellproducts.Select(x => x.ProductId).Distinct().ToList();
+
+            var images = await _product.Find(p =>
+                sellps.Contains(p.Id)).ToListAsync(); //Imagete
 
             var infos = await _exchangeInfo.Find(p =>
                 sellIds.Contains(p.ItemReciveId) &&
@@ -77,12 +81,16 @@ namespace DataAccessLayers.Repository
                     };
                 })
                 .ToList();
+                
+                var itemReciveProductId = sellproducts.FirstOrDefault(sp => sp.Id == info.ItemReciveId)?.ProductId;
+                var imageUrl = images.FirstOrDefault(p => p.Id == itemReciveProductId)?.UrlImage;
 
                 return new ExchangeGetAllWithProductDto
                 {
                     Id = info.Id,
                     BuyerId = info.BuyerId,
                     ItemReciveId = info.ItemReciveId,
+                    IamgeItemRecive = imageUrl,
                     ItemGiveId = info.ItemGiveId,
                     Status = info.Status,
                     Datetime = info.Datetime,
@@ -96,6 +104,12 @@ namespace DataAccessLayers.Repository
             var infos = await _exchangeInfo.Find(x => x.BuyerId == userId).ToListAsync();
             if (!infos.Any()) return [];
             await RejectIfExpiredAsync(infos);
+
+            var itemReciveIds = infos.Select(x => x.ItemReciveId).Distinct().ToList();
+            var sellProducts = await _sellProduct.Find(p => itemReciveIds.Contains(p.Id)).ToListAsync();
+            var reciveProductIds = sellProducts.Select(x => x.ProductId).Distinct().ToList();
+            var reciveProducts = await _product.Find(p => reciveProductIds.Contains(p.Id)).ToListAsync();
+
 
             var sessionIds = infos.Select(x => x.ItemGiveId).Distinct().ToList();
             var eproducts = await _exchangeProduct.Find(p => sessionIds.Contains(p.ExchangeId)).ToListAsync();
@@ -124,12 +138,14 @@ namespace DataAccessLayers.Repository
                     };
                 })
                 .ToList();
-
+                var sellProduct = sellProducts.FirstOrDefault(sp => sp.Id == info.ItemReciveId);
+                var reciveProduct = reciveProducts.FirstOrDefault(p => p.Id == sellProduct?.ProductId);
                 return new ExchangeGetAllWithProductDto
                 {
                     Id = info.Id,
                     BuyerId = info.BuyerId,
                     ItemReciveId = info.ItemReciveId,
+                    IamgeItemRecive = reciveProduct?.UrlImage,
                     ItemGiveId = info.ItemGiveId,
                     Status = info.Status,
                     Datetime = info.Datetime,

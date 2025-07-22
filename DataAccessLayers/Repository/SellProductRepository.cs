@@ -404,13 +404,27 @@ namespace DataAccessLayers.Repository
 
         private async Task UpdateSellProductStockAsync(SellProduct product, int quantity)
         {
-            product.Quantity -= quantity;
-            if (product.Quantity == 0)
-            {
-                product.IsSell = false;
-                product.UpdatedAt = DateTime.UtcNow;
-            }
-            await _sellProductCollection.ReplaceOneAsync(x => x.Id == product.Id, product);
+            //product.Quantity -= quantity;
+            //if (product.Quantity == 0)
+            //{
+            //    product.IsSell = false;
+            //    product.UpdatedAt = DateTime.UtcNow;
+            //}
+            //await _sellProductCollection.ReplaceOneAsync(x => x.Id == product.Id, product);
+            var filter = Builders<SellProduct>.Filter.And(
+                Builders<SellProduct>.Filter.Eq(p => p.Id, product.Id),
+                Builders<SellProduct>.Filter.Gte(p => p.Quantity, quantity)
+            );
+            var update = Builders<SellProduct>.Update.Inc(p => p.Quantity, -quantity);
+            var result = await _sellProductCollection.UpdateOneAsync(filter, update);
+            if (result.ModifiedCount == 0) throw new Exception("The product is either out of stock or no longer available for purchase.");
+
+            var finalFilter = Builders<SellProduct>.Filter.And(
+                Builders<SellProduct>.Filter.Eq(p => p.Id, product.Id),
+                Builders<SellProduct>.Filter.Eq(p => p.Quantity, 0)
+            );
+            var finalUpdate = Builders<SellProduct>.Update.Set(p => p.IsSell, false);
+            await _sellProductCollection.UpdateOneAsync(finalFilter, finalUpdate);
         }
 
         private async Task<(ProductOrder, OrderHistory, DigitalPaymentSession)> CreateBuyerRecordsAsync(string buyerId, SellProduct product, int total, string buyerWalletId)

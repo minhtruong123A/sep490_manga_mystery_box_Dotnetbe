@@ -17,6 +17,7 @@ using SixLaborsImage = SixLabors.ImageSharp.Image;
 using DataAccessLayers.Repository;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
+using System.Text.RegularExpressions;
 
 namespace Services.Service
 {
@@ -218,6 +219,7 @@ namespace Services.Service
             image.Mutate(ctx => ctx.DrawText(textOptions, watermarkText, brush));
         }
 
+        // upload profile image
         public async Task<string> UploadProfileImageAsync(IFormFile file)
         {
             if (file == null || file.Length == 0) throw new Exception("No file uploaded");
@@ -227,6 +229,38 @@ namespace Services.Service
             return filePath;
         }
 
+        //upload moderator product or mysterybox image
+        public async Task<string> UploadModeratorProductOrMysteryBoxImageAsync(IFormFile file)
+        {
+            if (file == null || file.Length == 0) throw new Exception("No file uploaded");
+
+            var fileName = file.FileName;
+            if (!IsValidSystemProductFileName(fileName))
+            {
+                throw new Exception(
+                    "Invalid file name format.\n" +
+                    "Accepted formats:\n" +
+                    "- '[Rarity]CardNo[Number][MangaName].png' (e.g., 'RareCardNo2OnePiece.png')\n" +
+                    "- '[MangaName]_Boxset.png' (e.g., 'TokyoGhoul_Boxset.png')\n\n" +
+                    "Rarity must be one of: Common, Uncommon, Rare, Epic, Legendary.\n" +
+                    "Number must be digits only.\n" +
+                    "MangaName must be alphanumeric (no spaces or special characters)."
+                );
+            }    
+
+            var uploadedPath = await _supabaseStorageHelper.UploadSystemProductImageAsync(file);
+            return uploadedPath;
+        }
+
+        private static bool IsValidSystemProductFileName(string fileName)
+        {
+            var cardPattern = @"^(Common|Uncommon|Rare|Epic|Legendary)CardNo\d+[A-Za-z0-9]+\.png$";
+            var boxsetPattern = @"^[A-Za-z0-9]+_Boxset\.png$";
+
+            return Regex.IsMatch(fileName, cardPattern, RegexOptions.IgnoreCase) || Regex.IsMatch(fileName, boxsetPattern, RegexOptions.IgnoreCase);
+        }
+
+        // delete profile image
         public async Task DeleteProfileImageAsync(string oldFileName)
         {
             if (!string.IsNullOrWhiteSpace(oldFileName)) await _supabaseStorageHelper.DeleteImageAsync(oldFileName);

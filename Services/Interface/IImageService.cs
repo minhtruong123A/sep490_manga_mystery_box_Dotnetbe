@@ -14,5 +14,6 @@ namespace Services.Interface
         Task WarmUpImageCacheAsync();
         Task<string> UploadProfileImageAsync(IFormFile file);
         Task DeleteProfileImageAsync(string oldFileName);
+        Task<string> UploadModeratorProductOrMysteryBoxImageAsync(IFormFile file);
     }
 }

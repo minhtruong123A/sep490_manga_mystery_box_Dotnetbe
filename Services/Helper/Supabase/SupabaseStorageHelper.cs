@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http.Headers;
+using System.Text.RegularExpressions;
 
 
 namespace Services.Helper.Supabase
@@ -85,6 +86,46 @@ namespace Services.Helper.Supabase
                 var error = await response.Content.ReadAsStringAsync();
                 throw new Exception($"Delete failed: {error}");
             }
+        }
+
+        public async Task<string> UploadSystemProductImageAsync(IFormFile file)
+        {
+            if (file == null || file.Length == 0) throw new Exception("File is empty.");
+
+            var fileName = Path.GetFileName(file.FileName);
+            var exists = await FileExistsAsync(fileName);
+            if (exists) throw new Exception("A file with the same name already exists.");
+
+            var uploadUrl = $"{_settings.Url}/storage/v1/object/{_settings.Bucket}/{fileName}";
+
+            using var content = new StreamContent(file.OpenReadStream());
+            content.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+
+            var request = new HttpRequestMessage(HttpMethod.Post, uploadUrl)
+            {
+                Content = content
+            };
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _settings.ServiceRoleKey);
+
+            var response = await _httpClient.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Upload failed: {error}");
+            }
+
+            return fileName;
+        }
+
+        public async Task<bool> FileExistsAsync(string fileName)
+        {
+            var checkUrl = $"{_settings.Url}/storage/v1/object/info/{_settings.Bucket}/{fileName}";
+
+            var request = new HttpRequestMessage(HttpMethod.Get, checkUrl);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _settings.ServiceRoleKey);
+
+            var response = await _httpClient.SendAsync(request);
+            return response.IsSuccessStatusCode;
         }
     }
 }

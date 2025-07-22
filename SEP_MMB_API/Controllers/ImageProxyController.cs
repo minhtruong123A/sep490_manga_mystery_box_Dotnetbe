@@ -79,6 +79,31 @@ namespace SEP_MMB_API.Controllers
             }
         }*/
 
+        [Authorize]
+        [HttpPost("upload-card-or-boxset-image")]
+        public async Task<IActionResult> UploadSystemProductImage(IFormFile file)
+        {
+            try
+            {
+                var filePath = await _imageService.UploadModeratorProductOrMysteryBoxImageAsync(file);
+
+                return Ok(new ResponseModel<string>
+                {
+                    Success = true,
+                    Data = filePath
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, new ResponseModel<object>
+                {
+                    Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
+
         [ApiExplorerSettings(IgnoreApi = true)]
         [HttpGet("warmup-image-cache")]
         public IActionResult WarmupImageCache()

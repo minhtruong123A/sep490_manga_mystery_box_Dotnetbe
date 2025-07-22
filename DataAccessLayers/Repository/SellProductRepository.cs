@@ -290,7 +290,8 @@ namespace DataAccessLayers.Repository
         //    return result.FirstOrDefault();
         public async Task<SellProductDetailDto?> GetProductDetailByIdAsync(string id)
         {
-            var sellProduct = await _sellProductCollection.AsQueryable().FirstOrDefaultAsync(c => c.Id.ToString() == id && c.IsSell);
+            //&& c.IsSell
+            var sellProduct = await _sellProductCollection.AsQueryable().FirstOrDefaultAsync(c => c.Id.ToString() == id);
             if (sellProduct is null) return null;
             var productTask = _productCollection.AsQueryable().FirstOrDefaultAsync(c => c.Id.ToString() == sellProduct.ProductId);
             var userTask = _userCollection.AsQueryable().FirstOrDefaultAsync(c => c.Id.ToString() == sellProduct.SellerId);

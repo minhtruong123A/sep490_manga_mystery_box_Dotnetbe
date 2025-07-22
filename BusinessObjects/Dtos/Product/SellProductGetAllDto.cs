@@ -17,6 +17,7 @@ namespace BusinessObjects.Dtos.Product
         public string Topic { get; set; }
         public string UrlImage { get; set; }
         public string RarityName { get; set; }
+        public bool? IsSell { get; set; }
         public DateTime? CreatedAt { get; set; }
     }
 }

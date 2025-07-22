@@ -212,12 +212,13 @@ namespace DataAccessLayers.Repository
                     UrlImage = product?.UrlImage ?? "Unknown",
                     RarityName = rarity?.Name ?? "Unknown",
                     CreatedAt = sellProduct?.CreatedAt ?? null,
+                    IsSell = sellProduct?.IsSell ?? null,
                 };
             }).ToList();
         }
         public async Task<List<SellProductGetAllDto>> GetAllProductOnSaleOfUserIdAsync(string id)
-        {
-            var sellProductList = await _sellProductCollection.AsQueryable().Where(c => c.IsSell && c.SellerId.Equals(id)).ToListAsync();
+        {  //c.IsSell && 
+            var sellProductList = await _sellProductCollection.AsQueryable().Where(c => c.SellerId.Equals(id)).ToListAsync();
             var productIds = sellProductList.Select(c => c.ProductId).ToHashSet();
             var sellerIds = sellProductList.Select(c => c.SellerId).ToHashSet();
             var productTask = _productCollection.AsQueryable().Where(c => productIds.Contains(c.Id.ToString())).ToListAsync();
@@ -261,6 +262,7 @@ namespace DataAccessLayers.Repository
                     Quantity = sellProduct?.Quantity ?? 0,
                     UrlImage = product?.UrlImage ?? "Unknown",
                     CreatedAt = sellProduct?.CreatedAt ?? null,
+                    IsSell = sellProduct?.IsSell ?? null,
                 };
             }).ToList();
         }
@@ -323,7 +325,8 @@ namespace DataAccessLayers.Repository
                 UserProfileImage = userResult?.ProfileImage ?? "",
                 Topic = collectionResult?.Topic ?? "Unknown",
                 RateName = rarityResult?.Name ?? "Unknown",
-                Quantity = sellProduct.Quantity
+                Quantity = sellProduct.Quantity,
+                IsSell = sellProduct?.IsSell ?? null,
             };
         }
 

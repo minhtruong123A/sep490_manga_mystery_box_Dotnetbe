@@ -45,7 +45,7 @@ namespace DataAccessLayers.Repository
 
             // 3. Lấy danh sách UserProduct theo các UserCollection.Id
             var userProducts = await _userProductCollection
-                .Find(up => userCollectionIds.Contains(up.CollectionId))
+                .Find(up => userCollectionIds.Contains(up.CollectionId) && up.Quantity > 0)
                 .ToListAsync();
 
             // 4. Lấy danh sách Product theo ProductId

@@ -43,13 +43,18 @@ namespace DataAccessLayers.Repository
                 .ToListAsync();
             var collectionDict = collections.ToDictionary(c => c.Id.ToString());
 
-            // 3. Lấy danh sách UserProduct theo các UserCollection.Id
-            var userProducts = await _userProductCollection
-                .Find(up => userCollectionIds.Contains(up.CollectionId) && up.Quantity > 0)
+            // 3. Lấy toàn bộ UserProduct (KHÔNG lọc Quantity)
+            var userProductsAll = await _userProductCollection
+                .Find(up => userCollectionIds.Contains(up.CollectionId))
                 .ToListAsync();
 
+            // 3.1 Lọc UserProduct có Quantity > 0 để dùng cho Image
+            var userProductsAvailable = userProductsAll
+                .Where(up => up.Quantity > 0)
+                .ToList();
+
             // 4. Lấy danh sách Product theo ProductId
-            var productIds = userProducts.Select(up => up.ProductId).Distinct().ToList();
+            var productIds = userProductsAll.Select(up => up.ProductId).Distinct().ToList();
             var products = await _productCollection
                 .Find(p => productIds.Contains(p.Id.ToString()))
                 .ToListAsync();
@@ -59,7 +64,7 @@ namespace DataAccessLayers.Repository
             var result = userCollections.Select(uc =>
             {
                 var topic = collectionDict.GetValueOrDefault(uc.CollectionId)?.Topic ?? "No topic";
-                var images = userProducts
+                var images = userProductsAvailable
                     .Where(up => up.CollectionId == uc.Id)
                     .Select(up => productDict.TryGetValue(up.ProductId, out var prod)
                         ? new Collection_sProductsImageDto
@@ -71,7 +76,7 @@ namespace DataAccessLayers.Repository
                     .Where(img => img != null)
                     .Take(4)
                     .ToList();
-                var count = userProducts
+                var count = userProductsAll
                     .Where(up => up.CollectionId == uc.Id)
                     .Select(up => productDict.TryGetValue(up.ProductId, out var prod)
                         ? new Collection_sProductsImageDto

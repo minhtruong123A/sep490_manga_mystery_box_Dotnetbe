@@ -53,6 +53,9 @@ namespace Services.Service
                     {
                         Type = "Box",
                         BoxId = mangaBox.Id,
+                        SellProductId = null,
+                        SellerUsername = null,
+                        SellerUrlImage = null,
                         BoxName = mysteryBox.Name,
                         Quantity = boxOrder.Quantity,
                         TotalAmount = boxOrder.Amount,
@@ -62,7 +65,7 @@ namespace Services.Service
                 }
             }
 
-            var productOrders = await _unitOfWork.productOrderRepository.FilterByAsync(p => p.BuyerId == userId || p.SellId == userId);
+            var productOrders = await _unitOfWork.productOrderRepository.FilterByAsync(p => p.BuyerId == userId || p.SellerId == userId);
             if (productOrders?.Any() == true)
             {
                 var productOrderIds = productOrders.Select(p => p.Id.ToString()).ToList();
@@ -72,16 +75,26 @@ namespace Services.Service
                 var paymentSessions = await _unitOfWork.DigitalPaymentSessionRepository.FilterByAsync(p => historyIds.Contains(p.OrderId) && p.Type == nameof(DigitalPaymentSessionType.SellProduct));
                 var paymentDict = paymentSessions.ToDictionary(p => p.OrderId, p => p);
 
-                var productIds = productOrders.Select(p => p.ProductId).Distinct().ToList();
+                var sellProductIds = productOrders.Select(p => p.SellProductId).Distinct().ToList();
+                var sellProducts = await _unitOfWork.SellProductRepository.FilterByAsync(sp => sellProductIds.Contains(sp.Id));
+                var sellProductDict = sellProducts.ToDictionary(sp => sp.Id, sp => sp);
+                var productIds = sellProducts.Select(sp => sp.ProductId).Distinct().ToList();
                 var products = await _unitOfWork.ProductRepository.FilterByAsync(p => productIds.Contains(p.Id));
                 var productDict = products.ToDictionary(p => p.Id, p => p);
+
+                var sellerIds = productOrders.Select(p => p.SellerId).Distinct().ToList();
+                var sellers = await _unitOfWork.UserRepository.FilterByAsync(u => sellerIds.Contains(u.Id));
+                var sellerDict = sellers.ToDictionary(u => u.Id, u => u);
 
                 var addedTransactionCodes = new HashSet<string>();
                 var tempResult = new List<OrderHistoryDto>();
 
                 foreach (var order in productOrders)
                 {
-                    if (!productDict.TryGetValue(order.ProductId, out var product)) continue;
+                    if (!sellProductDict.TryGetValue(order.SellProductId, out var sellProduct)) continue;
+                    if (!productDict.TryGetValue(sellProduct.ProductId, out var product)) continue;
+
+                    sellerDict.TryGetValue(order.SellerId, out var seller);
 
                     var relatedHistories = productOrderHistories.Where(h => h.ProductOrderId == order.Id.ToString()).ToList();
                     if (!relatedHistories.Any()) continue;
@@ -89,7 +102,7 @@ namespace Services.Service
                     foreach (var history in relatedHistories)
                     {
                         if (!paymentDict.TryGetValue(history.Id.ToString(), out var payment)) continue;
-                        if (order.SellId == userId)
+                        if (order.SellerId == userId)
                         {
                             if (addedTransactionCodes.Contains(payment.Id.ToString())) continue;
                             
@@ -97,8 +110,11 @@ namespace Services.Service
                             tempResult.Add(new OrderHistoryDto
                             {
                                 Type = "ProductSell",
+                                SellProductId = order.SellProductId,
                                 ProductId = product.Id,
                                 ProductName = product.Name,
+                                SellerUsername = seller?.Username,
+                                SellerUrlImage = seller?.ProfileImage,
                                 Quantity = 1,
                                 TotalAmount = (int)Math.Floor(payment.Amount * 0.95),
                                 TransactionCode = payment.Id.ToString(),
@@ -113,8 +129,11 @@ namespace Services.Service
                             tempResult.Add(new OrderHistoryDto
                             {
                                 Type = "ProductBuy",
+                                SellProductId = order.SellProductId,
                                 ProductId = product.Id,
                                 ProductName = product.Name,
+                                SellerUsername = seller?.Username,
+                                SellerUrlImage = seller?.ProfileImage,
                                 Quantity = 1,
                                 TotalAmount = payment.Amount,
                                 TransactionCode = payment.Id.ToString(),
@@ -137,9 +156,9 @@ namespace Services.Service
                             return (IEnumerable<OrderHistoryDto>)g;
 
                         var matched = g.FirstOrDefault(x =>
-                            (x.Type == "ProductSell" && userId == productOrders.FirstOrDefault(o => o.ProductId == x.ProductId)?.SellId)
+                            (x.Type == "ProductSell" && userId == productOrders.FirstOrDefault(o => o.SellProductId == x.SellProductId)?.SellerId)
                             ||
-                            (x.Type == "ProductBuy" && userId == productOrders.FirstOrDefault(o => o.ProductId == x.ProductId)?.BuyerId)
+                            (x.Type == "ProductBuy" && userId == productOrders.FirstOrDefault(o => o.SellProductId == x.SellProductId)?.BuyerId)
                         );
 
                         return matched != null ? new List<OrderHistoryDto> { matched } : new List<OrderHistoryDto>();

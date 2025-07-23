@@ -431,9 +431,9 @@ namespace DataAccessLayers.Repository
         {
             var order = new ProductOrder
             {
-                SellId = product.SellerId,
+                SellerId = product.SellerId,
                 BuyerId = buyerId,
-                ProductId = product.ProductId,
+                SellProductId = product.Id,
                 Amount = total,
             };
             await _productOrderCollection.InsertOneAsync(order);
@@ -463,9 +463,9 @@ namespace DataAccessLayers.Repository
         {
             var order = new ProductOrder
             {
-                SellId = sellerId,
+                SellerId = sellerId,
                 BuyerId = buyerId,
-                ProductId = product.ProductId,
+                SellProductId = product.Id,
                 Amount = feeInfo.net,
             };
             await _productOrderCollection.InsertOneAsync(order);

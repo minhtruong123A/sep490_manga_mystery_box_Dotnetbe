@@ -190,6 +190,7 @@ builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IExchangeService, ExchangeService>();
 builder.Services.AddScoped<ICollectionService, CollectionService>();
 builder.Services.AddScoped<IBankService, BankService>();
+builder.Services.AddScoped<IMysteryBoxService, MysteryBoxService>();
 
 //AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

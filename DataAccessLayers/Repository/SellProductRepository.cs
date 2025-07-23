@@ -212,12 +212,13 @@ namespace DataAccessLayers.Repository
                     UrlImage = product?.UrlImage ?? "Unknown",
                     RarityName = rarity?.Name ?? "Unknown",
                     CreatedAt = sellProduct?.CreatedAt ?? null,
+                    IsSell = sellProduct?.IsSell ?? null,
                 };
             }).ToList();
         }
         public async Task<List<SellProductGetAllDto>> GetAllProductOnSaleOfUserIdAsync(string id)
-        {
-            var sellProductList = await _sellProductCollection.AsQueryable().Where(c => c.IsSell && c.SellerId.Equals(id)).ToListAsync();
+        {  //c.IsSell && 
+            var sellProductList = await _sellProductCollection.AsQueryable().Where(c => c.SellerId.Equals(id) && c.Quantity >= 0).ToListAsync();
             var productIds = sellProductList.Select(c => c.ProductId).ToHashSet();
             var sellerIds = sellProductList.Select(c => c.SellerId).ToHashSet();
             var productTask = _productCollection.AsQueryable().Where(c => productIds.Contains(c.Id.ToString())).ToListAsync();
@@ -261,6 +262,7 @@ namespace DataAccessLayers.Repository
                     Quantity = sellProduct?.Quantity ?? 0,
                     UrlImage = product?.UrlImage ?? "Unknown",
                     CreatedAt = sellProduct?.CreatedAt ?? null,
+                    IsSell = sellProduct?.IsSell ?? null,
                 };
             }).ToList();
         }
@@ -288,7 +290,8 @@ namespace DataAccessLayers.Repository
         //    return result.FirstOrDefault();
         public async Task<SellProductDetailDto?> GetProductDetailByIdAsync(string id)
         {
-            var sellProduct = await _sellProductCollection.AsQueryable().FirstOrDefaultAsync(c => c.Id.ToString() == id && c.IsSell);
+            //&& c.IsSell
+            var sellProduct = await _sellProductCollection.AsQueryable().FirstOrDefaultAsync(c => c.Id.ToString() == id);
             if (sellProduct is null) return null;
             var productTask = _productCollection.AsQueryable().FirstOrDefaultAsync(c => c.Id.ToString() == sellProduct.ProductId);
             var userTask = _userCollection.AsQueryable().FirstOrDefaultAsync(c => c.Id.ToString() == sellProduct.SellerId);
@@ -323,7 +326,8 @@ namespace DataAccessLayers.Repository
                 UserProfileImage = userResult?.ProfileImage ?? "",
                 Topic = collectionResult?.Topic ?? "Unknown",
                 RateName = rarityResult?.Name ?? "Unknown",
-                Quantity = sellProduct.Quantity
+                Quantity = sellProduct.Quantity,
+                IsSell = sellProduct?.IsSell ?? null,
             };
         }
 
@@ -400,13 +404,27 @@ namespace DataAccessLayers.Repository
 
         private async Task UpdateSellProductStockAsync(SellProduct product, int quantity)
         {
-            product.Quantity -= quantity;
-            if (product.Quantity == 0)
-            {
-                product.IsSell = false;
-                product.UpdatedAt = DateTime.UtcNow;
-            }
-            await _sellProductCollection.ReplaceOneAsync(x => x.Id == product.Id, product);
+            //product.Quantity -= quantity;
+            //if (product.Quantity == 0)
+            //{
+            //    product.IsSell = false;
+            //    product.UpdatedAt = DateTime.UtcNow;
+            //}
+            //await _sellProductCollection.ReplaceOneAsync(x => x.Id == product.Id, product);
+            var filter = Builders<SellProduct>.Filter.And(
+                Builders<SellProduct>.Filter.Eq(p => p.Id, product.Id),
+                Builders<SellProduct>.Filter.Gte(p => p.Quantity, quantity)
+            );
+            var update = Builders<SellProduct>.Update.Inc(p => p.Quantity, -quantity);
+            var result = await _sellProductCollection.UpdateOneAsync(filter, update);
+            if (result.ModifiedCount == 0) throw new Exception("The product is either out of stock or no longer available for purchase.");
+
+            var finalFilter = Builders<SellProduct>.Filter.And(
+                Builders<SellProduct>.Filter.Eq(p => p.Id, product.Id),
+                Builders<SellProduct>.Filter.Eq(p => p.Quantity, 0)
+            );
+            var finalUpdate = Builders<SellProduct>.Update.Set(p => p.IsSell, false);
+            await _sellProductCollection.UpdateOneAsync(finalFilter, finalUpdate);
         }
 
         private async Task<(ProductOrder, OrderHistory, DigitalPaymentSession)> CreateBuyerRecordsAsync(string buyerId, SellProduct product, int total, string buyerWalletId)

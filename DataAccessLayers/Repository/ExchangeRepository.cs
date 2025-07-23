@@ -211,13 +211,24 @@ namespace DataAccessLayers.Repository
                     );
                     if (updateSell.ModifiedCount == 0) throw new Exception("Failed to update SellProduct");
                 }
-                else if(sell.Quantity > 1)
+                //else if (sell.Quantity > 1)
+                //{
+                //    var updateSell = await _sellProduct.UpdateOneAsync(
+                //    x => x.ProductId == sell.ProductId,
+                //    Builders<SellProduct>.Update.Inc(x => x.Quantity, -1)
+                //    );
+                //    if (updateSell.ModifiedCount == 0) throw new Exception("Failed to update SellProduct");
+                //}
+                else if (sell.Quantity > 1)
                 {
-                    var updateSell = await _sellProduct.UpdateOneAsync(
-                    x => x.ProductId == sell.ProductId,
-                    Builders<SellProduct>.Update.Inc(x => x.Quantity, -1)
+                    var filter = Builders<SellProduct>.Filter.And(
+                        Builders<SellProduct>.Filter.Eq(x => x.Id, sell.Id),
+                        Builders<SellProduct>.Filter.Gte(x => x.Quantity, 1)
                     );
-                    if (updateSell.ModifiedCount == 0) throw new Exception("Failed to update SellProduct");
+                    var update = Builders<SellProduct>.Update.Inc(x => x.Quantity, -1);
+                    var updateResult = await _sellProduct.UpdateOneAsync(filter, update);
+
+                    if (updateResult.ModifiedCount == 0) throw new Exception("Unable to process the exchange. The product may be out of stock.");
                 }
                 else
                 {

@@ -114,7 +114,7 @@ namespace Services.Service
             }
 
             if (!string.IsNullOrWhiteSpace(dto.PhoneNumber)) user.PhoneNumber = dto.PhoneNumber;
-            if (!string.IsNullOrWhiteSpace(dto.Username)) user.Username = dto.Username;
+/*            if (!string.IsNullOrWhiteSpace(dto.Username)) user.Username = dto.Username;*/
 
             await _uniUnitOfWork.UserRepository.UpdateAsync(userId, user);
 

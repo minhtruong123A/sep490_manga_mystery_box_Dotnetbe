@@ -1,23 +1,20 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessObjects
+namespace BusinessObjects.Dtos.MangaBox
 {
-    public class MysteryBox
+    public class MangaBoxCreateDto
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
         public string Name { get; set; }
+        public string Title { get; set; }
         public string Description { get; set; }
         public int Price { get; set; }
         public int TotalProduct { get; set; }
         public string UrlImage { get; set; }
-        public string Title { get; set; }
+
+        public string CollectionTopicId { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using BusinessObjects.Dtos.MangaBox;
 using BusinessObjects.Enum;
 using DataAccessLayers.Interface;
 using DataAccessLayers.UnitOfWork;
+using MongoDB.Bson;
 using Services.Helper.Supabase;
 using Services.Interface;
 using System;
@@ -23,6 +24,31 @@ namespace Services.Service
         }
 
         public async Task<MangaBox> AddAsync(MangaBox mangaBox) => await _unitOfWork.MangaBoxRepository.AddAsync(mangaBox);
+        public async Task<bool> CreateNewMangaBox(MangaBoxCreateDto dto)
+        {
+            var mys = new MysteryBox();
+            mys.Id = ObjectId.GenerateNewId().ToString();
+            mys.Name = dto.Name;
+            mys.Description = dto.Description;
+            mys.TotalProduct = dto.TotalProduct;
+            mys.Price = dto.Price;
+            mys.UrlImage = dto.UrlImage;
+            mys.Title = dto.Title;
+            await _unitOfWork.MysteryBoxRepository.AddAsync(mys);
+
+            var box = new MangaBox();
+            box.Status = 1;
+            box.CreatedAt = DateTime.Now;
+            box.UpdatedAt = DateTime.Now;
+            box.MysteryBoxId = mys.Id;
+            box.CollectionTopicId = dto.CollectionTopicId;
+            box.Title = dto.Title;
+            await _unitOfWork.MangaBoxRepository.AddAsync(box);
+            await _unitOfWork.SaveChangesAsync();
+
+            return true;
+
+        }
 
         public async Task<List<MangaBoxGetAllDto>> GetAllWithDetailsAsync() => await _unitOfWork.MangaBoxRepository.GetAllWithDetailsAsync();
         

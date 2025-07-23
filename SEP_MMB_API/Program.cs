@@ -188,6 +188,7 @@ builder.Services.AddScoped<IUserBoxService, UserBoxService>();
 builder.Services.AddScoped<IUserProductService, UserProductService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IExchangeService, ExchangeService>();
+builder.Services.AddScoped<ICollectionService, CollectionService>();
 builder.Services.AddScoped<IBankService, BankService>();
 
 //AutoMapper

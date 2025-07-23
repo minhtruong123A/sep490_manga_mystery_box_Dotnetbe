@@ -102,6 +102,8 @@ namespace DataAccessLayers.Repository
         //                CollectionTopic = x["Collection"]["Topic"].AsString
         //            });
         //}
+        
+
         public async Task<MangaBoxDetailDto?> GetByIdWithDetailsAsync(string id)
         {
             var mangaBox = await _mangaBoxCollection.AsQueryable().FirstOrDefaultAsync(c => c.Id.ToString() == id);

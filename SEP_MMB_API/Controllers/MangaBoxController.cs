@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
 using Services.Service;
+using System.Transactions;
 
 namespace SEP_MMB_API.Controllers
 {
@@ -82,7 +83,43 @@ namespace SEP_MMB_API.Controllers
                 });
             }
         }
+        [Authorize(Roles = "moderator")]
+        [HttpPost("create-new-box")]
+        public async Task<ActionResult<ResponseModel<string>>> CreateBox([FromForm] MangaBoxCreateDto dto)
+        {
+            try
+            {
+                var response = await _mangaBoxService.CreateNewMangaBoxAsync(dto);
+                if (response)
+                {
+                    return Ok(new ResponseModel<string>
+                    {
+                        Success = true,
+                        Data = "Create new box successfully!", 
+                        Error = null,
+                        ErrorCode = 0
+                    });
+                }
+                return BadRequest(new ResponseModel<string>
+                {
+                    Success = false,
+                    Data = null,
+                    Error = "Failed to create",
+                    ErrorCode = 400
+                });
 
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string>
+                {
+                    Success = false,
+                    Data = null,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
         [Authorize(Roles = "user")]
         [HttpPost("buy-mystery-box")]
         public async Task<ActionResult<ResponseModel<BuyBoxResponseDto>>> BuyBox([FromBody] BuyBoxRequestDto request)

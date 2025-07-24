@@ -30,7 +30,7 @@ namespace Services.Service
         {
             var newCollection = new Collection();
             newCollection.Topic = dto.Topic;
-            newCollection.IsSystem = dto.IsSystem;
+            newCollection.IsSystem = false;
             await _uniUnitOfWork.CollectionRepository.AddAsync(newCollection);
 
             var collection = await _uniUnitOfWork.CollectionRepository.FindOneAsync(x => x.Topic.Equals(dto.Topic) && x.IsSystem == false);

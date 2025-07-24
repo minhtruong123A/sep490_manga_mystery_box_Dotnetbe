@@ -96,7 +96,7 @@ namespace SEP_MMB_API.Controllers
 
                 var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
 
-               
+                
                 await _userCollectionService.CreateUserCollectionByUserAsync(account.Id, dto);
 
                 return Ok(new ResponseModel<string>

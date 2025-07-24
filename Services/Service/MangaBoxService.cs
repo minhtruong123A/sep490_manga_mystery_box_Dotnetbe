@@ -4,6 +4,7 @@ using BusinessObjects.Dtos.MangaBox;
 using BusinessObjects.Enum;
 using DataAccessLayers.Interface;
 using DataAccessLayers.UnitOfWork;
+using Microsoft.AspNetCore.Http;
 using MongoDB.Bson;
 using Services.Helper.Supabase;
 using Services.Interface;
@@ -18,21 +19,24 @@ namespace Services.Service
     public class MangaBoxService : IMangaBoxService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public MangaBoxService(IUnitOfWork unitOfWork)
+        private readonly IImageService _imageService;
+        public MangaBoxService(IUnitOfWork unitOfWork, IImageService imageService)
         {
             _unitOfWork = unitOfWork;
+            _imageService = imageService;
         }
 
         public async Task<MangaBox> AddAsync(MangaBox mangaBox) => await _unitOfWork.MangaBoxRepository.AddAsync(mangaBox);
-        public async Task<bool> CreateNewMangaBox(MangaBoxCreateDto dto)
+        public async Task<bool> CreateNewMangaBoxAsync(MangaBoxCreateDto dto)
         {
+            var url = await _imageService.UploadModeratorProductOrMysteryBoxImageAsync(dto.ImageUrl);
             var mys = new MysteryBox();
             mys.Id = ObjectId.GenerateNewId().ToString();
             mys.Name = dto.Name;
             mys.Description = dto.Description;
             mys.TotalProduct = dto.TotalProduct;
             mys.Price = dto.Price;
-            mys.UrlImage = dto.UrlImage;
+            mys.UrlImage = url;
             mys.Title = dto.Title;
             await _unitOfWork.MysteryBoxRepository.AddAsync(mys);
 

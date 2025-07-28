@@ -163,6 +163,8 @@ builder.Services.AddScoped<IExchangeRepository, ExchangeRepository>();
 builder.Services.AddScoped<ICollectionRepository, CollectionRepository>();
 builder.Services.AddScoped<IUserBankRepository, UserBankRepository>();
 builder.Services.AddScoped<IBankRepository, BankRepository>();
+builder.Services.AddScoped<IExchangeSessionRepository, ExchangeSessionRepository>();
+builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
 
 //UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -191,6 +193,7 @@ builder.Services.AddScoped<IExchangeService, ExchangeService>();
 builder.Services.AddScoped<ICollectionService, CollectionService>();
 builder.Services.AddScoped<IBankService, BankService>();
 builder.Services.AddScoped<IMysteryBoxService, MysteryBoxService>();
+builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 
 //AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

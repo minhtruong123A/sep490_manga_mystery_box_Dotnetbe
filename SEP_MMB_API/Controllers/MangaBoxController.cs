@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Dtos.MangaBox;
+using BusinessObjects.Dtos.ProductInMangaBox;
 using BusinessObjects.Dtos.Schema_Response;
 using BusinessObjects.Dtos.UserBox;
 using Microsoft.AspNetCore.Authorization;
@@ -14,12 +15,14 @@ namespace SEP_MMB_API.Controllers
     public class MangaBoxController : ControllerBase
     {
         private readonly IMangaBoxService _mangaBoxService;
+        private readonly IProductInMangaBoxService _productInMangaBoxService;
         private readonly IAuthService _authService;
 
-        public MangaBoxController(IMangaBoxService mangaBoxService, IAuthService authService)
+        public MangaBoxController(IMangaBoxService mangaBoxService, IAuthService authService, IProductInMangaBoxService productInMangaBoxService)
         {
             _mangaBoxService = mangaBoxService;
             _authService = authService;
+            _productInMangaBoxService = productInMangaBoxService;
         }
 
         [HttpGet("get-all-mystery-box")]
@@ -120,6 +123,44 @@ namespace SEP_MMB_API.Controllers
                 });
             }
         }
+        [Authorize(Roles = "moderator")]
+        [HttpPost("add-product-for-box")]
+        public async Task<ActionResult<ResponseModel<string>>> AddProductForBox(string boxId, List<ProductInMangaBoxCreateDto> dtos)
+        {
+            try
+            {
+                var response = await _productInMangaBoxService.CreateAsync(boxId, dtos);
+                if (response)
+                {
+                    return Ok(new ResponseModel<string>
+                    {
+                        Success = true,
+                        Data = "Add product for box successfully!",
+                        Error = null,
+                        ErrorCode = 0
+                    });
+                }
+                return BadRequest(new ResponseModel<string>
+                {
+                    Success = false,
+                    Data = null,
+                    Error = "Failed to add",
+                    ErrorCode = 400
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string>
+                {
+                    Success = false,
+                    Data = null,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
+
         [Authorize(Roles = "user")]
         [HttpPost("buy-mystery-box")]
         public async Task<ActionResult<ResponseModel<BuyBoxResponseDto>>> BuyBox([FromBody] BuyBoxRequestDto request)

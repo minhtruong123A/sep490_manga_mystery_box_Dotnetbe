@@ -20,6 +20,7 @@ namespace BusinessObjects
         public DateTime UpdatedAt { get; set; }
         public string UrlImage { get; set; }
         public bool Is_Block { get; set; }
+        public string CollectionId { get; set; }
         public Product(string title, string rarityId, string description = "")
         {
             Name = title;

@@ -13,10 +13,9 @@ namespace BusinessObjects
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
-        public string SellId { get; set; }
+        public string SellerId { get; set; }
         public string BuyerId { get; set; }
-        public string ProductId { get; set; }
+        public string SellProductId { get; set; }
         public int Amount { get; set; }
     }
-
 }

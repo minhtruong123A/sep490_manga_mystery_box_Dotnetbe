@@ -119,6 +119,7 @@ namespace Services.Service
                 if (!string.IsNullOrWhiteSpace(dto.BankId)) bank.BankId = dto.BankId;
 
                 await _uniUnitOfWork.UserBankRepository.AddAsync(bank);
+                await _uniUnitOfWork.SaveChangesAsync();
             }
             else
             {
@@ -127,12 +128,14 @@ namespace Services.Service
                 if (!string.IsNullOrWhiteSpace(dto.BankId)) bank.BankId = dto.BankId;
 
                 await _uniUnitOfWork.UserBankRepository.UpdateAsync(bank.Id, bank);
+                await _uniUnitOfWork.SaveChangesAsync();
             }
 
             if (!string.IsNullOrWhiteSpace(dto.PhoneNumber)) user.PhoneNumber = dto.PhoneNumber;
 /*            if (!string.IsNullOrWhiteSpace(dto.Username)) user.Username = dto.Username;*/
 
             await _uniUnitOfWork.UserRepository.UpdateAsync(userId, user);
+            await _uniUnitOfWork.SaveChangesAsync();
 
             return new UserUpdateResponseDto()
             {

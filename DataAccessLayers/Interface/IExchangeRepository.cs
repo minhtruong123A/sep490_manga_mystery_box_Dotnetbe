@@ -13,7 +13,8 @@ namespace DataAccessLayers.Interface
         Task<List<ExchangeGetAllWithProductDto>> GetExchangesWithProductsByItemReciveIdAsync(string userId);
         Task<List<ExchangeGetAllWithProductDto>> GetExchangesWithProductsOfBuyerAsync(string userId);
         Task<ExchangeInfo> CreateExchangeAsync(ExchangeInfo info, List<ExchangeProduct> products, ExchangeSession session);
-        Task<bool> AcceptExchangeAsync(string exchangeId);
+        Task<bool> AcceptExchangeAsync(string exchangeId, string currentUserId);
+
         Task<bool> CancelExchangeAsync(string exchangeId, string userId);
         Task<bool> RejectExchangeAsync(string exchangeId, string userId);
     }

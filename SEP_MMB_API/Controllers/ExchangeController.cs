@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Dtos.Exchange;
+using BusinessObjects.Dtos.Schema_Response;
 using BusinessObjects.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -74,12 +75,50 @@ namespace SEP_MMB_API.Controllers
             return Ok(created);
         }
 
+        [Authorize]
         [HttpPost("sender/accept/{exchangeId}")]
         public async Task<IActionResult> AcceptExchange(string exchangeId)
+        //public async Task<ActionResult<ResponseModel<string>>> AcceptExchange(string exchangeId)
+
         {
-            var success = await _service.AcceptExchangeAsync(exchangeId);
+            var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+            if (account == null) return Unauthorized();
+
+            var success = await _service.AcceptExchangeAsync(exchangeId, account.Id);
             if (!success) return BadRequest("Exchange not found or failed");
             return Ok("Exchange completed");
+            //try
+            //{
+            //    var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+            //    if (account == null)
+            //    {
+            //        return Unauthorized(new ResponseModel<string>
+            //        {
+            //            Data = null,
+            //            Error = "User is not authenticated.",
+            //            Success = false,
+            //            ErrorCode = 401
+            //        });
+            //    }
+
+            //    await _service.AcceptExchangeAsync(exchangeId, account.Id);
+            //    return Ok(new ResponseModel<string>
+            //    {
+            //        Data = "Exchange completed successfully.",
+            //        Error = null,
+            //        Success = true
+            //    }); 
+            //}
+            //catch (Exception ex)
+            //{
+            //    return BadRequest(new ResponseModel<string>
+            //    {
+            //        Data = null,
+            //        Error = ex.Message,
+            //        Success = false,
+            //        ErrorCode = 400
+            //    });
+            //}
         }
 
         [Authorize]

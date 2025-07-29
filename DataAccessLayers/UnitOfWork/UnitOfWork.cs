@@ -1,6 +1,7 @@
 ﻿using BusinessObjects.Mongodb;
 using DataAccessLayers.Interface;
 using DataAccessLayers.Repository;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace DataAccessLayers.UnitOfWork
     public class UnitOfWork : IUnitOfWork
     {
         private readonly MongoDbContext _context;
+        private readonly IMongoClient _mongoClient;
         private IUserRepository _users;
         private IEmailVerificationRepository _emailVerificationRepository;
         private IMangaBoxRepository _mangaBoxRepository;
@@ -62,7 +64,7 @@ namespace DataAccessLayers.UnitOfWork
         public IDigitalPaymentSessionRepository DigitalPaymentSessionRepository => _digitalPaymentSessionRepository ??= new DigitalPaymentSessionRepository(_context);
         public IProductOrderRepository productOrderRepository => _productOrderRepository ??= new ProductOrderRepository(_context);
         public IReportRepository ReportRepository => _reportRepository ??= new ReportRepository(_context);
-        public IExchangeRepository ExchangeRepository => _exchangeRepository ??= new ExchangeRepository(_context);
+        public IExchangeRepository ExchangeRepository => _exchangeRepository ??= new ExchangeRepository(_context, _mongoClient);
         public IExchangeSessionRepository ExchangeSessionRepository => _exchangeSessionRepository ??= new ExchangeSessionRepository(_context);
         public ICollectionRepository CollectionRepository => _collectionRepository ??= new CollectionRepository(_context);
         public IUserBankRepository UserBankRepository => _userBankRepository ??= new UserBankRepository(_context);

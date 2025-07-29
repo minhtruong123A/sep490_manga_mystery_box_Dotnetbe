@@ -14,6 +14,7 @@ namespace Services.Interface
     {
         Task<List<UserInformationDto>> GetAllUsersAsync();
         Task<UserInformationDto> GetUserByIdAsync(string id);
+        Task<UserInformationDto> GetOtherUserByIdAsync(string id);
         Task CreateUserAsync(User user);
         Task UpdateUserAsync(string id, User user);
         Task DeleteUserAsync(string id);

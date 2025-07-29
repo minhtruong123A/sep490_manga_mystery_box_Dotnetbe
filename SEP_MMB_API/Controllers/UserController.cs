@@ -80,7 +80,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var userDto = await _userService.GetUserByIdAsync(id);
+                var userDto = await _userService.GetOtherUserByIdAsync(id);
                 return Ok(new ResponseModel<UserInformationDto>()
                 {
                     Data = userDto,

@@ -69,5 +69,7 @@ namespace BusinessObjects.Mongodb
         public IMongoCollection<UserBank> UserBanks => _database.GetCollection<UserBank>("UserBank");
         public IMongoCollection<Bank> Banks => _database.GetCollection<Bank>("Bank");
         public IMongoCollection<Feedback> Feedbakcs => _database.GetCollection<Feedback>("Feedback");
+        public IMongoCollection<Subscription> Subscriptions => _database.GetCollection<Subscription>("Subscription");
+        public IMongoCollection<ProductFavorite> ProductFavorites => _database.GetCollection<ProductFavorite>("ProductFavorite");
     }
 }

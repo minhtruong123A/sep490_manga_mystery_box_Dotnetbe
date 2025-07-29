@@ -35,6 +35,8 @@ namespace DataAccessLayers.Interface
         IUserBankRepository UserBankRepository { get; }
         IBankRepository BankRepository { get; }
         IFeedbackRepository FeedbackRepository { get; }
+        ISubscriptionRepository SubscriptionRepository { get; }
+        IProductFavoriteRepository ProductFavoriteRepository { get; }
         Task SaveChangesAsync();
     }
 }

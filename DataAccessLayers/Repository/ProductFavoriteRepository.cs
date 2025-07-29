@@ -1,48 +1,48 @@
 ﻿using BusinessObjects;
-using BusinessObjects.Dtos.MangaBox;
 using BusinessObjects.Dtos.Product;
-using BusinessObjects.Dtos.UserBox;
-using BusinessObjects.Dtos.UserCollection;
 using BusinessObjects.Mongodb;
 using DataAccessLayers.Interface;
 using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DataAccessLayers.Repository
 {
-    public class UserProductRepository : GenericRepository<UserProduct>, IUserProductRepository
+    public class ProductFavoriteRepository : GenericRepository<ProductFavorite>, IProductFavoriteRepository
     {
-
+        private readonly IMongoCollection<ProductFavorite> _productFavorite;
         private readonly IMongoCollection<UserProduct> _userProductCollection;
         private readonly IMongoCollection<Product> _productCollection;
         private readonly IMongoCollection<Rarity> _rarityCollection;
 
-        public UserProductRepository(MongoDbContext context) : base(context.GetCollection<UserProduct>("User_Product"))
+        public ProductFavoriteRepository(MongoDbContext context) : base(context.GetCollection<ProductFavorite>("ProductFavorite"))
         {
+            _productFavorite = context.GetCollection<ProductFavorite>("ProductFavorite");
             _userProductCollection = context.GetCollection<UserProduct>("User_Product");
             _productCollection = context.GetCollection<Product>("Product");
             _rarityCollection = context.GetCollection<Rarity>("Rarity");
         }
-        public async Task<List<CollectionProductsDto>> GetAllWithDetailsAsync(string userId, string userCollectionId)
+
+        public async Task<List<CollectionProductsDto>> GetAllWithDetailsAsync(string userId)
         {
             
-            var userProducts = await _userProductCollection
-                .Find(p => p.CollectorId == userId && p.CollectionId == userCollectionId)
+            var productFavorites = await _productFavorite
+                .Find(p => p.User_Id == userId)
                 .ToListAsync();
-
+            var userProductIds = productFavorites.Select(x=>x.User_productId).Distinct().ToList();
+            var userProducts = await _userProductCollection
+                .Find(p => userProductIds.Contains(p.Id))
+                .ToListAsync();
             if (!userProducts.Any())
                 return new List<CollectionProductsDto>();
 
-           
+
             var productIds = userProducts.Select(p => p.ProductId.Trim()).Distinct().ToList();
 
-            
+
             var products = await _productCollection
                 .Find(p => productIds.Contains(p.Id.ToString()))
                 .ToListAsync();
@@ -60,7 +60,7 @@ namespace DataAccessLayers.Repository
                 return new CollectionProductsDto
                 {
                     Id = p.Id.ToString(),
-                    CollectionId = userCollectionId,
+                    CollectionId = p.CollectionId,
                     ProductId = productId,
                     Quantity = p.Quantity,
                     CollectedAt = p.CollectedAt,
@@ -74,24 +74,5 @@ namespace DataAccessLayers.Repository
             return result.ToList();
 
         }
-        public async Task AddManyAsync(IEnumerable<UserProduct> userProducts)
-        {
-            await _userProductCollection.InsertManyAsync(userProducts);
-        }
-        public async Task<UserProduct> FindOneAsync(Expression<Func<UserProduct, bool>> filter)
-        {
-            return await _userProductCollection.Find(filter).FirstOrDefaultAsync();
-        }
-        public async Task UpdateOneAsync(string id, UpdateDefinition<UserProduct> update)
-        {
-            var filter = Builders<UserProduct>.Filter.Eq(up => up.Id, id);
-            await _userProductCollection.UpdateOneAsync(filter, update);
-        }
-        public async Task AddAsync(UserProduct userProduct)
-        {
-            if (userProduct == null) return;
-            await _userProductCollection.InsertOneAsync(userProduct);
-        }
-
     }
 }

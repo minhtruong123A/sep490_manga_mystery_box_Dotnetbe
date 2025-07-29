@@ -19,7 +19,7 @@ namespace Services.Interface
         Task UpdateUserAsync(string id, User user);
         Task DeleteUserAsync(string id);
         Task DeleteUserByEmailAsync(string email);
-        Task<ChangePasswordResult> ChangePasswordAsync(ChangePasswordDto dto);
+        Task<ChangePasswordResult> ChangePasswordAsync(string userId,ChangePasswordDto dto);
         Task<UserUpdateResponseDto> UpdateProfileAsync(IFormFile file, string userId, UserUpdateDto dto);
     }
 }

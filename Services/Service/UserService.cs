@@ -75,9 +75,9 @@ namespace Services.Service
             await _uniUnitOfWork.EmailVerificationRepository.DeleteByEmailAsync(email);
         }
 
-        public async Task<ChangePasswordResult> ChangePasswordAsync(ChangePasswordDto dto)
+        public async Task<ChangePasswordResult> ChangePasswordAsync(string userId,ChangePasswordDto dto)
         {
-            var user = await _uniUnitOfWork.UserRepository.GetByIdAsync(dto.UserId);
+            var user = await _uniUnitOfWork.UserRepository.GetByIdAsync(userId);
             if (user == null) throw new Exception("User not found");
 
             if (!BCrypt.Net.BCrypt.Verify(dto.CurentPassword, user.Password))

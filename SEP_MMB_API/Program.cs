@@ -19,6 +19,7 @@ using BusinessObjects.Dtos.PayOS;
 using Net.payOS;
 using System.Text.Json.Serialization;
 using Services.Helper.Supabase;
+using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 var devPassword = builder.Configuration["DevSettings:DevPassword"];
@@ -136,6 +137,11 @@ builder.Services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrateg
 
 //DbContext
 builder.Services.AddSingleton<MongoDbContext>();
+
+//IMongoClient
+builder.Services.AddSingleton<IMongoClient>(s =>
+    new MongoClient(builder.Configuration.GetConnectionString("MongoDb"))
+);
 
 //Repository
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));

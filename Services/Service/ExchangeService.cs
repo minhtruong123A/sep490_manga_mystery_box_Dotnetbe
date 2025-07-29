@@ -23,7 +23,7 @@ namespace Services.Service
         }
 
         public async Task<ExchangeInfo> CreateExchangeAsync(ExchangeInfo info, List<ExchangeProduct> products, ExchangeSession session) => await _repo.CreateExchangeAsync(info, products, session);
-        public async Task<bool> AcceptExchangeAsync(string exchangeId) => await _repo.AcceptExchangeAsync(exchangeId);
+        public async Task<bool> AcceptExchangeAsync(string exchangeId, string currentUserId) => await _repo.AcceptExchangeAsync(exchangeId, currentUserId);
         public async Task<List<ExchangeGetAllWithProductDto>> GetExchangesWithProductsByItemReciveIdAsync(string userId) => await _repo.GetExchangesWithProductsByItemReciveIdAsync(userId);
         public async Task<List<ExchangeGetAllWithProductDto>> GetExchangesWithProductsOfBuyerAsync(string userId) => await _repo.GetExchangesWithProductsOfBuyerAsync(userId);
         public async Task<bool> CancelExchangeAsync(string exchangeId, string userId) => await _repo.CancelExchangeAsync(exchangeId,userId);

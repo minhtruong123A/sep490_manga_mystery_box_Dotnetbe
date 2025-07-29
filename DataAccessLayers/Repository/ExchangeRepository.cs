@@ -25,8 +25,9 @@ namespace DataAccessLayers.Repository
         private readonly IMongoCollection<ProductInMangaBox> _productInMangaBox;
         private readonly IMongoCollection<MangaBox> _mangaBox;
         private readonly IMongoCollection<UserCollection> _userCollection;
+        private readonly IMongoClient _mongoClient;
 
-        public ExchangeRepository(MongoDbContext context) : base(context.GetCollection<ExchangeInfo>("ExchangeInfo"))
+        public ExchangeRepository(MongoDbContext context, IMongoClient mongoClient) : base(context.GetCollection<ExchangeInfo>("ExchangeInfo"))
         {
             _exchangeInfo = context.GetCollection<ExchangeInfo>("Exchangeinfo");
             _exchangeProduct = context.GetCollection<ExchangeProduct>("ExchangeProduct");
@@ -37,6 +38,7 @@ namespace DataAccessLayers.Repository
             _productInMangaBox = context.GetCollection<ProductInMangaBox>("ProductInMangaBox");
             _mangaBox = context.GetCollection<MangaBox>("MangaBox");
             _userCollection = context.GetCollection<UserCollection>("UserCollection");
+            _mongoClient = mongoClient;
         }
 
         public async Task<List<ExchangeGetAllWithProductDto>> GetExchangesWithProductsByItemReciveIdAsync(string userId)
@@ -54,7 +56,7 @@ namespace DataAccessLayers.Repository
                 ).ToListAsync();
 
             if (!infos.Any()) return [];
-            
+
             await RejectIfExpiredAsync(infos);
             var sessionIds = infos.Select(x => x.ItemGiveId).Distinct().ToList();
             var eproducts = await _exchangeProduct.Find(p => sessionIds.Contains(p.ExchangeId)).ToListAsync();
@@ -81,7 +83,7 @@ namespace DataAccessLayers.Repository
                     };
                 })
                 .ToList();
-                
+
                 var itemReciveProductId = sellproducts.FirstOrDefault(sp => sp.Id == info.ItemReciveId)?.ProductId;
                 var imageUrl = images.FirstOrDefault(p => p.Id == itemReciveProductId)?.UrlImage;
 
@@ -162,136 +164,112 @@ namespace DataAccessLayers.Repository
 
             await _exchangeInfo.InsertOneAsync(info);
 
-            
+
             foreach (var p in products)
                 p.ExchangeId = session.Id;
             await _exchangeProduct.InsertManyAsync(products);
 
-            
+
             return info;
         }
 
-        public async Task<bool> AcceptExchangeAsync(string exchangeId)
+        public async Task<bool> AcceptExchangeAsync(string exchangeId, string currentUserId)
         {
-            try
+            using (var session = await _mongoClient.StartSessionAsync())
             {
-                var info = await _exchangeInfo.Find(x => x.Id.Equals(exchangeId)).FirstOrDefaultAsync();
+                session.StartTransaction();
 
-                if (info == null) throw new Exception("ExchangeInfo not found"); 
-
-
-                var i = info.ItemGiveId;
-
-                var updateInfoResult = await _exchangeInfo.UpdateOneAsync(
-                    x => x.Id == exchangeId,
-                    Builders<ExchangeInfo>.Update
-                        .Set(x => x.Status, (int)ExchangeStatus.Finish)
-                        .Set(x => x.Datetime, DateTime.UtcNow)
-                );
-                if (updateInfoResult.ModifiedCount == 0) throw new Exception("Failed to update ExchangeInfo");
-
-                var session = await _exchangeSession.Find(x => x.Id == i).FirstOrDefaultAsync();
-                if (session == null) throw new Exception("ExchangeSession not found");
-
-                var updateSessionResult = await _exchangeSession.UpdateOneAsync(
-                    x => x.Id == session.Id,
-                    Builders<ExchangeSession>.Update.Set(x => x.Status, 1)
-                );
-                if (updateSessionResult.ModifiedCount == 0) throw new Exception("Failed to update ExchangeSession");
-
-
-                var sell = await _sellProduct.Find(x => x.Id.Equals(info.ItemReciveId)).FirstOrDefaultAsync();
-                if(sell == null) throw new Exception("SellProduct not found");
-                if(sell.Quantity == 1)
+                try
                 {
-                    var updateSell = await _sellProduct.UpdateOneAsync(
-                    x => x.Id == sell.Id,
-                    Builders<SellProduct>.Update.Set(x => x.IsSell, false)
-                                                .Set(x => x.Quantity, 0 )
-                    );
-                    if (updateSell.ModifiedCount == 0) throw new Exception("Failed to update SellProduct");
-                }
-                //else if (sell.Quantity > 1)
-                //{
-                //    var updateSell = await _sellProduct.UpdateOneAsync(
-                //    x => x.ProductId == sell.ProductId,
-                //    Builders<SellProduct>.Update.Inc(x => x.Quantity, -1)
-                //    );
-                //    if (updateSell.ModifiedCount == 0) throw new Exception("Failed to update SellProduct");
-                //}
-                else if (sell.Quantity > 1)
-                {
-                    var filter = Builders<SellProduct>.Filter.And(
-                        Builders<SellProduct>.Filter.Eq(x => x.Id, sell.Id),
+                    var info = await _exchangeInfo.Find(session, x => x.Id.Equals(exchangeId)).FirstOrDefaultAsync();
+                    if (info == null) throw new Exception("Exchange request not found.");
+
+                    if (info.Status != (int)ExchangeStatus.Pending)
+                    {
+                        throw new Exception("This exchange request cannot be accepted because it is not in a pending state.");
+                    }
+
+                    var sessionInfo = await _exchangeSession.Find(session, x => x.Id == info.ItemGiveId).FirstOrDefaultAsync();
+                    if (sessionInfo == null) throw new Exception("Exchange session data not found.");
+
+                    var sell = await _sellProduct.Find(session, x => x.Id.Equals(info.ItemReciveId)).FirstOrDefaultAsync();
+                    if (sell == null) throw new Exception("The product to be received no longer exists.");
+
+                    if (sell.SellerId != currentUserId)
+                    {
+                        throw new Exception("You are not authorized to accept this exchange request.");
+                    }
+
+                    var sellProductFilter = Builders<SellProduct>.Filter.And(
+                        Builders<SellProduct>.Filter.Eq(x => x.Id, info.ItemReciveId),
                         Builders<SellProduct>.Filter.Gte(x => x.Quantity, 1)
                     );
-                    var update = Builders<SellProduct>.Update.Inc(x => x.Quantity, -1);
-                    var updateResult = await _sellProduct.UpdateOneAsync(filter, update);
+                    var sellProductUpdate = Builders<SellProduct>.Update.Inc(x => x.Quantity, -1);
+                    var updateSellResult = await _sellProduct.UpdateOneAsync(session, sellProductFilter, sellProductUpdate);
 
-                    if (updateResult.ModifiedCount == 0) throw new Exception("Unable to process the exchange. The product may be out of stock.");
-                }
-                else
-                {
-                    throw new Exception("The product is sold out.");
-                }
+                    if (updateSellResult.ModifiedCount == 0)
+                    {
+                        throw new Exception("Unable to process the exchange. The requested product may be out of stock or has been exchanged by another user.");
+                    }
 
-                var receiverId = sell.SellerId;
-                var receiverProductId = sell.ProductId;
+                    var exchangeProducts = await _exchangeProduct.Find(session, x => x.ExchangeId == sessionInfo.Id).ToListAsync();
+                    foreach (var ep in exchangeProducts)
+                    {
+                        var userProductFilter = Builders<UserProduct>.Filter.And(
+                            Builders<UserProduct>.Filter.Eq(x => x.CollectorId, info.BuyerId),
+                            Builders<UserProduct>.Filter.Eq(x => x.Id, ep.ProductExchangeId),
+                            Builders<UserProduct>.Filter.Gte(x => x.Quantity, ep.QuantityProductExchange)
+                        );
+                        var userProductUpdate = Builders<UserProduct>.Update.Inc(x => x.Quantity, -ep.QuantityProductExchange);
+                        var updateUserProductResult = await _userProduct.UpdateOneAsync(session, userProductFilter, userProductUpdate);
 
-                var exchangeProducts = await _exchangeProduct.Find(x => x.ExchangeId == session.Id).ToListAsync();
-                foreach (var ep in exchangeProducts)
-                {
-                   var filter = Builders<UserProduct>.Filter.Where(x =>
-                        x.CollectorId == info.BuyerId && x.Id == ep.ProductExchangeId);
-                   var existing = await _userProduct.Find(filter).FirstOrDefaultAsync();
+                        if (updateUserProductResult.ModifiedCount == 0)
+                        {
+                            throw new Exception($"Not enough quantity for the product being offered: {ep.ProductExchangeId}");
+                        }
+                    }
 
-                    if (existing == null)
-                        throw new Exception($"UserProduct not found for productId: {ep.ProductExchangeId}");
+                    await UpdateUserProduct(session, info.BuyerId, sell.ProductId, 1);
+                    foreach (var ep in exchangeProducts)
+                    {
+                        var userProductToGive = await _userProduct.Find(session, x => x.Id == ep.ProductExchangeId).FirstOrDefaultAsync();
+                        if (userProductToGive == null)
+                        {
+                            throw new Exception($"Could not find the user product with ID {ep.ProductExchangeId} that was offered.");
+                        }
 
-                    if (existing.Quantity < ep.QuantityProductExchange)
-                        throw new Exception($"Not enough quantity for productId: {ep.ProductExchangeId}");
+                        await UpdateUserProduct(session, sell.SellerId, userProductToGive.ProductId, ep.QuantityProductExchange);
+                    }
 
-                    var update = await _userProduct.UpdateOneAsync(
-                        filter,
-                        Builders<UserProduct>.Update.Inc(x => x.Quantity, -ep.QuantityProductExchange)
+                    await _exchangeSession.UpdateOneAsync(session, x => x.Id == sessionInfo.Id, Builders<ExchangeSession>.Update.Set(x => x.Status, 1));
+                    await _exchangeInfo.UpdateOneAsync(session, x => x.Id == exchangeId, Builders<ExchangeInfo>.Update
+                        .Set(x => x.Status, (int)ExchangeStatus.Finish)
+                        .Set(x => x.Datetime, DateTime.UtcNow)
                     );
-                    if (update.ModifiedCount == 0)
-                        throw new Exception($"Failed to update quantity for productId: {ep.ProductExchangeId}");
-                }
 
-                await UpdateUserProduct(info.BuyerId, receiverProductId, 1);
-                foreach (var ep in exchangeProducts)
+                    await session.CommitTransactionAsync();
+                    return true;
+                }
+                catch (Exception ex)
                 {
-                    var pro = await _userProduct.Find(x => x.Id.Equals(ep.ProductExchangeId)).FirstOrDefaultAsync();
-                    await UpdateUserProduct(receiverId, pro.ProductId, ep.QuantityProductExchange);
+                    await session.AbortTransactionAsync();
+                    throw new Exception($"Exchange failed and all changes were rolled back. Reason: {ex.Message}");
                 }
-
-                return true;
             }
-            catch(Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            
         }
 
-
-        private async Task UpdateUserProduct(string userId, string productId, int quantity)
+        private async Task UpdateUserProduct(IClientSessionHandle session, string userId, string productId, int quantity)
         {
-            
-            var productInBox = await _productInMangaBox.Find(p => p.ProductId.Equals(productId)).FirstOrDefaultAsync();
-            if (productInBox == null) throw new Exception("Not found productInBox");
+            var productInBox = await _productInMangaBox.Find(session, p => p.ProductId.Equals(productId)).FirstOrDefaultAsync();
+            if (productInBox == null) throw new Exception($"ProductInMangaBox not found for ProductId: {productId}");
 
-            
-            var mangaBox = await _mangaBox.Find(m => m.Id.Equals(productInBox.MangaBoxId)).FirstOrDefaultAsync();
-            if (mangaBox == null) throw new Exception("Not found mangaBox");
+            var mangaBox = await _mangaBox.Find(session, m => m.Id.Equals(productInBox.MangaBoxId)).FirstOrDefaultAsync();
+            if (mangaBox == null) throw new Exception($"MangaBox not found for ID: {productInBox.MangaBoxId}");
 
-            
             var collectionId = mangaBox.CollectionTopicId;
 
-            
             var userCollection = await _userCollection
-                .Find(uc => uc.UserId.Equals(userId) && uc.CollectionId.Equals(collectionId))
+                .Find(session, uc => uc.UserId.Equals(userId) && uc.CollectionId.Equals(collectionId))
                 .FirstOrDefaultAsync();
 
             if (userCollection == null)
@@ -301,20 +279,16 @@ namespace DataAccessLayers.Repository
                     CollectionId = collectionId,
                     UserId = userId
                 };
-                await _userCollection.InsertOneAsync(userCollection);
+                await _userCollection.InsertOneAsync(session, userCollection);
             }
 
-            userCollection = await _userCollection
-                .Find(uc => uc.UserId.Equals(userId) && uc.CollectionId.Equals(collectionId))
-                .FirstOrDefaultAsync();
-
-            // Bước 5: Tiếp tục thêm hoặc cập nhật UserProduct
             var filter = Builders<UserProduct>.Filter.Where(x => x.CollectorId.Equals(userId) && x.ProductId.Equals(productId));
-            var existing = await _userProduct.Find(filter).FirstOrDefaultAsync();
+            var existing = await _userProduct.Find(session, filter).FirstOrDefaultAsync();
 
             if (existing != null)
             {
                 await _userProduct.UpdateOneAsync(
+                    session,
                     filter,
                     Builders<UserProduct>.Update.Inc(x => x.Quantity, quantity)
                 );
@@ -329,12 +303,9 @@ namespace DataAccessLayers.Repository
                     CollectionId = userCollection.Id,
                     CollectedAt = DateTime.UtcNow
                 };
-                await _userProduct.InsertOneAsync(newUserProduct);
+                await _userProduct.InsertOneAsync(session, newUserProduct);
             }
         }
-
-
-
 
         public async Task<bool> CancelExchangeAsync(string exchangeId, string userId)
         {
@@ -399,7 +370,7 @@ namespace DataAccessLayers.Repository
 
 
             var sell = await _sellProduct.Find(x => x.Id.Equals(info.ItemReciveId)).FirstOrDefaultAsync();
-            if (sell == null || sell.SellerId != userId)  throw new Exception("You do not have the right to reject");
+            if (sell == null || sell.SellerId != userId) throw new Exception("You do not have the right to reject");
 
             if (info.Status != (int)ExchangeStatus.Pending) throw new Exception("Reject failed");
 

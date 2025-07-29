@@ -11,7 +11,5 @@ namespace DataAccessLayers.Interface
     public interface IProductFavoriteRepository : IGenericRepository<ProductFavorite>
     {
         Task<List<CollectionProductsDto>> GetAllWithDetailsAsync(string userId);
-        Task<bool> CreateAsync(string userId, string userProductId);
-        Task<bool> DeleteAsync(string favoriteId);
     }
 }

@@ -47,9 +47,9 @@ namespace DataAccessLayers.Repository
             }
         }
 
-        public async Task<ChangePasswordResult> ChangePasswordAsync(ChangePasswordDto dto)
+        public async Task<ChangePasswordResult> ChangePasswordAsync(string userId,ChangePasswordDto dto)
         {
-            var filter = Builders<User>.Filter.Eq(x => x.Id, dto.UserId);
+            var filter = Builders<User>.Filter.Eq(x => x.Id, userId);
             var update = await _users.UpdateOneAsync(filter, Builders<User>.Update.Set(x => x.Password, dto.NewPassword));
 
             if (update.ModifiedCount == 0)

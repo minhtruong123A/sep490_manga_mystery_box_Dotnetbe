@@ -15,6 +15,6 @@ namespace DataAccessLayers.Interface
         Task<User?> GetSystemAccountByAccountName(string accountName);
         Task<User?> GetByEmailAsync(string email);
         Task DeleteByEmailAsync(string email);
-        Task<ChangePasswordResult> ChangePasswordAsync(ChangePasswordDto dto);
+        Task<ChangePasswordResult> ChangePasswordAsync(string userId, ChangePasswordDto dto);
     }
 }

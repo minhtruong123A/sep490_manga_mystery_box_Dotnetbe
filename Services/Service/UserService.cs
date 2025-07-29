@@ -90,7 +90,7 @@ namespace Services.Service
                 return ChangePasswordResult.PasswordMismatch;
             }
             dto.NewPassword = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
-            return await _uniUnitOfWork.UserRepository.ChangePasswordAsync(dto);
+            return await _uniUnitOfWork.UserRepository.ChangePasswordAsync(userId,dto);
         }
 
         public async Task<UserUpdateResponseDto> UpdateProfileAsync(IFormFile file, string userId, UserUpdateDto dto)

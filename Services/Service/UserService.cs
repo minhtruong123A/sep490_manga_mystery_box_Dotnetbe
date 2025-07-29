@@ -41,8 +41,14 @@ namespace Services.Service
         //get profile by user ID
         public async Task<UserInformationDto> GetUserByIdAsync(string id)
         {
+            var userBanks = await _uniUnitOfWork.UserBankRepository.GetAllAsync();
+            var accountBank = userBanks.Where(x=>x.UserId.Equals(id)).FirstOrDefault();
+
             var user = await _uniUnitOfWork.UserRepository.GetByIdAsync(id);
             var userDto = _mapper.Map<UserInformationDto>(user);
+            userDto.BankId = accountBank.BankId;
+            userDto.Banknumber = accountBank.BankNumber;
+            userDto.AccountBankName = accountBank.AccountBankName;
             return userDto;
         }
 

@@ -1,6 +1,9 @@
-﻿using BusinessObjects.Dtos.Product;
+﻿using BusinessObjects;
+using AutoMapper;
+using BusinessObjects.Dtos.Product;
 using DataAccessLayers.Interface;
 using DataAccessLayers.Repository;
+using Services.AutoMapper;
 using Services.Helper.Supabase;
 using Services.Interface;
 using System;
@@ -15,11 +18,14 @@ namespace Services.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISupabaseStorageHelper _supabaseStorageHelper;
+        private readonly IImageService _imageService;
+        private readonly IMapper _mapper;
 
-        public ProductService(IUnitOfWork unitOfWork, ISupabaseStorageHelper supabaseStorageHelper)
+        public ProductService(IUnitOfWork unitOfWork, ISupabaseStorageHelper supabaseStorageHelper, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _supabaseStorageHelper = supabaseStorageHelper;
+            _mapper = mapper;
         }
 
         public async Task<ProductWithRarityDto?> GetProductWithRarityByIdAsync(string productId)
@@ -37,7 +43,19 @@ namespace Services.Service
             return dto;
         }
         public async Task<List<ProductWithRarityForModeratorDto>> GetAllProductsWithRarityAsync() => await _unitOfWork.ProductRepository.GetAllProductsWithRarityAsync();
+        public async Task<bool> CreateProductAsync(ProductCreateDto dto)
+        {
+            var urlImage = await _imageService.UploadModeratorProductOrMysteryBoxImageAsync(dto.UrlImage);
+            var newProduct = _mapper.Map<Product>(dto);
+            newProduct.UrlImage = urlImage;
+            newProduct.CreatedAt = DateTime.Now;
+            newProduct.UpdatedAt = DateTime.Now;
+            newProduct.Is_Block=false;
+            await _unitOfWork.ProductRepository.AddAsync(newProduct);
+            await _unitOfWork.SaveChangesAsync();
+            return true;
 
+        }
         public async Task<int> changeStatusProduct(string id)
         {
             var product =  await _unitOfWork.ProductRepository.GetByIdAsync(id);

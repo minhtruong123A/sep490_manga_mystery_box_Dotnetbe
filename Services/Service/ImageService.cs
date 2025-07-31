@@ -235,30 +235,97 @@ namespace Services.Service
             if (file == null || file.Length == 0) throw new Exception("No file uploaded");
 
             var fileName = file.FileName;
-            if (!IsValidSystemProductFileName(fileName))
-            {
-                throw new Exception(
-                    "Invalid file name format.\n" +
-                    "Accepted formats:\n" +
-                    "- '[Rarity]CardNo[Number][MangaName].png' (e.g., 'RareCardNo2OnePiece.png')\n" +
-                    "- '[MangaName]_Boxset.png' (e.g., 'TokyoGhoul_Boxset.png')\n\n" +
-                    "Rarity must be one of: Common, Uncommon, Rare, Epic, Legendary.\n" +
-                    "Number must be digits only.\n" +
-                    "MangaName must be alphanumeric (no spaces or special characters)."
-                );
-            }    
 
-            var uploadedPath = await _supabaseStorageHelper.UploadSystemProductImageAsync(file);
+            var finalFileName = await GenerateNextFileNameAsync(fileName);
+
+            //if (!IsValidSystemProductFileName(fileName))
+            //{
+            //    throw new Exception(
+            //        "Invalid file name format.\n" +
+            //        "Accepted formats:\n" +
+            //        "- '[Rarity]CardNo[Number][MangaName].png' (e.g., 'RareCardNo2OnePiece.png')\n" +
+            //        "- '[MangaName]_Boxset.png' (e.g., 'TokyoGhoul_Boxset.png')\n\n" +
+            //        "Rarity must be one of: Common, Uncommon, Rare, Epic, Legendary.\n" +
+            //        "Number must be digits only.\n" +
+            //        "MangaName must be alphanumeric (no spaces or special characters)."
+            //    );
+            //}    
+
+            var uploadedPath = await _supabaseStorageHelper.UploadSystemProductImageAsync(file, finalFileName);
             return uploadedPath;
         }
 
-        private static bool IsValidSystemProductFileName(string fileName)
+        private async Task<string> GenerateNextFileNameAsync(string originalFileName)
         {
-            var cardPattern = @"^(Common|Uncommon|Rare|Epic|Legendary)CardNo\d+[A-Za-z0-9]+\.png$";
-            var boxsetPattern = @"^[A-Za-z0-9]+_Boxset\.png$";
+            var baseName = Path.GetFileNameWithoutExtension(originalFileName);
+            var extension = Path.GetExtension(originalFileName);
+            var cardPatternWithNumber = new Regex(@"^(?<rarity>Common|Uncommon|Rare|Epic|Legendary)CardNo(?<number>\d+)(?<manga>[A-Za-z0-9]+)$", RegexOptions.IgnoreCase);
+            var cardPatternWithoutNumber = new Regex(@"^(?<rarity>Common|Uncommon|Rare|Epic|Legendary)Card(?<manga>[A-Za-z0-9]+)$", RegexOptions.IgnoreCase);
+            var boxsetPattern = new Regex(@"^[A-Za-z0-9]+_Boxset$", RegexOptions.IgnoreCase);
 
-            return Regex.IsMatch(fileName, cardPattern, RegexOptions.IgnoreCase) || Regex.IsMatch(fileName, boxsetPattern, RegexOptions.IgnoreCase);
+            if (cardPatternWithNumber.IsMatch(baseName))
+            {
+                if (await _supabaseStorageHelper.FileExistsAsync(originalFileName))
+                {
+                    throw new Exception($"A file with the name '{originalFileName}' already exists.");
+                }
+                return originalFileName;
+            }
+
+            var match = cardPatternWithoutNumber.Match(baseName);
+            if (match.Success)
+            {
+                var rarity = match.Groups["rarity"].Value;
+                var manga = match.Groups["manga"].Value;
+                var searchPrefix = $"{rarity}CardNo";
+                var existingFiles = await _supabaseStorageHelper.ListFilesByPrefixAsync(searchPrefix);
+                int maxNumber = 0;
+                var numberExtractor = new Regex($@"{searchPrefix}(\d+){manga}{extension}$", RegexOptions.IgnoreCase);
+
+                foreach (var fileName in existingFiles)
+                {
+                    var numberMatch = numberExtractor.Match(fileName);
+                    if (numberMatch.Success && int.TryParse(numberMatch.Groups[1].Value, out int currentNumber))
+                    {
+                        if (currentNumber > maxNumber)
+                        {
+                            maxNumber = currentNumber;
+                        }
+                    }
+                }
+
+                var nextNumber = maxNumber + 1;
+
+                return $"{searchPrefix}{nextNumber}{manga}{extension}";
+            }
+
+            if (boxsetPattern.IsMatch(baseName))
+            {
+                if (await _supabaseStorageHelper.FileExistsAsync(originalFileName))
+                {
+                    throw new Exception($"A file with the name '{originalFileName}' already exists.");
+                }
+                return originalFileName;
+            }
+
+            throw new Exception(
+                               "Invalid file name format.\n" +
+                               "Accepted formats:\n" +
+                               "- '[Rarity]CardNo[Number][MangaName].png' (e.g., 'RareCardNo2OnePiece.png')\n" +
+                               "- '[MangaName]_Boxset.png' (e.g., 'TokyoGhoul_Boxset.png')\n\n" +
+                               "Rarity must be one of: Common, Uncommon, Rare, Epic, Legendary.\n" +
+                               "Number must be digits only.\n" +
+                               "MangaName must be alphanumeric (no spaces or special characters)."
+                           );
         }
+
+        //private static bool IsValidSystemProductFileName(string fileName)
+        //{
+        //    var cardPattern = @"^(Common|Uncommon|Rare|Epic|Legendary)CardNo\d+[A-Za-z0-9]+\.png$";
+        //    var boxsetPattern = @"^[A-Za-z0-9]+_Boxset\.png$";
+
+        //    return Regex.IsMatch(fileName, cardPattern, RegexOptions.IgnoreCase) || Regex.IsMatch(fileName, boxsetPattern, RegexOptions.IgnoreCase);
+        //}
 
         // delete profile image
         public async Task DeleteProfileImageAsync(string oldFileName)

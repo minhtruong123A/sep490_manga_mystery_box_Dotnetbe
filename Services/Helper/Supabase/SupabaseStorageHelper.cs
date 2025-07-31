@@ -88,15 +88,15 @@ namespace Services.Helper.Supabase
             }
         }
 
-        public async Task<string> UploadSystemProductImageAsync(IFormFile file)
+        public async Task<string> UploadSystemProductImageAsync(IFormFile file, string fileNameToUse)
         {
             if (file == null || file.Length == 0) throw new Exception("File is empty.");
 
-            var fileName = Path.GetFileName(file.FileName);
-            var exists = await FileExistsAsync(fileName);
+            //var fileName = Path.GetFileName(file.FileName);
+            var exists = await FileExistsAsync(fileNameToUse);
             if (exists) throw new Exception("A file with the same name already exists.");
 
-            var uploadUrl = $"{_settings.Url}/storage/v1/object/{_settings.Bucket}/{fileName}";
+            var uploadUrl = $"{_settings.Url}/storage/v1/object/{_settings.Bucket}/{fileNameToUse}";
 
             using var content = new StreamContent(file.OpenReadStream());
             content.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
@@ -114,7 +114,7 @@ namespace Services.Helper.Supabase
                 throw new Exception($"Upload failed: {error}");
             }
 
-            return fileName;
+            return fileNameToUse;
         }
 
         public async Task<bool> FileExistsAsync(string fileName)
@@ -126,6 +126,31 @@ namespace Services.Helper.Supabase
 
             var response = await _httpClient.SendAsync(request);
             return response.IsSuccessStatusCode;
+        }
+
+        public async Task<List<string>> ListFilesByPrefixAsync(string prefix)
+        {
+            var listUrl = $"{_settings.Url}/storage/v1/object/list/{_settings.Bucket}";
+            var payload = new { prefix = prefix };
+            var jsonPayload = JsonSerializer.Serialize(payload);
+            var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+            var request = new HttpRequestMessage(HttpMethod.Post, listUrl)
+            {
+                Content = content
+            };
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _settings.ServiceRoleKey);
+
+            var response = await _httpClient.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Failed to list files from Supabase: {error}");
+            }
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+            var fileObjects = JsonSerializer.Deserialize<List<SupabaseFileObject>>(responseBody);
+
+            return fileObjects?.Select(f => f.Name).ToList() ?? new List<string>();
         }
     }
 }

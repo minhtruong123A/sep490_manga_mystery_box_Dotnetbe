@@ -13,6 +13,6 @@ namespace Services.Interface
     {
         Task<bool> CreateReportAsync(ReportCreateDto dto, string userId);
         Task<List<Report>> GetAllAsync();
-        Task<List<Report>> GetAllReportOfUserAsync(string userId);
+        Task<List<ReportResponeDto>> GetAllReportOfUserAsync(string userId);
     }
 }

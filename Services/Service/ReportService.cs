@@ -26,6 +26,6 @@ namespace Services.Service
            return result.ToList();
         }
 
-        public async Task<List<Report>> GetAllReportOfUserAsync(string userId) => await _uniUnitOfWork.ReportRepository.GetAllReportOfUserAsync(userId);
+        public async Task<List<ReportResponeDto>> GetAllReportOfUserAsync(string userId) => await _uniUnitOfWork.ReportRepository.GetAllReportOfUserAsync(userId);
     }
 }

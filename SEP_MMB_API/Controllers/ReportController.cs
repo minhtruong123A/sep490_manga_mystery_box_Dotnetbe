@@ -76,7 +76,7 @@ namespace SEP_MMB_API.Controllers
                     });
                 }
 
-                return Ok(new ResponseModel<List<Report>>
+                return Ok(new ResponseModel<List<ReportResponeDto>>
                 {
                     Success = true,
                     Data = data,

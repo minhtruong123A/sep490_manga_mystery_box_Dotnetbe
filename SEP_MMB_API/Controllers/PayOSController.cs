@@ -73,5 +73,28 @@ namespace SEP_MMB_API.Controllers
                 });
             }
         }
+
+        [HttpPost("check-transactions")]
+        //[ApiExplorerSettings(IgnoreApi = true)]
+        public async Task<IActionResult> CheckAndUpdateTransactions()
+        {
+            try
+            {
+                var result = await _payOSService.CheckAndUpdatePendingTransactionsAsync();
+                return Ok(new
+                {
+                    message = "Checked and updated.",
+                    updated = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, new
+                {
+                    message = "Error occurred.",
+                    error = ex.Message
+                });
+            }
+        }
     }
 }

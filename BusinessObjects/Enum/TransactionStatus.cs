@@ -10,6 +10,7 @@ namespace BusinessObjects.Enum
     {
         Suspect = -1,
         Pending = 1,
-        Success = 2
+        Success = 2,
+        Cancel = 3,
     }
 }

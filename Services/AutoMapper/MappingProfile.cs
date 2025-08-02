@@ -3,6 +3,7 @@ using BusinessObjects;
 using BusinessObjects.Dtos.Comment;
 using BusinessObjects.Dtos.Exchange;
 using BusinessObjects.Dtos.MangaBox;
+using BusinessObjects.Dtos.Product;
 using BusinessObjects.Dtos.ProductInMangaBox;
 using BusinessObjects.Dtos.User;
 using BusinessObjects.Dtos.UserBox;
@@ -39,7 +40,8 @@ namespace Services.AutoMapper
                       .ForMember(dest => dest.Id, opt => opt.Ignore());
             CreateMap<ProductInMangaBoxDto, ProductInMangaBox>()
                       .ForMember(dest => dest.Id, opt => opt.Ignore());
-
+            CreateMap<ProductCreateDto,Product>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
 
             CreateMap<CreateExchangeRequestDto, ExchangeInfo>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())

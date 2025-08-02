@@ -92,6 +92,43 @@ namespace SEP_MMB_API.Controllers
             }
         }
         [Authorize]
+        [HttpPost("create-new-product-for-system")]
+        public async Task<IActionResult> CreateProduct([FromForm] ProductCreateDto dto)
+        {
+            try
+            {
+                var data = await _productService.CreateProductAsync(dto);
+                if (data)
+                {
+                    return Ok(new ResponseModel<string>
+                    {
+                        Success = true,
+                        Data = "Add product succesfully",
+                        Error = null,
+                        ErrorCode = 0
+                    });
+                }
+                return NotFound(new ResponseModel<string>
+                {
+                    Success = false,
+                    Data = null,
+                    Error = "Fail to add product",
+                    ErrorCode = 404
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string>
+                {
+                    Success = false,
+                    Data = null,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
+
+        [Authorize]
         [HttpPatch("block-unlock-product")]
         public async Task<IActionResult> changeStatusProduct(string id)
         {

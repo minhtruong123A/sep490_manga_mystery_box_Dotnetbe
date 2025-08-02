@@ -32,9 +32,6 @@ builder.Services.Configure<PayOSConfig>(builder.Configuration.GetSection("PayOS"
 var config = builder.Configuration.GetSection("PayOS").Get<PayOSConfig>();
 builder.Services.AddSingleton(new PayOS(config.ClientId, config.ApiKey, config.ChecksumKey));
 
-//inject PayOSConfig
-builder.Services.Configure<PayOSConfig>(builder.Configuration.GetSection("PayOS"));
-
 //Supabase config
 builder.Services.Configure<SupabaseSettings>(
     builder.Configuration.GetSection("Supabase")
@@ -180,6 +177,7 @@ builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
 builder.Services.AddScoped<IAuctionResultRepository, AuctionResultRepository>();
 builder.Services.AddScoped<IAuctionPaymentSessionRepository, AuctionPaymentSessionRepository>();
 builder.Services.AddScoped<ITransactionFeeRepository, TransactionFeeRepository>();
+builder.Services.AddScoped<IRarityRepository, RarityRepository>();
 
 //UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

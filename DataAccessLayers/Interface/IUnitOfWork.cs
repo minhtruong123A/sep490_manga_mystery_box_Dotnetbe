@@ -40,7 +40,7 @@ namespace DataAccessLayers.Interface
         IAuctionPaymentSessionRepository AuctionPaymentSessionRepository { get; }
         IAuctionResultRepository AuctionResultRepository { get; }
         ITransactionFeeRepository TransactionFeeRepository { get; }
-
+        IRarityRepository RarityRepository { get; }
         Task SaveChangesAsync();
     }
 }

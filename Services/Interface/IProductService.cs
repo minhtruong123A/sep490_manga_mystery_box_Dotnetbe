@@ -11,6 +11,7 @@ namespace Services.Interface
     {
         Task<ProductWithRarityDto?> GetProductWithRarityByIdAsync(string productId);
         Task<List<ProductWithRarityForModeratorDto>> GetAllProductsWithRarityAsync();
+        Task<bool> CreateProductAsync(ProductCreateDto dto);
         Task<int> changeStatusProduct(string id);
     }
 }

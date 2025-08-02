@@ -48,6 +48,8 @@ namespace DataAccessLayers.UnitOfWork
         public IAuctionPaymentSessionRepository _auctionPaymentSessionRepository;
         public IAuctionResultRepository _auctionResultRepository;
         public ITransactionFeeRepository _transactionFeeRepository;
+        public IRarityRepository _rarityRepository;
+
 
 
         public IUserRepository UserRepository => _users ??= new UserRepository(_context);
@@ -81,6 +83,7 @@ namespace DataAccessLayers.UnitOfWork
         public IAuctionPaymentSessionRepository AuctionPaymentSessionRepository => _auctionPaymentSessionRepository ??= new AuctionPaymentSessionRepository(_context);
         public IAuctionResultRepository AuctionResultRepository => _auctionResultRepository ??= new AuctionResultRepository(_context);
         public ITransactionFeeRepository TransactionFeeRepository => _transactionFeeRepository ??= new TransactionFeeRepository(_context);
+        public IRarityRepository RarityRepository => _rarityRepository ??= new RarityRepository(_context);
 
         public UnitOfWork(MongoDbContext context, IOptions<FeeSettings> feeOptions)
         {

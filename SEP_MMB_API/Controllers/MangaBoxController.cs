@@ -123,7 +123,7 @@ namespace SEP_MMB_API.Controllers
                 });
             }
         }
-        [Authorize(Roles = "moderator")]
+        [Authorize]
         [HttpPost("add-product-for-box")]
         public async Task<ActionResult<ResponseModel<string>>> AddProductForBox(string boxId, List<ProductInMangaBoxCreateDto> dtos)
         {

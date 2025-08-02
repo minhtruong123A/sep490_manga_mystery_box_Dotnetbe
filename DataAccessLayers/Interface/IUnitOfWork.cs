@@ -37,6 +37,7 @@ namespace DataAccessLayers.Interface
         IFeedbackRepository FeedbackRepository { get; }
         ISubscriptionRepository SubscriptionRepository { get; }
         IProductFavoriteRepository ProductFavoriteRepository { get; }
+        IRarityRepository RarityRepository { get; }
         Task SaveChangesAsync();
     }
 }

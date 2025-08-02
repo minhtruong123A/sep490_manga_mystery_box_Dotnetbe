@@ -23,8 +23,9 @@ namespace Services.Service
 
         public async Task<bool> CreateFeedbackAsync(string userId,FeedbackCreateDto dto)
         {
-            var exchange = await _unitOfWork.ExchangeRepository.GetByIdAsync(dto.Exchange_infoId);
+            var exchange = await _unitOfWork.ExchangeRepository.GetExchangeInfoById(dto.Exchange_infoId);
             var session = await _unitOfWork.ExchangeSessionRepository.GetByIdAsync(exchange.ItemGiveId);
+            if (session == null) throw new Exception("Session not existed");
             var feedback = new Feedback();
             feedback.UserId = userId;
             feedback.Content = dto.Content;

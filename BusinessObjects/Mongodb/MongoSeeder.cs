@@ -70,7 +70,7 @@ namespace BusinessObjects.Mongodb
             };
 
             var productList = new List<Product>();
-            foreach (var temp in tempProductList)
+            /*foreach (var temp in tempProductList)
             {
                 var rarityId = rarities.First(r => r.Name == temp.RarityName).Id;
                 productList.Add(new Product(temp.Title, rarityId, temp.Description)
@@ -79,7 +79,7 @@ namespace BusinessObjects.Mongodb
                     CreatedAt = now,
                     UpdatedAt = now
                 });
-            }
+            }*/
 
             var productCol = _context.GetCollection<Product>("Product");
             await productCol.InsertManyAsync(productList);

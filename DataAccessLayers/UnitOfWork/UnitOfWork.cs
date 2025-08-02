@@ -42,6 +42,7 @@ namespace DataAccessLayers.UnitOfWork
         public IFeedbackRepository _feedbackRepository;
         public ISubscriptionRepository _subscriptionRepository;
         public IProductFavoriteRepository _favoriteRepository;
+        public IRarityRepository _rarityRepository;
 
 
         public IUserRepository UserRepository => _users ??= new UserRepository(_context);
@@ -72,6 +73,7 @@ namespace DataAccessLayers.UnitOfWork
         public IFeedbackRepository FeedbackRepository => _feedbackRepository ??= new FeedbackRepository(_context);
         public ISubscriptionRepository SubscriptionRepository => _subscriptionRepository ??= new SubscriptionRepository(_context);
         public IProductFavoriteRepository ProductFavoriteRepository => _favoriteRepository ??= new ProductFavoriteRepository(_context);
+        public IRarityRepository RarityRepository => _rarityRepository ??= new RarityRepository(_context);
 
         public UnitOfWork(MongoDbContext context)
         {

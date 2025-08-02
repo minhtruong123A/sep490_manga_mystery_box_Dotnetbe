@@ -21,12 +21,12 @@ namespace Services.Service
 
         public async Task CreateProductInMangaBoxAsync(ProductInMangaBox productInMangaBox) => await _uniUnitOfWork.ProductInMangaBoxRepository.AddAsync(productInMangaBox);
         public async Task<bool> CreateAsync(string boxId,List<ProductInMangaBoxCreateDto> dtos)
-        {
+         {
             var box = await _uniUnitOfWork.MangaBoxRepository.GetByIdAsync(boxId);
             foreach(var dto in dtos)
             {
                 
-                var product = await _uniUnitOfWork.ProductRepository.GetByIdAsync(dto.ProductId);
+                var product = await _uniUnitOfWork.ProductRepository.GetByIdAsync(dto.ProductId.ToString());
                 if (product == null) throw new Exception("Product not exist");
                 if (box.CollectionTopicId.Equals(product.CollectionId)) 
                 {

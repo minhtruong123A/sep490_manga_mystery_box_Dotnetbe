@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 
 namespace Services.Service
 {
@@ -21,11 +22,12 @@ namespace Services.Service
         private readonly IImageService _imageService;
         private readonly IMapper _mapper;
 
-        public ProductService(IUnitOfWork unitOfWork, ISupabaseStorageHelper supabaseStorageHelper, IMapper mapper)
+        public ProductService(IUnitOfWork unitOfWork, ISupabaseStorageHelper supabaseStorageHelper, IMapper mapper, IImageService imageService)
         {
             _unitOfWork = unitOfWork;
             _supabaseStorageHelper = supabaseStorageHelper;
             _mapper = mapper;
+            _imageService = imageService;
         }
 
         public async Task<ProductWithRarityDto?> GetProductWithRarityByIdAsync(string productId)
@@ -45,8 +47,20 @@ namespace Services.Service
         public async Task<List<ProductWithRarityForModeratorDto>> GetAllProductsWithRarityAsync() => await _unitOfWork.ProductRepository.GetAllProductsWithRarityAsync();
         public async Task<bool> CreateProductAsync(ProductCreateDto dto)
         {
+            var rarityId = await _unitOfWork.RarityRepository.GetRarityByNameAsync(dto.RarityName.ToLower());
+
+            if (dto.UrlImage == null)
+            {
+                throw new Exception("Image file is required.");
+            }
+
             var urlImage = await _imageService.UploadModeratorProductOrMysteryBoxImageAsync(dto.UrlImage);
-            var newProduct = _mapper.Map<Product>(dto);
+
+            var newProduct = new Product();
+            newProduct.CollectionId = dto.CollectionId;
+            newProduct.Description = dto.Description;
+            newProduct.Name = dto.Name;
+            newProduct.RarityId = rarityId;
             newProduct.UrlImage = urlImage;
             newProduct.CreatedAt = DateTime.Now;
             newProduct.UpdatedAt = DateTime.Now;

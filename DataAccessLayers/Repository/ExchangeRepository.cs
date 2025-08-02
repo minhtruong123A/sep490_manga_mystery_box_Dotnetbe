@@ -40,7 +40,7 @@ namespace DataAccessLayers.Repository
             _userCollection = context.GetCollection<UserCollection>("UserCollection");
             _mongoClient = mongoClient;
         }
-
+        
         public async Task<List<ExchangeGetAllWithProductDto>> GetExchangesWithProductsByItemReciveIdAsync(string userId)
         {
             var sellproducts = await _sellProduct.Find(x => x.SellerId.Equals(userId)).ToListAsync();
@@ -100,7 +100,11 @@ namespace DataAccessLayers.Repository
                 };
             }).ToList();
         }
-
+        public async Task<ExchangeInfo> GetExchangeInfoById(string id)
+        {
+            var exchangeInfo = await _exchangeInfo.Find(x => x.Id.Equals(id)).FirstOrDefaultAsync();
+            return exchangeInfo;
+        }
         public async Task<List<ExchangeGetAllWithProductDto>> GetExchangesWithProductsOfBuyerAsync(string userId)
         {
             var infos = await _exchangeInfo.Find(x => x.BuyerId == userId).ToListAsync();

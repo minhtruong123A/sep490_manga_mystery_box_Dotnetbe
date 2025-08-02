@@ -22,7 +22,7 @@ namespace SEP_MMB_API.Controllers
         }
         [Authorize]
         [HttpGet("Get-feedback-of-sell-product")]
-        public async Task<ActionResult<ResponseModel<List<Feedback>>>> CreateFeedbackAsync(string sellProductID)
+        public async Task<ActionResult<ResponseModel<List<Feedback>>>> GetFeedbackAsync(string sellProductID)
         {
             try
             {

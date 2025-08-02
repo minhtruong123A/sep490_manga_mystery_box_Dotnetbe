@@ -171,6 +171,7 @@ builder.Services.AddScoped<IUserBankRepository, UserBankRepository>();
 builder.Services.AddScoped<IBankRepository, BankRepository>();
 builder.Services.AddScoped<IExchangeSessionRepository, ExchangeSessionRepository>();
 builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+builder.Services.AddScoped<IRarityRepository, RarityRepository>();
 
 //UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

@@ -75,7 +75,7 @@ namespace SEP_MMB_API.Controllers
         }
 
         [HttpPost("check-transactions")]
-        //[ApiExplorerSettings(IgnoreApi = true)]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<IActionResult> CheckAndUpdateTransactions()
         {
             try

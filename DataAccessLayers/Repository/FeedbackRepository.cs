@@ -28,7 +28,7 @@ namespace DataAccessLayers.Repository
         {
             var exchange_infos = await _exchangeInfo.Find(x => x.ItemReciveId.Equals(sellProductId)).ToListAsync();
 
-            var itemReciveIds = exchange_infos.Select(x => x.ItemReciveId).Distinct().ToList();
+            var itemGiveIds = exchange_infos.Select(x => x.ItemGiveId).Distinct().ToList();
             var sessions = await _exchangeSession.Find(p => itemReciveIds.Contains(p.Id)).ToListAsync();
 
             var feedbackIds = sessions.Select(x => x.FeedbackId).Distinct().ToList();

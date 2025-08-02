@@ -23,7 +23,7 @@ namespace DataAccessLayers.Repository
         {
             var filter = Builders<T>.Filter.Eq("Id", id);
             return await _collection.Find(filter).FirstOrDefaultAsync();
-        }
+        } 
 
         public async Task<IEnumerable<T>> GetAllAsync()
         {
@@ -92,6 +92,40 @@ namespace DataAccessLayers.Repository
         public async Task<List<T>> FilterByAsync(Expression<Func<T, bool>> filter)
         {
             return await _collection.Find(filter).ToListAsync();
+        }
+
+
+
+        public async Task<T?> FindOneAsync(IClientSessionHandle session, Expression<Func<T, bool>> predicate)
+        {
+            return await _collection.Find(session, predicate).FirstOrDefaultAsync();
+        }
+
+        public async Task AddAsync(IClientSessionHandle session, T entity)
+        {
+            await _collection.InsertOneAsync(session, entity);
+        }
+
+        public async Task<T?> GetByIdAsync(IClientSessionHandle session, string id)
+        {
+            var filter = Builders<T>.Filter.Eq("Id", id);
+            return await _collection.Find(session, filter).FirstOrDefaultAsync();
+        }
+
+        public async Task UpdateAsync(IClientSessionHandle session, string id, T entity)
+        {
+            var filter = Builders<T>.Filter.Eq("Id", id);
+            await _collection.ReplaceOneAsync(session, filter, entity);
+        }
+
+        public async Task UpdateFieldAsync(IClientSessionHandle session, Expression<Func<T, bool>> filter, UpdateDefinition<T> update)
+        {
+            await _collection.UpdateOneAsync(session, filter, update);
+        }
+
+        public async Task<IEnumerable<T>> FindAllAsync(IClientSessionHandle session, Expression<Func<T, bool>> predicate)
+        {
+            return await _collection.Find(session, predicate).ToListAsync();
         }
     }
 }

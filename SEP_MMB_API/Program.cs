@@ -20,6 +20,7 @@ using Net.payOS;
 using System.Text.Json.Serialization;
 using Services.Helper.Supabase;
 using MongoDB.Driver;
+using BusinessObjects.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 var devPassword = builder.Configuration["DevSettings:DevPassword"];
@@ -143,6 +144,11 @@ builder.Services.AddSingleton<IMongoClient>(s =>
     new MongoClient(builder.Configuration.GetConnectionString("MongoDb"))
 );
 
+//Feesettings
+builder.Services.Configure<FeeSettings>(
+    builder.Configuration.GetSection("FeeSettings")
+);
+
 //Repository
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -171,6 +177,9 @@ builder.Services.AddScoped<IUserBankRepository, UserBankRepository>();
 builder.Services.AddScoped<IBankRepository, BankRepository>();
 builder.Services.AddScoped<IExchangeSessionRepository, ExchangeSessionRepository>();
 builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+builder.Services.AddScoped<IAuctionResultRepository, AuctionResultRepository>();
+builder.Services.AddScoped<IAuctionPaymentSessionRepository, AuctionPaymentSessionRepository>();
+builder.Services.AddScoped<ITransactionFeeRepository, TransactionFeeRepository>();
 
 //UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -200,6 +209,7 @@ builder.Services.AddScoped<ICollectionService, CollectionService>();
 builder.Services.AddScoped<IBankService, BankService>();
 builder.Services.AddScoped<IMysteryBoxService, MysteryBoxService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+builder.Services.AddScoped<IAuctionSettlementService, AuctionSettlementService>();
 
 //AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

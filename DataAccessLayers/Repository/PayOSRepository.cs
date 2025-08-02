@@ -25,22 +25,32 @@ namespace DataAccessLayers.Repository
 
         public async Task<bool> RechargeWalletAsync(string orderCode, int amount)
         {
-            var transaction = await _transactionCollection
-                .Find(x => x.TransactionCode == orderCode)
-                .FirstOrDefaultAsync();
-            if (transaction == null) return false;
-            var wallet = await _walletCollection
-                .Find(x => x.Id == transaction.WalletId)
-                .FirstOrDefaultAsync();
-            if (wallet == null) return false;
-            if (transaction.Status == 2) return true;
+            try
+            {
+                var transaction = await _transactionCollection.Find(x => x.TransactionCode == orderCode).FirstOrDefaultAsync();
+                if (transaction == null) return false;
 
-            var update = Builders<UseDigitalWallet>.Update.Inc(x => x.Ammount, amount).Set(x => x.IsActive, true);
-            await _walletCollection.UpdateOneAsync(x => x.Id == wallet.Id, update);
-            var updateTransaction = Builders<TransactionHistory>.Update.Set(x => x.Status, 2);
-            await _transactionCollection.UpdateOneAsync(x => x.Id == transaction.Id, updateTransaction);
+                var wallet = await _walletCollection.Find(x => x.Id == transaction.WalletId).FirstOrDefaultAsync();
+                if (wallet == null) return false;
 
-            return true;
+                if (transaction.Status == 2) return true;
+
+                var update = Builders<UseDigitalWallet>.Update
+                    .Inc(x => x.Ammount, amount)
+                    .Set(x => x.IsActive, true);
+                await _walletCollection.UpdateOneAsync(x => x.Id == wallet.Id, update);
+
+                var updateTransaction = Builders<TransactionHistory>.Update.Set(x => x.Status, 2);
+                await _transactionCollection.UpdateOneAsync(x => x.Id == transaction.Id, updateTransaction);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Recharge Error] {ex.Message}");
+                return false;
+            }
         }
+
     }
 }

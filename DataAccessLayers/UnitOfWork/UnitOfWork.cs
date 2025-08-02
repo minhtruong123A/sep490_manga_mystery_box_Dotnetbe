@@ -1,6 +1,8 @@
 ﻿using BusinessObjects.Mongodb;
+using BusinessObjects.Options;
 using DataAccessLayers.Interface;
 using DataAccessLayers.Repository;
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -13,6 +15,7 @@ namespace DataAccessLayers.UnitOfWork
     public class UnitOfWork : IUnitOfWork
     {
         private readonly MongoDbContext _context;
+        private readonly IOptions<FeeSettings> _feeOptions;
         private readonly IMongoClient _mongoClient;
         private IUserRepository _users;
         private IEmailVerificationRepository _emailVerificationRepository;
@@ -42,12 +45,15 @@ namespace DataAccessLayers.UnitOfWork
         public IFeedbackRepository _feedbackRepository;
         public ISubscriptionRepository _subscriptionRepository;
         public IProductFavoriteRepository _favoriteRepository;
+        public IAuctionPaymentSessionRepository _auctionPaymentSessionRepository;
+        public IAuctionResultRepository _auctionResultRepository;
+        public ITransactionFeeRepository _transactionFeeRepository;
 
 
         public IUserRepository UserRepository => _users ??= new UserRepository(_context);
         public IEmailVerificationRepository EmailVerificationRepository => _emailVerificationRepository ??= new EmailVerificationRepository(_context);
         public IMangaBoxRepository MangaBoxRepository => _mangaBoxRepository ??= new MangaBoxRepository(_context);
-        public ISellProductRepository SellProductRepository => _sellProductRepository ??= new SellProductRepository(_context);
+        public ISellProductRepository SellProductRepository => _sellProductRepository ??= new SellProductRepository(_context, _feeOptions);
         public IUserCollectionRepository UserCollectionRepository => _userCollectionRepository ??= new UserCollectionRepository(_context);
         public ICommentRepository CommentRepository => _commentRepository ??= new CommentRepository(_context);
         public IPayOSRepository PayOSRepository => _payosRepository ??= new PayOSRepository(_context);
@@ -72,10 +78,14 @@ namespace DataAccessLayers.UnitOfWork
         public IFeedbackRepository FeedbackRepository => _feedbackRepository ??= new FeedbackRepository(_context);
         public ISubscriptionRepository SubscriptionRepository => _subscriptionRepository ??= new SubscriptionRepository(_context);
         public IProductFavoriteRepository ProductFavoriteRepository => _favoriteRepository ??= new ProductFavoriteRepository(_context);
+        public IAuctionPaymentSessionRepository AuctionPaymentSessionRepository => _auctionPaymentSessionRepository ??= new AuctionPaymentSessionRepository(_context);
+        public IAuctionResultRepository AuctionResultRepository => _auctionResultRepository ??= new AuctionResultRepository(_context);
+        public ITransactionFeeRepository TransactionFeeRepository => _transactionFeeRepository ??= new TransactionFeeRepository(_context);
 
-        public UnitOfWork(MongoDbContext context)
+        public UnitOfWork(MongoDbContext context, IOptions<FeeSettings> feeOptions)
         {
             _context = context;
+            _feeOptions = feeOptions ?? throw new ArgumentNullException(nameof(feeOptions));
         }
 
         public Task SaveChangesAsync() => Task.CompletedTask;

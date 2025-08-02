@@ -13,5 +13,6 @@ namespace Services.Interface
         );
 
         Task<bool> ProcessRechargeAsync(string orderCode, int amount);
+        Task<int> CheckAndUpdatePendingTransactionsAsync();
     }
 }

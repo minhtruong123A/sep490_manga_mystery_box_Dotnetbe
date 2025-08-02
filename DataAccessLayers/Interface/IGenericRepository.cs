@@ -25,5 +25,13 @@ namespace DataAccessLayers.Interface
         Task<T?> GetOneAsync(Expression<Func<T, bool>> expression);
         Task UpdateFieldAsync(Expression<Func<T, bool>> filter, UpdateDefinition<T> update);
         Task<List<T>> FilterByAsync(Expression<Func<T, bool>> filter);
+
+
+        Task<T?> FindOneAsync(IClientSessionHandle session, Expression<Func<T, bool>> predicate);
+        Task AddAsync(IClientSessionHandle session, T entity);
+        Task<T?> GetByIdAsync(IClientSessionHandle session, string id);
+        Task UpdateAsync(IClientSessionHandle session, string id, T entity);
+        Task UpdateFieldAsync(IClientSessionHandle session, Expression<Func<T, bool>> filter, UpdateDefinition<T> update);
+        Task<IEnumerable<T>> FindAllAsync(IClientSessionHandle session, Expression<Func<T, bool>> predicate);
     }
 }

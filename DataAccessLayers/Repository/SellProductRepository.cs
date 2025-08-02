@@ -2,6 +2,8 @@
 using BusinessObjects.Dtos.Product;
 using BusinessObjects.Enum;
 using BusinessObjects.Mongodb;
+using Microsoft.Extensions.Options;
+using BusinessObjects.Options;
 using DataAccessLayers.Interface;
 using DataAccessLayers.Pipelines;
 using MongoDB.Bson;
@@ -12,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 
 namespace DataAccessLayers.Repository
 {
@@ -31,7 +34,9 @@ namespace DataAccessLayers.Repository
         private readonly IMongoCollection<ProductInMangaBox> _productInMangaBoxCollection;
         private readonly IMongoCollection<MangaBox> _mangaBoxCollection;
         private readonly IMongoCollection<TransactionFee> _transactionFeeCollection;
-        public SellProductRepository(MongoDbContext context) : base(context.GetCollection<SellProduct>("SellProduct"))
+        private readonly FeeSettings _feeSettings;
+
+        public SellProductRepository(MongoDbContext context, IOptions<FeeSettings> feeOptions) : base(context.GetCollection<SellProduct>("SellProduct"))
         {
             _sellProductCollection = context.GetCollection<SellProduct>("SellProduct");
             _userProductCollection = context.GetCollection<UserProduct>("User_Product");
@@ -47,6 +52,7 @@ namespace DataAccessLayers.Repository
             _productInMangaBoxCollection = context.GetCollection<ProductInMangaBox>("ProductInMangaBox");
             _mangaBoxCollection = context.GetCollection<MangaBox>("MangaBox");
             _transactionFeeCollection = context.GetCollection<TransactionFee>("TransactionFee");
+            _feeSettings = feeOptions.Value;
         }
 
         public async Task<int> CreateSellProductAsync(SellProductCreateDto dto, string userId)
@@ -389,7 +395,7 @@ namespace DataAccessLayers.Repository
 
         private (double rate, int fee, int net) CalculateFee(int total)
         {
-            double rate = 0.05;
+            double rate = _feeSettings.BuyFeeRate;
             int fee = (int)(total * rate);
             return (rate, fee, total - fee);
         }

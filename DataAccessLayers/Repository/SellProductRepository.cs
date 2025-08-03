@@ -34,15 +34,16 @@ namespace DataAccessLayers.Repository
         private readonly IMongoCollection<ProductInMangaBox> _productInMangaBoxCollection;
         private readonly IMongoCollection<MangaBox> _mangaBoxCollection;
         private readonly IMongoCollection<TransactionFee> _transactionFeeCollection;
+        private readonly IUserAchievementRepository _userAchievementRepository;
         private readonly FeeSettings _feeSettings;
 
-        public SellProductRepository(MongoDbContext context, IOptions<FeeSettings> feeOptions) : base(context.GetCollection<SellProduct>("SellProduct"))
+        public SellProductRepository(MongoDbContext context, IOptions<FeeSettings> feeOptions, IUserAchievementRepository userAchievementRepository) : base(context.GetCollection<SellProduct>("SellProduct"))
         {
             _sellProductCollection = context.GetCollection<SellProduct>("SellProduct");
             _userProductCollection = context.GetCollection<UserProduct>("User_Product");
             _productCollection = context.GetCollection<Product>("Product");
             _userCollection = context.GetCollection<User>("User");
-            _collections = context.GetCollection<Collection>("Collection"); 
+            _collections = context.GetCollection<Collection>("Collection");
             _rarityCollection = context.GetCollection<Rarity>("Rarity");
             _productOrderCollection = context.GetCollection<ProductOrder>("ProductOrder");
             _walletCollection = context.GetCollection<UseDigitalWallet>("UseDigitalWallet");
@@ -53,6 +54,7 @@ namespace DataAccessLayers.Repository
             _mangaBoxCollection = context.GetCollection<MangaBox>("MangaBox");
             _transactionFeeCollection = context.GetCollection<TransactionFee>("TransactionFee");
             _feeSettings = feeOptions.Value;
+            _userAchievementRepository = userAchievementRepository;
         }
 
         public async Task<int> CreateSellProductAsync(SellProductCreateDto dto, string userId)
@@ -363,6 +365,7 @@ namespace DataAccessLayers.Repository
 
             await UpdateUserCollectionAndProductAsync(buyerId, sellProduct.ProductId, quantity);
 
+            /*await _userAchievementRepository.CheckAchievement(buyerId);*/
             return buyerHistory.Id;
         }
 

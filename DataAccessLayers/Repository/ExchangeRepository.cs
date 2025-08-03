@@ -25,9 +25,10 @@ namespace DataAccessLayers.Repository
         private readonly IMongoCollection<ProductInMangaBox> _productInMangaBox;
         private readonly IMongoCollection<MangaBox> _mangaBox;
         private readonly IMongoCollection<UserCollection> _userCollection;
+        private readonly IUserAchievementRepository _userAchievementRepository;
         private readonly IMongoClient _mongoClient;
 
-        public ExchangeRepository(MongoDbContext context, IMongoClient mongoClient) : base(context.GetCollection<ExchangeInfo>("ExchangeInfo"))
+        public ExchangeRepository(MongoDbContext context, IMongoClient mongoClient, IUserAchievementRepository userAchievementRepository) : base(context.GetCollection<ExchangeInfo>("ExchangeInfo"))
         {
             _exchangeInfo = context.GetCollection<ExchangeInfo>("Exchangeinfo");
             _exchangeProduct = context.GetCollection<ExchangeProduct>("ExchangeProduct");
@@ -39,8 +40,9 @@ namespace DataAccessLayers.Repository
             _mangaBox = context.GetCollection<MangaBox>("MangaBox");
             _userCollection = context.GetCollection<UserCollection>("UserCollection");
             _mongoClient = mongoClient;
+            _userAchievementRepository = userAchievementRepository;
         }
-        
+
         public async Task<List<ExchangeGetAllWithProductDto>> GetExchangesWithProductsByItemReciveIdAsync(string userId)
         {
             var sellproducts = await _sellProduct.Find(x => x.SellerId.Equals(userId)).ToListAsync();
@@ -52,7 +54,7 @@ namespace DataAccessLayers.Repository
 
             var infos = await _exchangeInfo.Find(p =>
                 sellIds.Contains(p.ItemReciveId) &&
-                p.Status == (int)ExchangeStatus.Pending
+                p.Status == (int)ExchangeStatus.Pending || p.Status == (int)ExchangeStatus.Finish 
                 ).ToListAsync();
 
             if (!infos.Any()) return [];
@@ -252,6 +254,8 @@ namespace DataAccessLayers.Repository
                     );
 
                     await session.CommitTransactionAsync();
+                    /*await _userAchievementRepository.CheckAchievement(info.BuyerId);
+                    await _userAchievementRepository.CheckAchievement(sell.SellerId);*/
                     return true;
                 }
                 catch (Exception ex)

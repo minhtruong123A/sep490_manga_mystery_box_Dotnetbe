@@ -179,6 +179,9 @@ builder.Services.AddScoped<IAuctionPaymentSessionRepository, AuctionPaymentSessi
 builder.Services.AddScoped<ITransactionFeeRepository, TransactionFeeRepository>();
 builder.Services.AddScoped<IRarityRepository, RarityRepository>();
 builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+builder.Services.AddScoped<IAchievementRepository, AchievementRepository>();
+builder.Services.AddScoped<IRewardRepository, RewardRepository>();
+builder.Services.AddScoped<IUserAchievementRepository, UserAchievementRepository>();
 
 //UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

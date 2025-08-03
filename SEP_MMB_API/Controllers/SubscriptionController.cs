@@ -47,15 +47,15 @@ namespace SEP_MMB_API.Controllers
             }
         }
         [Authorize]
-        [HttpGet("subscription/Get-all-follower")]
-        public async Task<ActionResult<ResponseModel<List<Subscription>>>> GetAllFollower()
+        [HttpGet("subscription/Get-all-followers")]
+        public async Task<ActionResult<ResponseModel<List<SubcriptionFollowerResponeDto>>>> GetAllFollower()
         {
             try
             {
                 var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
                 var response = await _subscriptionService.GetAllFollowerOfUserAsync(account.Id);
 
-                return Ok(new ResponseModel<List<Subscription>>
+                return Ok(new ResponseModel<List<SubcriptionFollowerResponeDto>>
                 {
                     Success = true,
                     Data = response
@@ -72,15 +72,15 @@ namespace SEP_MMB_API.Controllers
             }
         }
         [Authorize]
-        [HttpGet("subscription/Get-all-follow")]
-        public async Task<ActionResult<ResponseModel<List<Subscription>>>> GetAllFollow()
+        [HttpGet("subscription/Get-all-following")]
+        public async Task<ActionResult<ResponseModel<List<SubcriptionFollowResponeDto>>>> GetAllFollow()
         {
             try
             {
                 var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
                 var response = await _subscriptionService.GetAllFollowOfUserAsync(account.Id);
 
-                return Ok(new ResponseModel<List<Subscription>>
+                return Ok(new ResponseModel<List<SubcriptionFollowResponeDto>>
                 {
                     Success = true,
                     Data = response

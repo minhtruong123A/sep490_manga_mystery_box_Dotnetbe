@@ -1,4 +1,5 @@
 ﻿using BusinessObjects;
+using BusinessObjects.Dtos.Subscription;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace DataAccessLayers.Interface
 {
     public interface ISubscriptionRepository : IGenericRepository<Subscription>
     {
-        Task<List<Subscription>> GetAllFollowerOfUserAsync(string userId);
-        Task<List<Subscription>> GetAllFollowOfUserAsync(string userId);
+        Task<List<SubcriptionFollowerResponeDto>> GetAllFollowerOfUserAsync(string userId);
+        Task<List<SubcriptionFollowResponeDto>> GetAllFollowOfUserAsync(string userId);
     }
 }

@@ -57,26 +57,24 @@ namespace DataAccessLayers.Repository
 
         public async Task<int> CreateSellProductAsync(SellProductCreateDto dto, string userId)
         {
-            var userProduct = await _userProductCollection.Find(x => x.Id == dto.UserProductId).FirstOrDefaultAsync();
-            if (userProduct == null || userProduct.CollectorId != userId) throw new Exception("UserProduct not found or not owned by this user.");
-            if (userProduct.Quantity == 0) throw new Exception("Cannot sell. This product is out of stock.");
             if (dto.Quantity <= 0) throw new Exception("Quantity must be greater than 0.");
-            if (dto.Quantity > userProduct.Quantity) throw new Exception("Not enough quantity in inventory.");
-            if (dto.Quantity == userProduct.Quantity)
-            {
-                var update = Builders<UserProduct>.Update.Set(x => x.Quantity, 0);
-                await _userProductCollection.UpdateOneAsync(x => x.Id == userProduct.Id, update);
-            }
-            else
-            {
-                var update = Builders<UserProduct>.Update.Inc(x => x.Quantity, -dto.Quantity);
-                await _userProductCollection.UpdateOneAsync(x => x.Id == userProduct.Id, update);
-            }
+
+            var filter = Builders<UserProduct>.Filter.And(
+                Builders<UserProduct>.Filter.Eq(x => x.Id, dto.UserProductId),
+                Builders<UserProduct>.Filter.Eq(x => x.CollectorId, userId),
+                Builders<UserProduct>.Filter.Gte(x => x.Quantity, dto.Quantity)
+            );
+            var update = Builders<UserProduct>.Update.Inc(x => x.Quantity, -dto.Quantity);
+            var result = await _userProductCollection.UpdateOneAsync(filter, update);
+            if (result.ModifiedCount == 0) throw new Exception("Not enough quantity in inventory or product not found.");
+
+            var updatedUserProduct = await _userProductCollection.Find(x => x.Id == dto.UserProductId).FirstOrDefaultAsync();
+            if (updatedUserProduct == null) throw new Exception("Unexpected error: UserProduct not found after update.");
 
             var ExchangeCode = await GenerateUniqueExchangeCodeAsync();
             var newSellProduct = new SellProduct
             {
-                ProductId = userProduct.ProductId,
+                ProductId = updatedUserProduct.ProductId,
                 SellerId = userId,
                 Quantity = dto.Quantity,
                 Description = dto.Description,
@@ -86,10 +84,12 @@ namespace DataAccessLayers.Repository
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
+
             await _sellProductCollection.InsertOneAsync(newSellProduct);
 
             return ExchangeCode;
         }
+
 
         public async Task<bool> UpdateSellProductAsync(UpdateSellProductDto dto)
         {
@@ -354,8 +354,8 @@ namespace DataAccessLayers.Repository
             var sellerWallet = await GetWalletAsync(seller.WalletId);
 
             var feeInfo = CalculateFee(totalPrice);
-            await ProcessWalletsAsync(buyerWallet, sellerWallet, feeInfo);
             await UpdateSellProductStockAsync(sellProduct, quantity);
+            await ProcessWalletsAsync(buyerWallet, sellerWallet, feeInfo);
 
             var (buyerOrder, buyerHistory, buyerPayment) = await CreateBuyerRecordsAsync(buyerId, sellProduct, totalPrice, buyerWallet.Id);
             var (sellerOrder, sellerHistory, sellerPayment) = await CreateSellerRecordsAsync(seller.Id, buyerId, sellProduct, feeInfo, sellerWallet.Id);

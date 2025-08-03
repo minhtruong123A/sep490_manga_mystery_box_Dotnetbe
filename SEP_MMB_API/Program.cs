@@ -178,6 +178,7 @@ builder.Services.AddScoped<IAuctionResultRepository, AuctionResultRepository>();
 builder.Services.AddScoped<IAuctionPaymentSessionRepository, AuctionPaymentSessionRepository>();
 builder.Services.AddScoped<ITransactionFeeRepository, TransactionFeeRepository>();
 builder.Services.AddScoped<IRarityRepository, RarityRepository>();
+builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
 
 //UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -208,6 +209,7 @@ builder.Services.AddScoped<IBankService, BankService>();
 builder.Services.AddScoped<IMysteryBoxService, MysteryBoxService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<IAuctionSettlementService, AuctionSettlementService>();
+builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 
 //AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

@@ -48,7 +48,7 @@ namespace SEP_MMB_API.Controllers
         }
         [Authorize]
         [HttpGet("subscription/Get-all-follower")]
-        public async Task<ActionResult<ResponseModel<List<Subscription>>>> GetAllFollower([FromBody] SubscriptionCreateDto dto)
+        public async Task<ActionResult<ResponseModel<List<Subscription>>>> GetAllFollower()
         {
             try
             {
@@ -73,7 +73,7 @@ namespace SEP_MMB_API.Controllers
         }
         [Authorize]
         [HttpGet("subscription/Get-all-follow")]
-        public async Task<ActionResult<ResponseModel<List<Subscription>>>> GetAllFollow([FromBody] SubscriptionCreateDto dto)
+        public async Task<ActionResult<ResponseModel<List<Subscription>>>> GetAllFollow()
         {
             try
             {

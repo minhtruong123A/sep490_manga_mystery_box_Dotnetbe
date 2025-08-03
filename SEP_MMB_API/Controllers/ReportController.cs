@@ -57,6 +57,7 @@ namespace SEP_MMB_API.Controllers
                 });
             }
         }
+
         [Authorize(Roles = "user")]
         [HttpGet("get-all-report-of-user")]
         public async Task<IActionResult> GetAllReportOfUserAsync()
@@ -77,6 +78,45 @@ namespace SEP_MMB_API.Controllers
                 }
 
                 return Ok(new ResponseModel<List<ReportResponeDto>>
+                {
+                    Success = true,
+                    Data = data,
+                    Error = null,
+                    ErrorCode = 0
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string>
+                {
+                    Success = false,
+                    Data = null,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
+
+        [Authorize(Roles = "user")]
+        [HttpGet("sales-report")]
+        public async Task<ActionResult<ResponseModel<SalesReportDto>>> GetSalesReportOfUserAsync()
+        {
+            try
+            {
+                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var data = await _reportService.GetSalesReportAsync(account.Id);
+                if (data == null)
+                {
+                    return NotFound(new ResponseModel<string>
+                    {
+                        Success = false,
+                        Data = null,
+                        Error = "No report found for this user.",
+                        ErrorCode = 404
+                    });
+                }
+
+                return Ok(new ResponseModel<SalesReportDto>
                 {
                     Success = true,
                     Data = data,

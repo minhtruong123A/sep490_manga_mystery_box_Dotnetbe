@@ -98,7 +98,7 @@ namespace SEP_MMB_API.Controllers
         }
 
         [Authorize(Roles = "user")]
-        [HttpGet("sales-report")]
+        [HttpGet("get-sales-report-of-user")]
         public async Task<ActionResult<ResponseModel<SalesReportDto>>> GetSalesReportOfUserAsync()
         {
             try

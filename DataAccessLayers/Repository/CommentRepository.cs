@@ -16,11 +16,15 @@ namespace DataAccessLayers.Repository
     {
         private readonly IMongoCollection<Comment> _comments;
         private readonly IMongoCollection<User> _users;
+        private readonly IMongoCollection<SellProduct> _sellProduct;
+        private readonly IMongoCollection<Product> _product;
 
         public CommentRepository(MongoDbContext context) : base(context.GetCollection<Comment>("Comment"))
         {
             _comments = context.GetCollection<Comment>("Comment");
             _users = context.GetCollection<User>("User");
+            _sellProduct = context.GetCollection<SellProduct>("SellProduct");
+            _product = context.GetCollection<Product>("Product");
         }
 
         public async Task<Comment> CreateCommentAsync(string sellProductId, string userId, string content)
@@ -126,6 +130,47 @@ namespace DataAccessLayers.Repository
                 c.SellProductId == productId &&
                 c.Rating == -1
             ).SingleOrDefaultAsync();
+        }
+
+        public async Task<float> GetRatingOfUserAsync(string userId)
+        {
+            var sellProducts = await _sellProduct.Find(x => x.SellerId.Equals(userId)).ToListAsync();
+            var sellProductIds = sellProducts.Select(x=> x.Id).Distinct().ToList();
+
+            var comments = await _comments.Find(c => sellProductIds.Contains(c.SellProductId)).ToListAsync();
+            float total=0;
+            foreach(var comment in comments)
+            {
+                total += comment.Rating;
+            }
+            return (total/comments.Count);
+        }
+
+        public async Task<List<CommentWithUsernameDto>> GetAllCommentProductOfUserAsync(string userId, string productName)
+        {
+            var product = await _product.Find(x => x.Name.Equals(productName)).FirstOrDefaultAsync();
+            var sellProducts = await _sellProduct.Find(x=> x.SellerId.Equals(userId) &&
+                                                           x.ProductId == product.Id).ToListAsync();
+            var sellProductIds = sellProducts.Select(x=>x.Id).Distinct().ToList();
+            var comments = await _comments.Find(c => sellProductIds.Contains(c.SellProductId))
+                                          .SortByDescending(c => c.CreatedAt)
+                                          .ToListAsync();
+            var userIds = comments.Select(c => c.UserId).Distinct().ToList();
+            var users = await _users.Find(u => userIds.Contains(u.Id)).ToListAsync();
+            var userDict = users.ToDictionary(u => u.Id, u => new { u.Username, u.ProfileImage });
+            var result = comments.Select(c => new CommentWithUsernameDto
+            {
+                Id = c.Id,
+                SellProductId = c.SellProductId,
+                Username = userDict.ContainsKey(c.UserId) ? userDict[c.UserId].Username : "Unknown",
+                ProfileImage = userDict.ContainsKey(c.UserId) ? userDict[c.UserId].ProfileImage : null,
+                Content = c.Content,
+                CreatedAt = c.CreatedAt,
+                UpdatedAt = c.UpdatedAt,
+                Status = c.Status
+            }).ToList();
+
+            return result;
         }
     }
 }

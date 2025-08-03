@@ -1,4 +1,5 @@
-﻿using BusinessObjects.Dtos.Comment;
+﻿using BusinessObjects;
+using BusinessObjects.Dtos.Comment;
 using BusinessObjects.Dtos.Schema_Response;
 using DataAccessLayers.Exceptions;
 using DataAccessLayers.Interface;
@@ -155,6 +156,46 @@ namespace SEP_MMB_API.Controllers
                     Error = ex.Message,
                     ErrorCode = 403
                 });
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Error = ex.Message;
+                response.ErrorCode = 400;
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet("get-all-comment-of-sellproduct")]
+        public async Task<ActionResult<ResponseModel<object>>> GetAllCommentProductOfUser(string userId,string productName)
+        {
+            var response = new ResponseModel<object>();
+            try
+            {
+                var comments = await _commentService.GetAllCommentProductOfUserAsync(userId, productName);
+                response.Success = true;
+                response.Data = comments;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Error = ex.Message;
+                response.ErrorCode = 400;
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet("get-rating-of-user")]
+        public async Task<ActionResult<ResponseModel<object>>> GetRatingOfUser(string userId)
+        {
+            var response = new ResponseModel<object>();
+            try
+            {
+                var comments = await _commentService.GetRatingOfUser(userId);
+                response.Success = true;
+                response.Data = comments;
+                return Ok(response);
             }
             catch (Exception ex)
             {

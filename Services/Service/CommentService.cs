@@ -152,6 +152,8 @@ namespace Services.Service
             return Task.FromResult(BadWords.ToList());
         }
 
+        public async Task<List<CommentWithUsernameDto>> GetAllCommentProductOfUserAsync(string userId, string productName) => await _uniUnitOfWork.CommentRepository.GetAllCommentProductOfUserAsync(userId, productName);
+        public async Task<float> GetRatingOfUser(string userId) => await _uniUnitOfWork.CommentRepository.GetRatingOfUserAsync(userId);
         //public Task<List<string>> GetAllAllowedShortWordsAsync()
         //{
         //    return Task.FromResult(AllowedShortWords.ToList());

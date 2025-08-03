@@ -21,6 +21,8 @@ namespace Services.Service
 
         public async Task<bool> CreateAsync(string id,SubscriptionCreateDto dto)
         {
+            var existUser = await _unitOfWork.UserRepository.GetByIdAsync(dto.UserId);
+            if (existUser == null) throw new Exception("User not exist");
             var subscription = new Subscription { FollowerId = id, UserId = dto.UserId, Follow_at = DateTime.Now };
             await _unitOfWork.SubscriptionRepository.AddAsync(subscription);
             await _unitOfWork.SaveChangesAsync();
@@ -28,8 +30,8 @@ namespace Services.Service
             return true;
         }
 
-        public async Task<List<Subscription>> GetAllFollowOfUserAsync(string userId)=> await _unitOfWork.SubscriptionRepository.GetAllFollowOfUserAsync(userId);
+        public async Task<List<SubcriptionFollowResponeDto>> GetAllFollowOfUserAsync(string userId) => await _unitOfWork.SubscriptionRepository.GetAllFollowOfUserAsync(userId);
 
-        public async Task<List<Subscription>> GetAllFollowerOfUserAsync(string userId) => await _unitOfWork.SubscriptionRepository.GetAllFollowerOfUserAsync(userId);
+        public async Task<List<SubcriptionFollowerResponeDto>> GetAllFollowerOfUserAsync(string userId) => await _unitOfWork.SubscriptionRepository.GetAllFollowerOfUserAsync(userId);
     }
 }

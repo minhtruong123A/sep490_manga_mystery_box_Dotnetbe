@@ -90,6 +90,8 @@ namespace Services.Service
                     await _unitOfWork.AuctionResultRepository.UpdateAsync(session, auctionResult.Id, auctionResult);
 
                     await session.CommitTransactionAsync();
+
+                   /* await _unitOfWork.UserAchievementRepository.CheckAchievement(auctionResult.BidderId);*/
                     return true;
                 }
                 catch (Exception ex)

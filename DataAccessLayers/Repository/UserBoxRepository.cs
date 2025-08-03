@@ -21,9 +21,10 @@ namespace DataAccessLayers.Repository
         private readonly IMongoCollection<UserProduct> _userProductCollection;
         private readonly IMongoCollection<Collection> _collectionCollection;
         private readonly IMongoCollection<MysteryBox> _mysteryBoxCollection;
+        private readonly IUserAchievementRepository _userAchievementRepository;
 
         private readonly IMangaBoxRepository _mangaBoxRepository;
-        public UserBoxRepository(MongoDbContext context, IMangaBoxRepository mangaBoxRepository) : base(context.GetCollection<UserBox>("UserBox"))
+        public UserBoxRepository(MongoDbContext context, IMangaBoxRepository mangaBoxRepository, IUserAchievementRepository userAchievementRepository) : base(context.GetCollection<UserBox>("UserBox"))
         {
             _userBoxCollection = context.GetCollection<UserBox>("UserBox");
             _mangaBoxCollection = context.GetCollection<MangaBox>("MangaBox");
@@ -32,6 +33,7 @@ namespace DataAccessLayers.Repository
             _collectionCollection = context.GetCollection<Collection>("Collection");
             _mysteryBoxCollection = context.GetCollection<MysteryBox>("MysteryBox");
             _mangaBoxRepository = mangaBoxRepository;
+            _userAchievementRepository = userAchievementRepository;
         }
 
         public async Task<List<UserBoxGetAllDto>> GetAllWithDetailsAsync(string userId)
@@ -133,6 +135,7 @@ namespace DataAccessLayers.Repository
             userBox.UpdatedAt = DateTime.UtcNow;
             await _userBoxCollection.ReplaceOneAsync(b => b.Id == userBox.Id, userBox);
 
+            /*await _userAchievementRepository.CheckAchievement(userId);*/
             return new ProductResultDto
             {
                 ProductId = selectedProduct.ProductId,

@@ -49,13 +49,16 @@ namespace DataAccessLayers.UnitOfWork
         public IAuctionResultRepository _auctionResultRepository;
         public ITransactionFeeRepository _transactionFeeRepository;
         public IRarityRepository _rarityRepository;
+        public IAchievementRepository _achievementRepository;
+        public IRewardRepository _rewardRepository;
+        public IUserAchievementRepository _userAchievementRepository;
 
 
 
         public IUserRepository UserRepository => _users ??= new UserRepository(_context);
         public IEmailVerificationRepository EmailVerificationRepository => _emailVerificationRepository ??= new EmailVerificationRepository(_context);
         public IMangaBoxRepository MangaBoxRepository => _mangaBoxRepository ??= new MangaBoxRepository(_context);
-        public ISellProductRepository SellProductRepository => _sellProductRepository ??= new SellProductRepository(_context, _feeOptions);
+        public ISellProductRepository SellProductRepository => _sellProductRepository ??= new SellProductRepository(_context, _feeOptions, UserAchievementRepository);
         public IUserCollectionRepository UserCollectionRepository => _userCollectionRepository ??= new UserCollectionRepository(_context);
         public ICommentRepository CommentRepository => _commentRepository ??= new CommentRepository(_context);
         public IPayOSRepository PayOSRepository => _payosRepository ??= new PayOSRepository(_context);
@@ -64,7 +67,7 @@ namespace DataAccessLayers.UnitOfWork
         public ICartRepository CartRepository => _cartRepository ??= new CartRepository(_context);
         public IProductInMangaBoxRepository ProductInMangaBoxRepository => _productInMangaBoxRepository ?? new ProductInMangaBoxRepository(_context);
         public IProductRepository ProductRepository => _productRepository ??= new ProductRepository(_context);
-        public IUserBoxRepository UserBoxRepository => _userBoxRepository ??= new UserBoxRepository(_context, MangaBoxRepository);
+        public IUserBoxRepository UserBoxRepository => _userBoxRepository ??= new UserBoxRepository(_context, MangaBoxRepository, UserAchievementRepository);
         public IUserProductRepository UserProductRepository => _userProductRepository ??= new UserProductRepository(_context);
         public IMysteryBoxRepository MysteryBoxRepository => _mysteryBoxRepository ??= new MysteryBoxRepository(_context);
         public IOrderHistoryRepository OrderHistoryRepository => _orderHistoryRepository ??= new OrderHistoryRepository(_context);
@@ -72,7 +75,7 @@ namespace DataAccessLayers.UnitOfWork
         public IDigitalPaymentSessionRepository DigitalPaymentSessionRepository => _digitalPaymentSessionRepository ??= new DigitalPaymentSessionRepository(_context);
         public IProductOrderRepository productOrderRepository => _productOrderRepository ??= new ProductOrderRepository(_context);
         public IReportRepository ReportRepository => _reportRepository ??= new ReportRepository(_context);
-        public IExchangeRepository ExchangeRepository => _exchangeRepository ??= new ExchangeRepository(_context, _mongoClient);
+        public IExchangeRepository ExchangeRepository => _exchangeRepository ??= new ExchangeRepository(_context, _mongoClient, UserAchievementRepository);
         public IExchangeSessionRepository ExchangeSessionRepository => _exchangeSessionRepository ??= new ExchangeSessionRepository(_context);
         public ICollectionRepository CollectionRepository => _collectionRepository ??= new CollectionRepository(_context);
         public IUserBankRepository UserBankRepository => _userBankRepository ??= new UserBankRepository(_context);
@@ -84,6 +87,9 @@ namespace DataAccessLayers.UnitOfWork
         public IAuctionResultRepository AuctionResultRepository => _auctionResultRepository ??= new AuctionResultRepository(_context);
         public ITransactionFeeRepository TransactionFeeRepository => _transactionFeeRepository ??= new TransactionFeeRepository(_context);
         public IRarityRepository RarityRepository => _rarityRepository ??= new RarityRepository(_context);
+        public IAchievementRepository AchievementRepository => _achievementRepository ??= new AchievementRepository(_context);
+        public IRewardRepository RewardRepository => _rewardRepository ??= new RewardRepository(_context);
+        public IUserAchievementRepository UserAchievementRepository => _userAchievementRepository ??= new UserAchievementRepository(_context);
 
         public UnitOfWork(MongoDbContext context, IOptions<FeeSettings> feeOptions)
         {

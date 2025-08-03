@@ -11,7 +11,7 @@ namespace Services.Interface
     public interface ISubscriptionService
     {
         Task<bool> CreateAsync(string id, SubscriptionCreateDto dto);
-        Task<List<Subscription>> GetAllFollowOfUserAsync(string userId);
-        Task<List<Subscription>> GetAllFollowerOfUserAsync(string userId);
+        Task<List<SubcriptionFollowResponeDto>> GetAllFollowOfUserAsync(string userId);
+        Task<List<SubcriptionFollowerResponeDto>> GetAllFollowerOfUserAsync(string userId);
     }
 }

@@ -62,5 +62,14 @@ namespace DataAccessLayers.Repository
                 };
             }).ToList();
         }
+
+        public async Task<bool> UnfollowAsync(string userId, string followerId)
+        {
+            var subscription = await _subscriptionCollection.Find(x => x.UserId.Equals(userId) && x.FollowerId.Equals(followerId)).FirstOrDefaultAsync();
+            if (subscription == null) throw new Exception("Subscription not exist");
+            var filter = Builders<Subscription>.Filter.Eq(x => x.Id, subscription.Id);
+            var result = await _subscriptionCollection.DeleteOneAsync(filter);
+            return true;
+        }
     }
 }

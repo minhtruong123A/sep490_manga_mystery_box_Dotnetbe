@@ -47,7 +47,7 @@ namespace SEP_MMB_API.Controllers
             }
         }
         [Authorize]
-        [HttpGet("subscription/Get-all-followers")]
+        [HttpGet("subscription/get-all-followers")]
         public async Task<ActionResult<ResponseModel<List<SubcriptionFollowerResponeDto>>>> GetAllFollower()
         {
             try
@@ -72,7 +72,7 @@ namespace SEP_MMB_API.Controllers
             }
         }
         [Authorize]
-        [HttpGet("subscription/Get-all-following")]
+        [HttpGet("subscription/get-all-following")]
         public async Task<ActionResult<ResponseModel<List<SubcriptionFollowResponeDto>>>> GetAllFollow()
         {
             try
@@ -97,6 +97,36 @@ namespace SEP_MMB_API.Controllers
             }
         }
 
-
+        [Authorize]
+        [HttpDelete("subscription/unfollow")]
+        public async Task<ActionResult<ResponseModel<string>>> Unfollow(string userId)
+        {
+            try
+            {
+                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var response = await _subscriptionService.UnfollowAsync(userId,account.Id);
+                if (response) {
+                    return Ok(new ResponseModel<string>
+                    {
+                        Success = true,
+                        Data = "Unfollow succesfull"
+                    });
+                }
+                return BadRequest(new ResponseModel<string>
+                {
+                    Success = false,
+                    Data = "Unfollow failed"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, new ResponseModel<object>
+                {
+                    Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
     }
 }

@@ -33,5 +33,7 @@ namespace Services.Service
         public async Task<List<SubcriptionFollowResponeDto>> GetAllFollowOfUserAsync(string userId) => await _unitOfWork.SubscriptionRepository.GetAllFollowOfUserAsync(userId);
 
         public async Task<List<SubcriptionFollowerResponeDto>> GetAllFollowerOfUserAsync(string userId) => await _unitOfWork.SubscriptionRepository.GetAllFollowerOfUserAsync(userId);
+
+        public async Task<bool> UnfollowAsync(string userId, string followerid) => await _unitOfWork.SubscriptionRepository.UnfollowAsync(userId, followerid);
     }
 }

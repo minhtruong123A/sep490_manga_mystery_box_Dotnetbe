@@ -23,11 +23,15 @@ namespace Services.Service
 
         public async Task<bool> CreateFeedbackAsync(string userId,FeedbackCreateDto dto)
         {
+            
             var exchange = await _unitOfWork.ExchangeRepository.GetExchangeInfoById(dto.Exchange_infoId);
+            var sellproduct = await _unitOfWork.SellProductRepository.GetByIdAsync(exchange.ItemReciveId);
+            var seller = await _unitOfWork.UserRepository.GetByIdAsync(sellproduct.SellerId);
             var session = await _unitOfWork.ExchangeSessionRepository.GetByIdAsync(exchange.ItemGiveId);
             if (session == null) throw new Exception("Session not existed");
+            if (seller.Id.Equals(userId)) throw new Exception("You don't have permision feedback for this exchange");
             var feedback = new Feedback();
-            feedback.UserId = userId;
+            feedback.UserId = exchange.BuyerId;
             feedback.Content = dto.Content;
             feedback.Rating = dto.Rating;
             feedback.CreateAt = DateTime.Now;
@@ -43,6 +47,6 @@ namespace Services.Service
 
         }
 
-        public async Task<List<Feedback>> GetAllFeedbackOfProductSaleAsync(string sellproductId) => await _unitOfWork.FeedbackRepository.GetAllFeedbackOfProductSaleAsync(sellproductId);
+        public async Task<List<FeedbackResponeDto>> GetAllFeedbackOfProductSaleAsync(string sellProductId) => await _unitOfWork.FeedbackRepository.GetAllFeedbackOfProductSaleAsync(sellProductId);
     }
 }

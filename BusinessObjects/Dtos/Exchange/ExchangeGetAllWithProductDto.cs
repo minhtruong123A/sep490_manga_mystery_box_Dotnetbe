@@ -15,7 +15,7 @@ namespace BusinessObjects.Dtos.Exchange
         public string ItemGiveId { get; set; }
         public int Status { get; set; }
         public DateTime Datetime { get; set; }
-
+        public bool IsFeedback  { get; set; }
         public List<ExchangeProductDetailDto> Products { get; set; }
     }
 }

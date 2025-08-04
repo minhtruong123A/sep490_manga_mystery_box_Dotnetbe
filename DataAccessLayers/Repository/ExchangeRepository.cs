@@ -61,6 +61,7 @@ namespace DataAccessLayers.Repository
 
             await RejectIfExpiredAsync(infos);
             var sessionIds = infos.Select(x => x.ItemGiveId).Distinct().ToList();
+            var exchangeSessions = await _exchangeSession.Find(x => sessionIds.Contains(x.Id)).ToListAsync();
             var eproducts = await _exchangeProduct.Find(p => sessionIds.Contains(p.ExchangeId)).ToListAsync();
             var eproductIds = eproducts.Select(x => x.ProductExchangeId).Distinct().ToList();
             var uproducts = await _userProduct.Find(p => eproductIds.Contains(p.Id)).ToListAsync();
@@ -88,6 +89,8 @@ namespace DataAccessLayers.Repository
 
                 var itemReciveProductId = sellproducts.FirstOrDefault(sp => sp.Id == info.ItemReciveId)?.ProductId;
                 var imageUrl = images.FirstOrDefault(p => p.Id == itemReciveProductId)?.UrlImage;
+                var exchangeSession = exchangeSessions.FirstOrDefault(x => x.Id.Equals(info.ItemGiveId));
+                var isFeedback = exchangeSession.FeedbackId.Any();
 
                 return new ExchangeGetAllWithProductDto
                 {
@@ -98,6 +101,7 @@ namespace DataAccessLayers.Repository
                     ItemGiveId = info.ItemGiveId,
                     Status = info.Status,
                     Datetime = info.Datetime,
+                    IsFeedback = isFeedback,
                     Products = productList
                 };
             }).ToList();
@@ -120,6 +124,7 @@ namespace DataAccessLayers.Repository
 
 
             var sessionIds = infos.Select(x => x.ItemGiveId).Distinct().ToList();
+            var exchangeSessions = await _exchangeSession.Find(x => sessionIds.Contains(x.Id)).ToListAsync();
             var eproducts = await _exchangeProduct.Find(p => sessionIds.Contains(p.ExchangeId)).ToListAsync();
             var eproductIds = eproducts.Select(x => x.ProductExchangeId).Distinct().ToList();
 
@@ -148,6 +153,8 @@ namespace DataAccessLayers.Repository
                 .ToList();
                 var sellProduct = sellProducts.FirstOrDefault(sp => sp.Id == info.ItemReciveId);
                 var reciveProduct = reciveProducts.FirstOrDefault(p => p.Id == sellProduct?.ProductId);
+                var exchangeSession = exchangeSessions.FirstOrDefault(x => x.Id.Equals(info.ItemGiveId));
+                var isFeedback = exchangeSession.FeedbackId.Any();
                 return new ExchangeGetAllWithProductDto
                 {
                     Id = info.Id,
@@ -157,6 +164,7 @@ namespace DataAccessLayers.Repository
                     ItemGiveId = info.ItemGiveId,
                     Status = info.Status,
                     Datetime = info.Datetime,
+                    IsFeedback = isFeedback,
                     Products = productList
                 };
             }).ToList();

@@ -52,5 +52,12 @@ namespace DataAccessLayers.Repository
                 };
             }).ToList();
         }
+
+        public async Task<bool> CheckExistFeedbackAsync(string userId)
+        {
+            var exist = await _feedback.Find(x => x.UserId.Equals(userId)).FirstOrDefaultAsync();
+            if (exist != null) return false;
+            return true;
+        }
     }
 }

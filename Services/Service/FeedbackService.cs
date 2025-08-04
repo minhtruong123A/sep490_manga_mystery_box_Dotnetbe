@@ -30,6 +30,8 @@ namespace Services.Service
             var session = await _unitOfWork.ExchangeSessionRepository.GetByIdAsync(exchange.ItemGiveId);
             if (session == null) throw new Exception("Session not existed");
             if (seller.Id.Equals(userId)) throw new Exception("You don't have permision feedback for this exchange");
+            var existFeedback = await _unitOfWork.FeedbackRepository.CheckExistFeedbackAsync(exchange.BuyerId);
+            if (existFeedback) throw new Exception("Feedback has been received");
             var feedback = new Feedback();
             feedback.UserId = exchange.BuyerId;
             feedback.Content = dto.Content;

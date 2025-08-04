@@ -12,5 +12,6 @@ namespace DataAccessLayers.Interface
     {
         Task<List<SubcriptionFollowerResponeDto>> GetAllFollowerOfUserAsync(string userId);
         Task<List<SubcriptionFollowResponeDto>> GetAllFollowOfUserAsync(string userId);
+        Task<bool> UnfollowAsync(string userId, string followerId);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using BusinessObjects;
+using BusinessObjects.Dtos.Feedback;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,6 @@ namespace DataAccessLayers.Interface
 {
     public interface IFeedbackRepository : IGenericRepository<Feedback>
     {
-        Task<List<Feedback>> GetAllFeedbackOfProductSaleAsync(string sellProductId);
+        Task<List<FeedbackResponeDto>> GetAllFeedbackOfProductSaleAsync(string sellProductId);
     }
 }

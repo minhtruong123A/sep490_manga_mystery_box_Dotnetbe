@@ -11,6 +11,6 @@ namespace Services.Interface
     public interface IFeedbackService
     {
         Task<bool> CreateFeedbackAsync(string userId, FeedbackCreateDto dto);
-        Task<List<Feedback>> GetAllFeedbackOfProductSaleAsync(string sellproductId);
+        Task<List<FeedbackResponeDto>> GetAllFeedbackOfProductSaleAsync(string sellProductId);
     }
 }

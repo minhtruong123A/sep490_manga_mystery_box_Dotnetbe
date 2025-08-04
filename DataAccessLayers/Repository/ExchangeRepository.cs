@@ -90,7 +90,8 @@ namespace DataAccessLayers.Repository
                 var itemReciveProductId = sellproducts.FirstOrDefault(sp => sp.Id == info.ItemReciveId)?.ProductId;
                 var imageUrl = images.FirstOrDefault(p => p.Id == itemReciveProductId)?.UrlImage;
                 var exchangeSession = exchangeSessions.FirstOrDefault(x => x.Id.Equals(info.ItemGiveId));
-                var isFeedback = exchangeSession.FeedbackId.Any();
+                var isFeedback = exchangeSession?.FeedbackId != null && exchangeSession.FeedbackId.Any();
+
 
                 return new ExchangeGetAllWithProductDto
                 {
@@ -154,7 +155,7 @@ namespace DataAccessLayers.Repository
                 var sellProduct = sellProducts.FirstOrDefault(sp => sp.Id == info.ItemReciveId);
                 var reciveProduct = reciveProducts.FirstOrDefault(p => p.Id == sellProduct?.ProductId);
                 var exchangeSession = exchangeSessions.FirstOrDefault(x => x.Id.Equals(info.ItemGiveId));
-                var isFeedback = exchangeSession.FeedbackId.Any();
+                var isFeedback = exchangeSession?.FeedbackId != null && exchangeSession.FeedbackId.Any();
                 return new ExchangeGetAllWithProductDto
                 {
                     Id = info.Id,

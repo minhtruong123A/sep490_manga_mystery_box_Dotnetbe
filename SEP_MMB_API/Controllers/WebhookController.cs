@@ -34,12 +34,12 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                _logger.LogInformation("📥 Raw webhook received: {json}", body.ToString());
+                _logger.LogInformation("Raw webhook received: {json}", body.ToString());
 
                 var request = body.ToObject<PayOSWebhookRequest>();
                 if (request == null || request.Data == null)
                 {
-                    _logger.LogWarning("❌ Invalid webhook structure or missing data");
+                    _logger.LogWarning("Invalid webhook structure or missing data");
                     return BadRequest(new ResponseModel<object>
                     {
                         Data = null,
@@ -55,7 +55,7 @@ namespace SEP_MMB_API.Controllers
 
                 if (!computedSignature.Equals(request.Signature, StringComparison.OrdinalIgnoreCase))
                 {
-                    _logger.LogWarning("❌ Invalid signature for order {OrderCode}", request.Data.OrderCode);
+                    _logger.LogWarning("Invalid signature for order {OrderCode}", request.Data.OrderCode);
                     return BadRequest(new ResponseModel<object>
                     {
                         Data = null,

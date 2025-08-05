@@ -145,6 +145,7 @@ namespace DataAccessLayers.Repository
                 MysteryBoxPrice = mysteryBox?.Price ?? 0,
                 UrlImage = mysteryBox?.UrlImage,
                 CollectionTopic = collection?.Topic ?? "Unknown",
+                TotalProduct = mysteryBox.TotalProduct,
                 Products = productDtos
             };
         }

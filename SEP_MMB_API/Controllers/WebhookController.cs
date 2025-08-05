@@ -29,7 +29,7 @@ namespace SEP_MMB_API.Controllers
             _logger = logger;
         }
 
-        //[ApiExplorerSettings(IgnoreApi = true)]
+        [ApiExplorerSettings(IgnoreApi = true)]
         [HttpPost("payment")]
         public async Task<IActionResult> HandlePaymentWebhook()
         {
@@ -37,12 +37,10 @@ namespace SEP_MMB_API.Controllers
             {
                 _logger.LogInformation("Webhook entered");
                 _logger.LogInformation("Content-Type: {ContentType}", Request.ContentType);
-
                 Request.EnableBuffering();
                 var rawBody = await new StreamReader(Request.Body).ReadToEndAsync();
                 _logger.LogInformation("Raw request body: {Body}", rawBody);
                 Request.Body.Position = 0;
-
                 using var doc = JsonDocument.Parse(rawBody);
                 if (!doc.RootElement.TryGetProperty("data", out var dataElement))
                 {
@@ -64,12 +62,9 @@ namespace SEP_MMB_API.Controllers
                 var checksumKey = _config["PayOS:ChecksumKey"];
                 var computedSignature = HmacHelper.ComputeHmacSHA256(signatureBase, checksumKey);
                 var signature = doc.RootElement.GetProperty("signature").GetString();
-
                 //var signature = doc.RootElement.GetProperty("signature").GetString();
-
                 //var checksumKey = _config["PayOS:ChecksumKey"];
                 //var computedSignature = HmacHelper.ComputeHmacSHA256(rawData, checksumKey);
-
                 //_logger.LogInformation("Raw request.Data: {data}", rawData);
                 //_logger.LogInformation("Incoming signature: {signature}", signature);
                 //_logger.LogInformation("Computed signature: {computed}", computedSignature);

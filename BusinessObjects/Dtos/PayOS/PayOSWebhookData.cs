@@ -2,59 +2,60 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace BusinessObjects.Dtos.PayOS
 {
     public class PayOSWebhookData
     {
-        [JsonProperty("orderCode")]
+        [JsonPropertyName("orderCode")]
         public long OrderCode { get; set; }
 
-        [JsonProperty("amount")]
+        [JsonPropertyName("amount")]
         public int Amount { get; set; }
 
-        [JsonProperty("description")]
+        [JsonPropertyName("description")]
         public string Description { get; set; }
 
-        [JsonProperty("accountNumber")]
+        [JsonPropertyName("accountNumber")]
         public string AccountNumber { get; set; }
 
-        [JsonProperty("reference")]
+        [JsonPropertyName("reference")]
         public string Reference { get; set; }
 
-        [JsonProperty("transactionDateTime")]
+        [JsonPropertyName("transactionDateTime")]
         public string TransactionDateTime { get; set; }
 
-        [JsonProperty("currency")]
+        [JsonPropertyName("currency")]
         public string Currency { get; set; }
 
-        [JsonProperty("paymentLinkId")]
+        [JsonPropertyName("paymentLinkId")]
         public string PaymentLinkId { get; set; }
 
-        [JsonProperty("code")]
+        [JsonPropertyName("code")]
         public string Code { get; set; }
 
-        [JsonProperty("desc")]
+        [JsonPropertyName("desc")]
         public string Desc { get; set; }
 
-        [JsonProperty("counterAccountBankId")]
+        [JsonPropertyName("counterAccountBankId")]
         public string CounterAccountBankId { get; set; }
 
-        [JsonProperty("counterAccountBankName")]
+        [JsonPropertyName("counterAccountBankName")]
         public string CounterAccountBankName { get; set; }
 
-        [JsonProperty("counterAccountName")]
+        [JsonPropertyName("counterAccountName")]
         public string CounterAccountName { get; set; }
 
-        [JsonProperty("counterAccountNumber")]
+        [JsonPropertyName("counterAccountNumber")]
         public string CounterAccountNumber { get; set; }
 
-        [JsonProperty("virtualAccountName")]
+        [JsonPropertyName("virtualAccountName")]
         public string VirtualAccountName { get; set; }
 
-        [JsonProperty("virtualAccountNumber")]
+        [JsonPropertyName("virtualAccountNumber")]
         public string VirtualAccountNumber { get; set; }
     }
+
 }

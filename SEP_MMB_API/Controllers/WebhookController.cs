@@ -7,8 +7,9 @@ using Net.payOS.Types;
 using Services.Helper;
 using Services.Interface;
 using System.Text;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+//using Newtonsoft.Json;
+//using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 
 namespace SEP_MMB_API.Controllers
@@ -30,14 +31,12 @@ namespace SEP_MMB_API.Controllers
 
         //[ApiExplorerSettings(IgnoreApi = true)]
         [HttpPost("payment")]
-        public async Task<IActionResult> HandlePaymentWebhook([FromBody] JObject body)
+        public async Task<IActionResult> HandlePaymentWebhook([FromBody] PayOSWebhookRequest request)
         {
             try
             {
                 _logger.LogInformation("Attempting to parse webhook...");
-
-                var request = body.ToObject<PayOSWebhookRequest>();
-                _logger.LogInformation("Deserialized request: {request}", JsonConvert.SerializeObject(request));
+                _logger.LogInformation("Deserialized request: {request}", JsonSerializer.Serialize(request));
 
                 if (request == null)
                 {
@@ -53,7 +52,7 @@ namespace SEP_MMB_API.Controllers
 
                 if (request.Data == null)
                 {
-                    _logger.LogWarning("request.Data is null. Raw input: {raw}", body.ToString());
+                    _logger.LogWarning("request.Data is null");
                     return BadRequest(new ResponseModel<object>
                     {
                         Data = null,
@@ -64,12 +63,13 @@ namespace SEP_MMB_API.Controllers
                 }
 
                 var checksumKey = _config["PayOS:ChecksumKey"];
-                var rawData = JsonConvert.SerializeObject(request.Data);
+                var rawData = JsonSerializer.Serialize(request.Data);
                 var computedSignature = HmacHelper.ComputeHmacSHA256(rawData, checksumKey);
-                _logger.LogInformation("Parsed request: {request}", JsonConvert.SerializeObject(request));
-                _logger.LogInformation("Parsed request.Data: {data}", JsonConvert.SerializeObject(request?.Data));
-                _logger.LogInformation("Incoming signature: {signature}", request?.Signature);
+
+                _logger.LogInformation("Parsed request.Data: {data}", JsonSerializer.Serialize(request.Data));
+                _logger.LogInformation("Incoming signature: {signature}", request.Signature);
                 _logger.LogInformation("Computed signature: {computed}", computedSignature);
+
                 if (!computedSignature.Equals(request.Signature, StringComparison.OrdinalIgnoreCase))
                 {
                     _logger.LogInformation("Invalid signature for order {OrderCode}", request.Data.OrderCode);
@@ -82,10 +82,11 @@ namespace SEP_MMB_API.Controllers
                     });
                 }
 
-                if (request.Code == "00" && request.Data?.Code == "00")
+                if (request.Code == "00" && request.Data.Code == "00")
                 {
                     var orderCode = request.Data.OrderCode.ToString();
                     var amount = request.Data.Amount;
+
                     if (await _payOSService.HasOrderBeenProcessedAsync(orderCode))
                     {
                         return Ok(new ResponseModel<object>

@@ -1,24 +1,24 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace BusinessObjects.Dtos.PayOS
 {
     public class PayOSWebhookRequest
     {
-        [JsonProperty("code")]
+        [JsonPropertyName("code")]
         public string Code { get; set; }
 
-        [JsonProperty("desc")]
+        [JsonPropertyName("desc")]
         public string Desc { get; set; }
 
-        [JsonProperty("data")]
+        [JsonPropertyName("data")]
         public PayOSWebhookData Data { get; set; }
 
-        [JsonProperty("signature")]
+        [JsonPropertyName("signature")]
         public string Signature { get; set; }
     }
 }

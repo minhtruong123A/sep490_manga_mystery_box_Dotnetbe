@@ -23,10 +23,6 @@ using MongoDB.Driver;
 using BusinessObjects.Options;
 
 var builder = WebApplication.CreateBuilder(args);
-//builder.Services
-//    .AddControllers()
-//    .AddNewtonsoftJson();
-
 var devPassword = builder.Configuration["DevSettings:DevPassword"];
 
 //appsettings.json setting PayOs
@@ -43,13 +39,11 @@ builder.Services.Configure<SupabaseSettings>(
 builder.Services.AddSingleton<ISupabaseStorageHelper, SupabaseStorageHelper>();
 
 // enable Swagger to detect API endpoints
-builder.Services
-    .AddControllers()
-    .AddNewtonsoftJson()
+builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    });
+    }); 
 
 builder.Services.AddEndpointsApiExplorer();
 

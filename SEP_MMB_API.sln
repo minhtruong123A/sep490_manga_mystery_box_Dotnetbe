@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34723.18
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SEP_MMB_API", "SEP_MMB_API\SEP_MMB_API.csproj", "{8C67B785-E34F-4CF2-8058-7C2397AFF04B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SEP_MMB_API", "SEP_MMB_API\SEP_MMB_API.csproj", "{8C67B785-E34F-4CF2-8058-7C2397AFF04B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessObjects", "BusinessObjects\BusinessObjects.csproj", "{E3BDF4F5-BA77-48CE-9896-09009BB51E57}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessObjects", "BusinessObjects\BusinessObjects.csproj", "{E3BDF4F5-BA77-48CE-9896-09009BB51E57}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLayers", "DataAccessLayers\DataAccessLayers.csproj", "{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLayers", "DataAccessLayers\DataAccessLayers.csproj", "{9DD58BF0-D673-4296-AA0F-297C19DA8D7F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Services.csproj", "{20727481-E8BE-431D-B6EA-B7046E6E7275}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "Services\Services.csproj", "{20727481-E8BE-431D-B6EA-B7046E6E7275}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

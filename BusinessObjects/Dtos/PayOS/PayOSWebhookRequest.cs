@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,10 +9,16 @@ namespace BusinessObjects.Dtos.PayOS
 {
     public class PayOSWebhookRequest
     {
+        [JsonProperty("code")]
         public string Code { get; set; }
+
+        [JsonProperty("desc")]
         public string Desc { get; set; }
-        //public bool Success { get; set; }
+
+        [JsonProperty("data")]
         public PayOSWebhookData Data { get; set; }
+
+        [JsonProperty("signature")]
         public string Signature { get; set; }
     }
 }

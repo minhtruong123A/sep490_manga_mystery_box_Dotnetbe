@@ -34,17 +34,31 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                _logger.LogInformation("Raw webhook received: {json}", body.ToString());
+                _logger.LogInformation("Attempting to parse webhook...");
 
                 var request = body.ToObject<PayOSWebhookRequest>();
-                if (request == null || request.Data == null)
+                _logger.LogInformation("Deserialized request: {request}", JsonConvert.SerializeObject(request));
+
+                if (request == null)
                 {
-                    _logger.LogInformation("Invalid webhook structure or missing data");
+                    _logger.LogWarning("request is null");
                     return BadRequest(new ResponseModel<object>
                     {
                         Data = null,
                         Success = false,
-                        Error = "Invalid webhook structure",
+                        Error = "Request is null",
+                        ErrorCode = 400
+                    });
+                }
+
+                if (request.Data == null)
+                {
+                    _logger.LogWarning("request.Data is null. Raw input: {raw}", body.ToString());
+                    return BadRequest(new ResponseModel<object>
+                    {
+                        Data = null,
+                        Success = false,
+                        Error = "Missing data field",
                         ErrorCode = 400
                     });
                 }

@@ -182,6 +182,7 @@ builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
 builder.Services.AddScoped<IAchievementRepository, AchievementRepository>();
 builder.Services.AddScoped<IRewardRepository, RewardRepository>();
 builder.Services.AddScoped<IUserAchievementRepository, UserAchievementRepository>();
+builder.Services.AddScoped<IProductFavoriteRepository, ProductFavoriteRepository>();
 
 //UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -213,6 +214,7 @@ builder.Services.AddScoped<IMysteryBoxService, MysteryBoxService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<IAuctionSettlementService, AuctionSettlementService>();
 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
+builder.Services.AddScoped<IProductFavoriteService, ProductFavoriteService>();
 
 //AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

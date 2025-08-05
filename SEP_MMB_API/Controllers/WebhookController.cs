@@ -31,27 +31,17 @@ namespace SEP_MMB_API.Controllers
 
         //[ApiExplorerSettings(IgnoreApi = true)]
         [HttpPost("payment")]
-        public async Task<IActionResult> HandlePaymentWebhook([FromBody] PayOSWebhookRequest request)
+        public async Task<IActionResult> HandlePaymentWebhook()
         {
             try
             {
-                _logger.LogInformation("Attempting to parse webhook...");
-
-                if (request == null)
+                Request.EnableBuffering();
+                var rawBody = await new StreamReader(Request.Body).ReadToEndAsync();
+                Request.Body.Position = 0;
+                using var doc = JsonDocument.Parse(rawBody);
+                if (!doc.RootElement.TryGetProperty("data", out var dataElement))
                 {
-                    _logger.LogWarning("Request is null");
-                    return BadRequest(new ResponseModel<object>
-                    {
-                        Data = null,
-                        Success = false,
-                        Error = "Request is null",
-                        ErrorCode = 400
-                    });
-                }
-
-                if (request.Data == null)
-                {
-                    _logger.LogWarning("Request.Data is null");
+                    _logger.LogWarning("Missing 'data' property in request");
                     return BadRequest(new ResponseModel<object>
                     {
                         Data = null,
@@ -61,22 +51,18 @@ namespace SEP_MMB_API.Controllers
                     });
                 }
 
+                var rawData = dataElement.GetRawText();
+                var signature = doc.RootElement.GetProperty("signature").GetString();
                 var checksumKey = _config["PayOS:ChecksumKey"];
-
-                var jsonOptions = new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                };
-                var rawData = JsonSerializer.Serialize(request.Data, jsonOptions);
                 var computedSignature = HmacHelper.ComputeHmacSHA256(rawData, checksumKey);
 
                 _logger.LogInformation("Raw request.Data: {data}", rawData);
-                _logger.LogInformation("Incoming signature: {signature}", request.Signature);
+                _logger.LogInformation("Incoming signature: {signature}", signature);
                 _logger.LogInformation("Computed signature: {computed}", computedSignature);
 
-                if (!computedSignature.Equals(request.Signature, StringComparison.OrdinalIgnoreCase))
+                if (!computedSignature.Equals(signature, StringComparison.OrdinalIgnoreCase))
                 {
-                    _logger.LogWarning("Invalid signature for order {OrderCode}", request.Data.OrderCode);
+                    _logger.LogWarning("Invalid signature");
                     return BadRequest(new ResponseModel<object>
                     {
                         Data = null,
@@ -86,11 +72,12 @@ namespace SEP_MMB_API.Controllers
                     });
                 }
 
-                if (request.Code == "00" && request.Data.Code == "00")
+                var request = JsonSerializer.Deserialize<PayOSWebhookRequest>(rawBody);
+                if (request?.Code == "00" && request?.Data?.Code == "00")
                 {
-                    var orderCode = request.Data.OrderCode.ToString();
+                    //var orderCode = request.Data.OrderCode;
                     var amount = request.Data.Amount;
-
+                    var orderCode = request.Data.OrderCode.ToString();
                     if (await _payOSService.HasOrderBeenProcessedAsync(orderCode))
                     {
                         _logger.LogInformation("Order {OrderCode} already processed", orderCode);
@@ -102,7 +89,6 @@ namespace SEP_MMB_API.Controllers
                     }
 
                     var success = await _payOSService.ProcessRechargeAsync(orderCode, amount);
-
                     _logger.LogInformation("Recharge result for order {OrderCode}: {Result}", orderCode, success);
 
                     return Ok(new ResponseModel<object>
@@ -130,7 +116,5 @@ namespace SEP_MMB_API.Controllers
                 });
             }
         }
-
-
     }
 }

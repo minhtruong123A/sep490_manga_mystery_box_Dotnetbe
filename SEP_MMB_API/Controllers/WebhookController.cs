@@ -39,7 +39,7 @@ namespace SEP_MMB_API.Controllers
                 var request = body.ToObject<PayOSWebhookRequest>();
                 if (request == null || request.Data == null)
                 {
-                    _logger.LogWarning("Invalid webhook structure or missing data");
+                    _logger.LogInformation("Invalid webhook structure or missing data");
                     return BadRequest(new ResponseModel<object>
                     {
                         Data = null,
@@ -58,7 +58,7 @@ namespace SEP_MMB_API.Controllers
                 _logger.LogInformation("Computed signature: {computed}", computedSignature);
                 if (!computedSignature.Equals(request.Signature, StringComparison.OrdinalIgnoreCase))
                 {
-                    _logger.LogWarning("Invalid signature for order {OrderCode}", request.Data.OrderCode);
+                    _logger.LogInformation("Invalid signature for order {OrderCode}", request.Data.OrderCode);
                     return BadRequest(new ResponseModel<object>
                     {
                         Data = null,

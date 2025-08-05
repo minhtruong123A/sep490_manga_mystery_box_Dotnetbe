@@ -16,6 +16,7 @@ namespace BusinessObjects.Dtos.MangaBox
         public int MysteryBoxPrice { get; set; }
         public string CollectionTopic { get; set; }
         public string UrlImage { get; set; }
+        public int TotalProduct { get; set; }
         public List<ProductInBoxDto> Products { get; set; }
     }
 }

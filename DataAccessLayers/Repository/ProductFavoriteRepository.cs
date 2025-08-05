@@ -83,13 +83,13 @@ namespace DataAccessLayers.Repository
 
         public async Task<List<CollectionProductsDto>> GetAllWithDetailsAsync(string userId)
         {
-
+            await CheckUserProductValid(userId);
             var productFavorites = await _productFavorite
                 .Find(p => p.User_Id == userId)
                 .ToListAsync();
             var userProductIds = productFavorites.Select(x=>x.User_productId).Distinct().ToList();
             var userProducts = await _userProductCollection
-                .Find(p => userProductIds.Contains(p.Id))
+                .Find(p => userProductIds.Contains(p.Id) )
                 .ToListAsync();
             if (!userProducts.Any())
                 return new List<CollectionProductsDto>();
@@ -124,10 +124,29 @@ namespace DataAccessLayers.Repository
                     UrlImage = hasProduct ? product.UrlImage : null,
                     RarityName = rarityName
                 };
-            }));
+            }).ToList()
+            );
 
             return result.ToList();
 
+        }
+
+        public async Task CheckUserProductValid(string userId)
+        {
+            var productFavorites = await _productFavorite
+                .Find(p => p.User_Id == userId)
+                .ToListAsync();
+            var userProductIds = productFavorites.Select(x => x.User_productId).Distinct().ToList();
+            var userProducts = await _userProductCollection
+                .Find(p => userProductIds.Contains(p.Id))
+                .ToListAsync();
+            var userProductNotValid = userProducts.Where(x => x.Quantity > 0).ToList();
+            if (!userProductNotValid.Any()) return;
+            foreach (var userProduct in userProductNotValid)
+            {
+                var filter = Builders<ProductFavorite>.Filter.Where(x => x.User_productId.Equals(userProduct.Id));
+                await _productFavorite.DeleteOneAsync(filter);
+            }
         }
     }
 }

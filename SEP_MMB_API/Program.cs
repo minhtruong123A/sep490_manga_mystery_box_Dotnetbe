@@ -23,6 +23,10 @@ using MongoDB.Driver;
 using BusinessObjects.Options;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services
+    .AddControllers()
+    .AddNewtonsoftJson();
+
 var devPassword = builder.Configuration["DevSettings:DevPassword"];
 
 //appsettings.json setting PayOs

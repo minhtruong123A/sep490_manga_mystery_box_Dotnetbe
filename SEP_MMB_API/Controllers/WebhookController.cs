@@ -56,24 +56,24 @@ namespace SEP_MMB_API.Controllers
                     });
                 }
 
-                var rawData = dataElement.GetRawText();
-                //var signature = doc.RootElement.GetProperty("signature").GetString();
-                if (!doc.RootElement.TryGetProperty("signature", out var signatureElement))
-                {
-                    _logger.LogWarning("Missing 'signature' property in request");
-                    return BadRequest(new ResponseModel<object>
-                    {
-                        Data = null,
-                        Success = false,
-                        Error = "Missing signature field",
-                        ErrorCode = 400
-                    });
-                }
-                var signature = signatureElement.GetString();
+                var dataDict = JsonSerializer.Deserialize<Dictionary<string, object>>(dataElement.GetRawText());
+                var sortedData = dataDict
+                    .OrderBy(kvp => kvp.Key, StringComparer.Ordinal)
+                    .Select(kvp => $"{kvp.Key}={(kvp.Value?.ToString() ?? "")}");
+                var signatureBase = string.Join("&", sortedData);
                 var checksumKey = _config["PayOS:ChecksumKey"];
-                var computedSignature = HmacHelper.ComputeHmacSHA256(rawData, checksumKey);
+                var computedSignature = HmacHelper.ComputeHmacSHA256(signatureBase, checksumKey);
+                var signature = doc.RootElement.GetProperty("signature").GetString();
 
-                _logger.LogInformation("Raw request.Data: {data}", rawData);
+                //var signature = doc.RootElement.GetProperty("signature").GetString();
+
+                //var checksumKey = _config["PayOS:ChecksumKey"];
+                //var computedSignature = HmacHelper.ComputeHmacSHA256(rawData, checksumKey);
+
+                //_logger.LogInformation("Raw request.Data: {data}", rawData);
+                //_logger.LogInformation("Incoming signature: {signature}", signature);
+                //_logger.LogInformation("Computed signature: {computed}", computedSignature);
+                _logger.LogInformation("Signature base string: {Base}", signatureBase);
                 _logger.LogInformation("Incoming signature: {signature}", signature);
                 _logger.LogInformation("Computed signature: {computed}", computedSignature);
 

@@ -1,5 +1,6 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Dtos.Product;
+using BusinessObjects.Dtos.UserCollection;
 using BusinessObjects.Mongodb;
 using DataAccessLayers.Interface;
 using MongoDB.Driver;
@@ -26,9 +27,63 @@ namespace DataAccessLayers.Repository
             _rarityCollection = context.GetCollection<Rarity>("Rarity");
         }
 
+        public async Task<List<UserCollectionGetAllDto>> GetFavoriteListWithDetailsAsync(string userId)
+        {
+            var productFavorites = await _productFavorite
+                .Find(p => p.User_Id == userId)
+                .ToListAsync();
+            if (!productFavorites.Any()) return [];
+
+            var userProductIds = productFavorites
+                .Select(pf => pf.User_productId)
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct()
+                .ToList();
+            var userProductsAll = await _userProductCollection
+                .Find(up => userProductIds.Contains(up.Id))
+                .ToListAsync();
+            if (!userProductsAll.Any()) return [];
+
+            var userProductsAvailable = userProductsAll
+                .Where(up => up.Quantity > 0)
+                .ToList();
+            var productIds = userProductsAll
+                .Select(up => up.ProductId.Trim())
+                .Distinct()
+                .ToList();
+            var products = await _productCollection
+                .Find(p => productIds.Contains(p.Id.ToString()))
+                .ToListAsync();
+            var productDict = products.ToDictionary(p => p.Id.ToString());
+            var images = userProductsAvailable
+                .Select(up => productDict.TryGetValue(up.ProductId, out var prod)
+                    ? new Collection_sProductsImageDto
+                    {
+                        Id = up.ProductId,
+                        UrlImage = prod.UrlImage
+                    }
+                    : null)
+                .Where(img => img != null)
+                .Take(4)
+                .ToList();
+
+            return new List<UserCollectionGetAllDto>
+            {
+                new UserCollectionGetAllDto
+                {
+                    Id = "FavoriteList",
+                    UserId = userId,
+                    CollectionId = null,
+                    CollectionTopic = "Favorite List",
+                    Image = images,
+                    Count = 0
+                }
+            };
+        }
+
         public async Task<List<CollectionProductsDto>> GetAllWithDetailsAsync(string userId)
         {
-            
+
             var productFavorites = await _productFavorite
                 .Find(p => p.User_Id == userId)
                 .ToListAsync();

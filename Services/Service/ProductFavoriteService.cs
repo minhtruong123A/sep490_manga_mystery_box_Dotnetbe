@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BusinessObjects.Dtos.UserCollection;
 
 namespace Services.Service
 {
@@ -17,6 +18,7 @@ namespace Services.Service
         {
             _unitOfWork = unitOfWork;
         }
+        public async Task<List<UserCollectionGetAllDto>> GetFavoriteListWithDetailsAsync(string userId) => await _unitOfWork.ProductFavoriteRepository.GetFavoriteListWithDetailsAsync(userId);
         public async Task<List<CollectionProductsDto>> GetAllWithDetailsAsync(string userId)=> await _unitOfWork.ProductFavoriteRepository.GetAllWithDetailsAsync(userId);
 
         public async Task<bool> CreateAsync(string userId, string userProductId)
@@ -33,6 +35,6 @@ namespace Services.Service
         {
             await _unitOfWork.ProductFavoriteRepository.DeleteAsync(favoriteId);
             return true;
-        }    
+        }   
     }
 }

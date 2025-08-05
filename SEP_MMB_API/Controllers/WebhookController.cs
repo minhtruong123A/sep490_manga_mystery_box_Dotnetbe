@@ -35,9 +35,14 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
+                _logger.LogInformation("Webhook entered");
+                _logger.LogInformation("Content-Type: {ContentType}", Request.ContentType);
+
                 Request.EnableBuffering();
                 var rawBody = await new StreamReader(Request.Body).ReadToEndAsync();
+                _logger.LogInformation("Raw request body: {Body}", rawBody);
                 Request.Body.Position = 0;
+
                 using var doc = JsonDocument.Parse(rawBody);
                 if (!doc.RootElement.TryGetProperty("data", out var dataElement))
                 {
@@ -52,7 +57,19 @@ namespace SEP_MMB_API.Controllers
                 }
 
                 var rawData = dataElement.GetRawText();
-                var signature = doc.RootElement.GetProperty("signature").GetString();
+                //var signature = doc.RootElement.GetProperty("signature").GetString();
+                if (!doc.RootElement.TryGetProperty("signature", out var signatureElement))
+                {
+                    _logger.LogWarning("Missing 'signature' property in request");
+                    return BadRequest(new ResponseModel<object>
+                    {
+                        Data = null,
+                        Success = false,
+                        Error = "Missing signature field",
+                        ErrorCode = 400
+                    });
+                }
+                var signature = signatureElement.GetString();
                 var checksumKey = _config["PayOS:ChecksumKey"];
                 var computedSignature = HmacHelper.ComputeHmacSHA256(rawData, checksumKey);
 

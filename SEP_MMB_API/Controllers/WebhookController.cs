@@ -36,11 +36,10 @@ namespace SEP_MMB_API.Controllers
             try
             {
                 _logger.LogInformation("Attempting to parse webhook...");
-                _logger.LogInformation("Deserialized request: {request}", JsonSerializer.Serialize(request));
 
                 if (request == null)
                 {
-                    _logger.LogWarning("request is null");
+                    _logger.LogWarning("Request is null");
                     return BadRequest(new ResponseModel<object>
                     {
                         Data = null,
@@ -52,7 +51,7 @@ namespace SEP_MMB_API.Controllers
 
                 if (request.Data == null)
                 {
-                    _logger.LogWarning("request.Data is null");
+                    _logger.LogWarning("Request.Data is null");
                     return BadRequest(new ResponseModel<object>
                     {
                         Data = null,
@@ -63,16 +62,21 @@ namespace SEP_MMB_API.Controllers
                 }
 
                 var checksumKey = _config["PayOS:ChecksumKey"];
-                var rawData = JsonSerializer.Serialize(request.Data);
+
+                var jsonOptions = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+                var rawData = JsonSerializer.Serialize(request.Data, jsonOptions);
                 var computedSignature = HmacHelper.ComputeHmacSHA256(rawData, checksumKey);
 
-                _logger.LogInformation("Parsed request.Data: {data}", JsonSerializer.Serialize(request.Data));
+                _logger.LogInformation("Raw request.Data: {data}", rawData);
                 _logger.LogInformation("Incoming signature: {signature}", request.Signature);
                 _logger.LogInformation("Computed signature: {computed}", computedSignature);
 
                 if (!computedSignature.Equals(request.Signature, StringComparison.OrdinalIgnoreCase))
                 {
-                    _logger.LogInformation("Invalid signature for order {OrderCode}", request.Data.OrderCode);
+                    _logger.LogWarning("Invalid signature for order {OrderCode}", request.Data.OrderCode);
                     return BadRequest(new ResponseModel<object>
                     {
                         Data = null,
@@ -89,6 +93,7 @@ namespace SEP_MMB_API.Controllers
 
                     if (await _payOSService.HasOrderBeenProcessedAsync(orderCode))
                     {
+                        _logger.LogInformation("Order {OrderCode} already processed", orderCode);
                         return Ok(new ResponseModel<object>
                         {
                             Data = new { message = "Order already processed" },
@@ -97,6 +102,8 @@ namespace SEP_MMB_API.Controllers
                     }
 
                     var success = await _payOSService.ProcessRechargeAsync(orderCode, amount);
+
+                    _logger.LogInformation("Recharge result for order {OrderCode}: {Result}", orderCode, success);
 
                     return Ok(new ResponseModel<object>
                     {
@@ -123,6 +130,7 @@ namespace SEP_MMB_API.Controllers
                 });
             }
         }
+
 
     }
 }

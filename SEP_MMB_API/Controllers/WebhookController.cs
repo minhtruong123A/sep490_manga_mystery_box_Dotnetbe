@@ -52,7 +52,10 @@ namespace SEP_MMB_API.Controllers
                 var checksumKey = _config["PayOS:ChecksumKey"];
                 var rawData = JsonConvert.SerializeObject(request.Data);
                 var computedSignature = HmacHelper.ComputeHmacSHA256(rawData, checksumKey);
-
+                _logger.LogInformation("Parsed request: {request}", JsonConvert.SerializeObject(request));
+                _logger.LogInformation("Parsed request.Data: {data}", JsonConvert.SerializeObject(request?.Data));
+                _logger.LogInformation("Incoming signature: {signature}", request?.Signature);
+                _logger.LogInformation("Computed signature: {computed}", computedSignature);
                 if (!computedSignature.Equals(request.Signature, StringComparison.OrdinalIgnoreCase))
                 {
                     _logger.LogWarning("Invalid signature for order {OrderCode}", request.Data.OrderCode);

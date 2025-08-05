@@ -8,6 +8,7 @@ using Services.Helper;
 using Services.Interface;
 using System.Text;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 
 namespace SEP_MMB_API.Controllers
@@ -29,11 +30,24 @@ namespace SEP_MMB_API.Controllers
 
         //[ApiExplorerSettings(IgnoreApi = true)]
         [HttpPost("payment")]
-        public async Task<ActionResult<ResponseModel<object>>> HandlePaymentWebhook([FromBody] PayOSWebhookRequest request)
+        public async Task<IActionResult> HandlePaymentWebhook([FromBody] JObject body)
         {
             try
             {
-                _logger.LogInformation("PayOS Webhook received: {json}", JsonConvert.SerializeObject(request));
+                _logger.LogInformation("📥 Raw webhook received: {json}", body.ToString());
+
+                var request = body.ToObject<PayOSWebhookRequest>();
+                if (request == null || request.Data == null)
+                {
+                    _logger.LogWarning("❌ Invalid webhook structure or missing data");
+                    return BadRequest(new ResponseModel<object>
+                    {
+                        Data = null,
+                        Success = false,
+                        Error = "Invalid webhook structure",
+                        ErrorCode = 400
+                    });
+                }
 
                 var checksumKey = _config["PayOS:ChecksumKey"];
                 var rawData = JsonConvert.SerializeObject(request.Data);
@@ -41,7 +55,7 @@ namespace SEP_MMB_API.Controllers
 
                 if (!computedSignature.Equals(request.Signature, StringComparison.OrdinalIgnoreCase))
                 {
-                    _logger.LogWarning("❌ Invalid signature for order {OrderCode}", request.Data?.OrderCode);
+                    _logger.LogWarning("❌ Invalid signature for order {OrderCode}", request.Data.OrderCode);
                     return BadRequest(new ResponseModel<object>
                     {
                         Data = null,
@@ -55,7 +69,6 @@ namespace SEP_MMB_API.Controllers
                 {
                     var orderCode = request.Data.OrderCode.ToString();
                     var amount = request.Data.Amount;
-
                     if (await _payOSService.HasOrderBeenProcessedAsync(orderCode))
                     {
                         return Ok(new ResponseModel<object>
@@ -78,19 +91,20 @@ namespace SEP_MMB_API.Controllers
                 {
                     Data = null,
                     Success = false,
-                    Error = "Payment failed or system invalid"
+                    Error = "Payment failed or invalid system response"
                 });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "⚠️ Exception while handling PayOS webhook");
+                _logger.LogError(ex, "Exception while handling PayOS webhook");
                 return Ok(new ResponseModel<object>
                 {
                     Data = null,
                     Success = false,
-                    Error = ex.Message
+                    Error = "Internal error: " + ex.Message
                 });
             }
         }
+
     }
 }

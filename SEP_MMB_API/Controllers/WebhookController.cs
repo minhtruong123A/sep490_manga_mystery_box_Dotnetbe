@@ -7,7 +7,7 @@ using Net.payOS.Types;
 using Services.Helper;
 using Services.Interface;
 using System.Text;
-using System.Text.Json;
+using Newtonsoft.Json;
 
 
 namespace SEP_MMB_API.Controllers
@@ -18,81 +18,79 @@ namespace SEP_MMB_API.Controllers
     {
         private readonly IConfiguration _config;
         private readonly IPayOSService _payOSService;
+        private readonly ILogger<WebhookController> _logger;
 
-        public WebhookController(IConfiguration config, IPayOSService payOSService)
+        public WebhookController(IConfiguration config, IPayOSService payOSService, ILogger<WebhookController> logger)
         {
             _config = config;
             _payOSService = payOSService;
+            _logger = logger;
         }
 
         //[ApiExplorerSettings(IgnoreApi = true)]
         [HttpPost("payment")]
-        public async Task<IActionResult> HandlePaymentWebhook([FromBody] JsonElement payload)
+        public async Task<ActionResult<ResponseModel<object>>> HandlePaymentWebhook([FromBody] PayOSWebhookRequest request)
         {
-            Console.WriteLine("Received webhook: ");
-            Console.WriteLine(payload.ToString());
+            try
+            {
+                _logger.LogInformation("PayOS Webhook received: {json}", JsonConvert.SerializeObject(request));
 
-            return Ok();
-            //try
-            //{
-            //    var checksumKey = _config["PayOS:ChecksumKey"];
-            //    var rawData = Newtonsoft.Json.JsonConvert.SerializeObject(request.Data);
-            //    var computedSignature = HmacHelper.ComputeHmacSHA256(rawData, checksumKey);
+                var checksumKey = _config["PayOS:ChecksumKey"];
+                var rawData = JsonConvert.SerializeObject(request.Data);
+                var computedSignature = HmacHelper.ComputeHmacSHA256(rawData, checksumKey);
 
-            //    if (computedSignature != request.Signature)
-            //    {
-            //        return BadRequest(new ResponseModel<object>
-            //        {
-            //            Data = null,
-            //            Success = false,
-            //            Error = "Invalid signature",
-            //            ErrorCode = 400
-            //        });
-            //    }
+                if (!computedSignature.Equals(request.Signature, StringComparison.OrdinalIgnoreCase))
+                {
+                    _logger.LogWarning("❌ Invalid signature for order {OrderCode}", request.Data?.OrderCode);
+                    return BadRequest(new ResponseModel<object>
+                    {
+                        Data = null,
+                        Success = false,
+                        Error = "Invalid signature",
+                        ErrorCode = 400
+                    });
+                }
 
-            //    if (request.Success && request.Data.Code == "00")
-            //    {
-            //        var orderCode = request.Data.OrderCode.ToString();
-            //        var amount = request.Data.Amount;
-            //        var success = await _payOSService.ProcessRechargeAsync(orderCode, amount);
+                if (request.Code == "00" && request.Data?.Code == "00")
+                {
+                    var orderCode = request.Data.OrderCode.ToString();
+                    var amount = request.Data.Amount;
 
-            //        if (!success)
-            //        {
-            //            return BadRequest(new ResponseModel<object>
-            //            {
-            //                Data = null,
-            //                Success = false,
-            //                Error = "Recharge failed.",
-            //                ErrorCode = 400
-            //            });
-            //        }
+                    if (await _payOSService.HasOrderBeenProcessedAsync(orderCode))
+                    {
+                        return Ok(new ResponseModel<object>
+                        {
+                            Data = new { message = "Order already processed" },
+                            Success = true
+                        });
+                    }
 
-            //        return Ok(new ResponseModel<object>
-            //        {
-            //            Data = new { message = "Recharge successful" },
-            //            Success = true,
-            //            Error = null
-            //        });
-            //    }
+                    var success = await _payOSService.ProcessRechargeAsync(orderCode, amount);
 
-            //    return BadRequest(new ResponseModel<object>
-            //    {
-            //        Data = null,
-            //        Success = false,
-            //        Error = "Payment failed or system invalid",
-            //        ErrorCode = 400
-            //    });
-            //}
-            //catch (Exception ex)
-            //{
-            //    return BadRequest(new ResponseModel<object>
-            //    {
-            //        Data = null,
-            //        Success = false,
-            //        Error = ex.Message,
-            //        ErrorCode = 400
-            //    });
-            //}
+                    return Ok(new ResponseModel<object>
+                    {
+                        Data = new { message = success ? "Recharge successful" : "Recharge failed" },
+                        Success = success
+                    });
+                }
+
+                return Ok(new ResponseModel<object>
+                {
+                    Data = null,
+                    Success = false,
+                    Error = "Payment failed or system invalid"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "⚠️ Exception while handling PayOS webhook");
+                return Ok(new ResponseModel<object>
+                {
+                    Data = null,
+                    Success = false,
+                    Error = ex.Message
+                });
+            }
         }
     }
 }

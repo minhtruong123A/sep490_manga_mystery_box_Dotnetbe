@@ -152,5 +152,12 @@ namespace Services.Service
             }
         }
 
+        public async Task<bool> HasOrderBeenProcessedAsync(string orderCode)
+        {
+            var tx = await _unitOfWork.TransactionHistoryRepository
+                .FindOneAsync(x => x.TransactionCode == orderCode && x.Status == 2);
+
+            return tx != null;
+        }
     }
 }

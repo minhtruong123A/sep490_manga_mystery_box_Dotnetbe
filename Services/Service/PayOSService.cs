@@ -56,7 +56,7 @@ namespace Services.Service
                 description,
                 items,
                 cancelUrl: "https://mangamysterybox.vercel.app/failure-payment",
-                returnUrl: $"https://mangamysterybox.vercel.app/success-payment?userId={userId}&orderCode={orderCode}",
+                returnUrl: $"https://mangamysterybox.vercel.app/success-payment?userId={userId}&amount={amount}",
                 expiredAt: expiredAt
             );
 

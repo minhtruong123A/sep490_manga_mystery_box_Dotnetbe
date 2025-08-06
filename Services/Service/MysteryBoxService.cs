@@ -29,7 +29,7 @@ namespace Services.Service
             return uniqueUrls;
         }
 
-        public async Task<List<string>> GetImageUrlsByCollectionIdAsync(string collectionId)
+        public async Task<string> GetImageUrlsByCollectionIdAsync(string collectionId)
         {
             var mangaBoxes = await _unitOfWork.MangaBoxRepository.FindAsync(x => x.CollectionTopicId == collectionId);
             if (mangaBoxes == null || !mangaBoxes.Any()) return null;
@@ -45,7 +45,7 @@ namespace Services.Service
                 .Where(box => !string.IsNullOrWhiteSpace(box.UrlImage))
                 .Select(box => box.UrlImage.Trim())
                 .Distinct()
-                .ToList();
+                .ToString();
 
             return imageUrls.Any() ? imageUrls : null;
         }

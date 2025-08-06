@@ -20,6 +20,7 @@ namespace Services.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IImageService _imageService;
+        private readonly IMysteryBoxService _mysteryBoxService;
         public MangaBoxService(IUnitOfWork unitOfWork, IImageService imageService)
         {
             _unitOfWork = unitOfWork;
@@ -29,7 +30,20 @@ namespace Services.Service
         public async Task<MangaBox> AddAsync(MangaBox mangaBox) => await _unitOfWork.MangaBoxRepository.AddAsync(mangaBox);
         public async Task<bool> CreateNewMangaBoxAsync(MangaBoxCreateDto dto)
         {
-            var url = await _imageService.UploadModeratorProductOrMysteryBoxImageAsync(dto.ImageUrl);
+            var url = await _mysteryBoxService.GetImageUrlsByCollectionIdAsync(dto.CollectionTopicId);
+
+            if (url == null || !url.Any())
+            {
+                if (dto.ImageUrl == null)
+                {
+                    throw new Exception("Don't have any image to create box");
+                }
+
+                url = await _imageService.UploadModeratorProductOrMysteryBoxImageAsync(dto.ImageUrl);
+            }
+
+
+
             var mys = new MysteryBox();
             mys.Id = ObjectId.GenerateNewId().ToString();
             mys.Name = dto.Name;

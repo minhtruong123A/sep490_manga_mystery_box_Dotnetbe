@@ -56,7 +56,9 @@ namespace SEP_MMB_API.Controllers
                     {
                         checkoutUrl = result.checkoutUrl,
                         qrCode = result.qrCode,
-                        orderCode = result.orderCode
+                        orderCode = result.orderCode,
+                        userid = account.Id,
+                        totalAmount = totalAmount,
                     },
                     Success = true,
                     Error = null

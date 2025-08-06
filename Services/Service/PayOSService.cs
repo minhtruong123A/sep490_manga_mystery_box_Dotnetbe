@@ -56,7 +56,7 @@ namespace Services.Service
                 description,
                 items,
                 cancelUrl: "http://localhost:5173/failure-payment",
-                returnUrl: "http://localhost:5173/succcess-payment",
+                returnUrl: $"http://localhost:5173/succcess-payment?userId={userId}&amount={amount}",
                 expiredAt: expiredAt
             );
 

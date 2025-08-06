@@ -55,8 +55,8 @@ namespace Services.Service
                 amount,
                 description,
                 items,
-                cancelUrl: "https://youtu.be/b3rNUhDqciM?si=mryd9IU_aOcrW82s",
-                returnUrl: "https://youtu.be/dQw4w9WgXcQ?si=5BxIvepyCzYv25hf",
+                cancelUrl: "http://localhost:5173/failure-payment",
+                returnUrl: "http://localhost:5173/succcess-payment",
                 expiredAt: expiredAt
             );
 

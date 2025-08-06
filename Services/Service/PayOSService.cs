@@ -55,7 +55,7 @@ namespace Services.Service
                 amount,
                 description,
                 items,
-                cancelUrl: "http://localhost:5173/succces",
+                cancelUrl: "http://localhost:5173/succcess-payment",
                 returnUrl: "http://localhost:5173/failure-payment",
                 expiredAt: expiredAt
             );

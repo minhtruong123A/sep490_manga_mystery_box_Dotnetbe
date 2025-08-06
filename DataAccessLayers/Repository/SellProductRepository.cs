@@ -226,7 +226,7 @@ namespace DataAccessLayers.Repository
         }
         public async Task<List<SellProductGetAllDto>> GetAllProductOnSaleOfUserIdAsync(string id)
         {  //c.IsSell && 
-            var sellProductList = await _sellProductCollection.AsQueryable().Where(c => c.SellerId.Equals(id) && c.Quantity >= 0).ToListAsync();
+            var sellProductList = await _sellProductCollection.AsQueryable().Where(c => c.SellerId.Equals(id) && c.Quantity > 0).ToListAsync();
             var productIds = sellProductList.Select(c => c.ProductId).ToHashSet();
             var sellerIds = sellProductList.Select(c => c.SellerId).ToHashSet();
             var productTask = _productCollection.AsQueryable().Where(c => productIds.Contains(c.Id.ToString())).ToListAsync();

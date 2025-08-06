@@ -22,6 +22,9 @@ namespace Services.Service
         public async Task<bool> CreateAsync(string id,SubscriptionCreateDto dto)
         {
             var existUser = await _unitOfWork.UserRepository.GetByIdAsync(dto.UserId);
+            var follows = await _unitOfWork.SubscriptionRepository.GetAllFollowOfUserAsync(id);
+            var existFollow = follows.FirstOrDefault(x => x.FollowerId.Equals(id) && x.UserId.Equals(dto.UserId));
+            if (existFollow != null) throw new Exception("Followed this user");
             if (existUser == null) throw new Exception("User not exist");
             var subscription = new Subscription { FollowerId = id, UserId = dto.UserId, Follow_at = DateTime.Now };
             await _unitOfWork.SubscriptionRepository.AddAsync(subscription);

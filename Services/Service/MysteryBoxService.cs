@@ -41,13 +41,12 @@ namespace Services.Service
             if (!mysteryBoxIds.Any())  return null;
 
             var mysteryBoxes = await _unitOfWork.MysteryBoxRepository.FindAsync(x => mysteryBoxIds.Contains(x.Id));
-            var imageUrls = mysteryBoxes
+            var imageUrl = mysteryBoxes
                 .Where(box => !string.IsNullOrWhiteSpace(box.UrlImage))
                 .Select(box => box.UrlImage.Trim())
-                .Distinct()
-                .ToString();
+                .Distinct().FirstOrDefault();
 
-            return imageUrls.Any() ? imageUrls : null;
+            return string.IsNullOrEmpty(imageUrl) ? null : imageUrl;
         }
     }
 

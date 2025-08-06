@@ -55,7 +55,8 @@ namespace DataAccessLayers.Repository
                     Name = product.Name,
                     UrlImage = product.UrlImage,
                     Description = product.Description,
-                    RarityName = rarity?.Name ?? "Unknown",     
+                    RarityName = rarity?.Name ?? "Unknown",   
+                    CollectionId = product.CollectionId,
                     is_Block = product.Is_Block
                 };
             });

@@ -9,5 +9,6 @@ namespace Services.Interface
     public interface IMysteryBoxService
     {
         Task<List<string>> GetAllUniqueImageUrlsAsync();
+        Task<List<string>> GetImageUrlsByCollectionIdAsync(string collectionId);
     }
 }

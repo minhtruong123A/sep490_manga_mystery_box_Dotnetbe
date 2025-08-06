@@ -14,7 +14,7 @@ namespace BusinessObjects.Dtos.MangaBox
         public string Description { get; set; }
         public int Price { get; set; }
         public int TotalProduct { get; set; }
-        public IFormFile ImageUrl { get; set; }
+        public IFormFile? ImageUrl { get; set; }
         public string CollectionTopicId { get; set; }
     }
 }

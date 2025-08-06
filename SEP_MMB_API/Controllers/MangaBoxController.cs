@@ -86,7 +86,7 @@ namespace SEP_MMB_API.Controllers
                 });
             }
         }
-        [Authorize(Roles = "moderator")]
+        [Authorize]
         [HttpPost("create-new-box")]
         public async Task<ActionResult<ResponseModel<string>>> CreateBox([FromForm] MangaBoxCreateDto dto)
         {

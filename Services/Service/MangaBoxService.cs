@@ -21,10 +21,11 @@ namespace Services.Service
         private readonly IUnitOfWork _unitOfWork;
         private readonly IImageService _imageService;
         private readonly IMysteryBoxService _mysteryBoxService;
-        public MangaBoxService(IUnitOfWork unitOfWork, IImageService imageService)
+        public MangaBoxService(IUnitOfWork unitOfWork, IImageService imageService, IMysteryBoxService mysteryBoxService)
         {
             _unitOfWork = unitOfWork;
             _imageService = imageService;
+            _mysteryBoxService = mysteryBoxService;
         }
 
         public async Task<MangaBox> AddAsync(MangaBox mangaBox) => await _unitOfWork.MangaBoxRepository.AddAsync(mangaBox);

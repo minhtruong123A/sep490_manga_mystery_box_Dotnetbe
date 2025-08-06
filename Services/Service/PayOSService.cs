@@ -55,8 +55,8 @@ namespace Services.Service
                 amount,
                 description,
                 items,
-                cancelUrl: "http://localhost:5173/failure-payment",
-                returnUrl: $"http://localhost:5173/succcess-payment?userId={userId}&amount={amount}",
+                cancelUrl: "https://mangamysterybox.vercel.app/failure-payment",
+                returnUrl: $"https://mangamysterybox.vercel.app/succcess-payment?userId={userId}&orderCode={orderCode}",
                 expiredAt: expiredAt
             );
 

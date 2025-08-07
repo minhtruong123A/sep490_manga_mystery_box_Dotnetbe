@@ -134,6 +134,8 @@ namespace DataAccessLayers.Repository
 
         public async Task<float> GetRatingOfUserAsync(string userId)
         {
+            var existUser = await _users.Find(x => x.Id.Equals(userId)).FirstOrDefaultAsync();
+            if (existUser == null) throw new Exception("User not exist");
             var sellProducts = await _sellProduct.Find(x => x.SellerId.Equals(userId)).ToListAsync();
             var sellProductIds = sellProducts.Select(x=> x.Id).Distinct().ToList();
 

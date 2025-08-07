@@ -18,6 +18,7 @@ namespace Services.Interface
         Task<List<string>> GetAllBadWordsAsync();
         Task<List<CommentWithUsernameDto>> GetAllCommentProductOfUserAsync(string userId, string productName);
         Task<float> GetRatingOfUser(string userId);
+        Task<float> GetTotalAverageOfSellProductByIdAsync(string sellProductId);
         //Task<List<string>> GetAllAllowedShortWordsAsync();
     }
 }

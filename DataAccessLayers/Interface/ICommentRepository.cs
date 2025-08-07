@@ -18,5 +18,6 @@ namespace DataAccessLayers.Interface
         Task<Comment?> GetCommentOnlyByUserAndProductAsync(string userId, string productId);
         Task<List<CommentWithUsernameDto>> GetAllCommentProductOfUserAsync(string userId, string productName);
         Task<float> GetRatingOfUserAsync(string userId);
+        Task<float> GetTotalAverageOfSellProductByIdAsync(string sellProductId);
     }
 }

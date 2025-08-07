@@ -139,10 +139,26 @@ namespace DataAccessLayers.Repository
             var sellProducts = await _sellProduct.Find(x => x.SellerId.Equals(userId)).ToListAsync();
             if (!sellProducts.Any()) throw new Exception("User don't have any sell product");
             var sellProductIds = sellProducts.Select(x=> x.Id).Distinct().ToList();
-            var comments = await _comments.Find(c => sellProductIds.Contains(c.SellProductId)).ToListAsync();
+            var comments = await _comments.Find(c => sellProductIds.Contains(c.SellProductId)&& c.Rating!=-1).ToListAsync();
             float total=0;
 
             if (comments.Any()) {
+                foreach (var comment in comments)
+                {
+                    total += comment.Rating;
+                }
+                return (total / comments.Count);
+            }
+
+            return total;
+        }
+        public async Task<float> GetTotalAverageOfSellProductByIdAsync(string sellProductId)
+        {
+            var comments = await _comments.Find(c => c.SellProductId.Equals(sellProductId) && c.Rating!=-1).ToListAsync();
+            float total = 0;
+
+            if (comments.Any())
+            {
                 foreach (var comment in comments)
                 {
                     total += comment.Rating;
@@ -159,7 +175,7 @@ namespace DataAccessLayers.Repository
             var sellProducts = await _sellProduct.Find(x=> x.SellerId.Equals(userId) &&
                                                            x.ProductId == product.Id).ToListAsync();
             var sellProductIds = sellProducts.Select(x=>x.Id).Distinct().ToList();
-            var comments = await _comments.Find(c => sellProductIds.Contains(c.SellProductId))
+            var comments = await _comments.Find(c => sellProductIds.Contains(c.SellProductId) && c.Rating==-1)
                                           .SortByDescending(c => c.CreatedAt)
                                           .ToListAsync();
             var userIds = comments.Select(c => c.UserId).Distinct().ToList();

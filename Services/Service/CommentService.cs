@@ -158,5 +158,6 @@ namespace Services.Service
         //{
         //    return Task.FromResult(AllowedShortWords.ToList());
         //}
+        public async Task<float> GetTotalAverageOfSellProductByIdAsync(string sellProductId) => await _uniUnitOfWork.CommentRepository.GetTotalAverageOfSellProductByIdAsync(sellProductId);
     }
 }

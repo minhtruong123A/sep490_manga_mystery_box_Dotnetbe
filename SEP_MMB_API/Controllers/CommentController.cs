@@ -205,5 +205,24 @@ namespace SEP_MMB_API.Controllers
                 return BadRequest(response);
             }
         }
+        [HttpGet("get-rating-average-of-sell-product")]
+        public async Task<ActionResult<ResponseModel<object>>> GetRatingAverageOfSellproduct(string sellProductId)
+        {
+            var response = new ResponseModel<object>();
+            try
+            {
+                var comments = await _commentService.GetTotalAverageOfSellProductByIdAsync(sellProductId);
+                response.Success = true;
+                response.Data = comments;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Error = ex.Message;
+                response.ErrorCode = 400;
+                return BadRequest(response);
+            }
+        }
     }
 }

@@ -137,15 +137,20 @@ namespace DataAccessLayers.Repository
             var existUser = await _users.Find(x => x.Id.Equals(userId)).FirstOrDefaultAsync();
             if (existUser == null) throw new Exception("User not exist");
             var sellProducts = await _sellProduct.Find(x => x.SellerId.Equals(userId)).ToListAsync();
+            if (!sellProducts.Any()) throw new Exception("User don't have any sell product");
             var sellProductIds = sellProducts.Select(x=> x.Id).Distinct().ToList();
-
             var comments = await _comments.Find(c => sellProductIds.Contains(c.SellProductId)).ToListAsync();
             float total=0;
-            foreach(var comment in comments)
-            {
-                total += comment.Rating;
+
+            if (comments.Any()) {
+                foreach (var comment in comments)
+                {
+                    total += comment.Rating;
+                }
+                return (total / comments.Count);
             }
-            return (total/comments.Count);
+
+            return total;
         }
 
         public async Task<List<CommentWithUsernameDto>> GetAllCommentProductOfUserAsync(string userId, string productName)

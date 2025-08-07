@@ -14,5 +14,6 @@ namespace BusinessObjects.Dtos.MangaBox
         public string UrlImage { get; set; }
         public string CollectionTopic { get; set; }
         public DateTime? CreatedAt { get; set; } = null;
+        public int Status { get; set; }
     }
 }

@@ -41,6 +41,8 @@ namespace Services.Service
                             productInMangaBox.Name = product.Name;
                             productInMangaBox.Description = product.Description;
                             await _uniUnitOfWork.ProductInMangaBoxRepository.AddAsync(productInMangaBox);
+                            box.Status = 1;
+                            await _uniUnitOfWork.MangaBoxRepository.UpdateAsync(box.Id, box);
                             await _uniUnitOfWork.SaveChangesAsync();
                         }
                         else

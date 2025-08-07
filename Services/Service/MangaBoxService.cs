@@ -45,7 +45,7 @@ namespace Services.Service
                 await _unitOfWork.MysteryBoxRepository.AddAsync(mys1);
 
                 var box1 = new MangaBox();
-                box1.Status = 1;
+                box1.Status = 0;
                 box1.CreatedAt = DateTime.Now;
                 box1.UpdatedAt = DateTime.Now;
                 box1.MysteryBoxId = mys1.Id;
@@ -70,7 +70,7 @@ namespace Services.Service
             await _unitOfWork.MysteryBoxRepository.AddAsync(mys);
 
             var box = new MangaBox();
-            box.Status = 1;
+            box.Status = 0;
             box.CreatedAt = DateTime.Now;
             box.UpdatedAt = DateTime.Now;
             box.MysteryBoxId = mys.Id;

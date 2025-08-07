@@ -9,6 +9,6 @@ namespace BusinessObjects.Dtos.ProductInMangaBox
     public class ProductInMangaBoxCreateDto
     {
         public string ProductId { get; set; }
-        public float Chance { get; set; }
+        public double Chance { get; set; }
     }
 }

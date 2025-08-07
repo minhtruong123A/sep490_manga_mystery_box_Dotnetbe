@@ -39,7 +39,8 @@ namespace DataAccessLayers.Repository
                 SellProductId = dto.SellProductId,
                 Title = dto.Title,
                 Content = dto.Content,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.Now,
+                Status = false
             };
             await _reportCollection.InsertOneAsync(newReport);
             return true;

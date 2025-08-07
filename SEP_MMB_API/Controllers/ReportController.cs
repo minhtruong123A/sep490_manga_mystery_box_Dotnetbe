@@ -163,5 +163,32 @@ namespace SEP_MMB_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [Authorize]
+        [HttpPatch("update-report")]
+        public async Task<ActionResult<ResponseModel<string>>> UpdateStatus(string reportId)
+        {
+            var response = new ResponseModel<object>();
+            try
+            {
+                bool status = await _reportService.UpdateStatus(reportId);
+
+                response.Success = true;
+                response.Data = new
+                {
+                    Message = "Report has been processed.",
+                    Status = status
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Error = ex.Message;
+                response.ErrorCode = 400;
+                return BadRequest(response);
+            }
+        }
     }
 }

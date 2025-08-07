@@ -25,6 +25,14 @@ namespace Services.Service
         }
 
         public async Task<bool> CreateReportAsync(ReportCreateDto dto, string userId) => await _uniUnitOfWork.ReportRepository.CreateReportAsync(dto, userId);
+        public async Task<bool> UpdateStatus(string reportId)
+        {
+            var report = await _uniUnitOfWork.ReportRepository.GetByIdAsync(reportId);
+            if (report == null) throw new Exception("Report not exist");
+            report.Status = true;
+            await _uniUnitOfWork.ReportRepository.UpdateAsync(reportId, report);
+            return true;
+        }
 
         public async Task<List<Report>> GetAllAsync()
         {

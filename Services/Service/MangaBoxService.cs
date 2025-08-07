@@ -31,20 +31,34 @@ namespace Services.Service
         public async Task<MangaBox> AddAsync(MangaBox mangaBox) => await _unitOfWork.MangaBoxRepository.AddAsync(mangaBox);
         public async Task<bool> CreateNewMangaBoxAsync(MangaBoxCreateDto dto)
         {
-            var url = await _mysteryBoxService.GetImageUrlsByCollectionIdAsync(dto.CollectionTopicId);
-
-            if (url == null || !url.Any())
+            if (dto.ImageUrl != null)
             {
-                if (dto.ImageUrl == null)
-                {
-                    throw new Exception("Don't have any image to create box");
-                }
+                var urlI = await _imageService.UploadModeratorProductOrMysteryBoxImageAsync(dto.ImageUrl);
+                var mys1 = new MysteryBox();
+                mys1.Id = ObjectId.GenerateNewId().ToString();
+                mys1.Name = dto.Name;
+                mys1.Description = dto.Description;
+                mys1.TotalProduct = dto.TotalProduct;
+                mys1.Price = dto.Price;
+                mys1.UrlImage = urlI;
+                mys1.Title = dto.Title;
+                await _unitOfWork.MysteryBoxRepository.AddAsync(mys1);
 
-                url = await _imageService.UploadModeratorProductOrMysteryBoxImageAsync(dto.ImageUrl);
+                var box1 = new MangaBox();
+                box1.Status = 1;
+                box1.CreatedAt = DateTime.Now;
+                box1.UpdatedAt = DateTime.Now;
+                box1.MysteryBoxId = mys1.Id;
+                box1.CollectionTopicId = dto.CollectionTopicId;
+                box1.Title = dto.Title;
+                await _unitOfWork.MangaBoxRepository.AddAsync(box1);
+                await _unitOfWork.SaveChangesAsync();
+
+                return true;
             }
-
-
-
+            
+            var url = await _mysteryBoxService.GetImageUrlsByCollectionIdAsync(dto.CollectionTopicId);               
+           
             var mys = new MysteryBox();
             mys.Id = ObjectId.GenerateNewId().ToString();
             mys.Name = dto.Name;

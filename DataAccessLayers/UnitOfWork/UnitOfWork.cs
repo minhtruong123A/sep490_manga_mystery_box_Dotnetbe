@@ -52,6 +52,7 @@ namespace DataAccessLayers.UnitOfWork
         public IAchievementRepository _achievementRepository;
         public IRewardRepository _rewardRepository;
         public IUserAchievementRepository _userAchievementRepository;
+        public IAuctionSessionRepository _auctionSessionRepository;
 
 
 
@@ -90,6 +91,7 @@ namespace DataAccessLayers.UnitOfWork
         public IAchievementRepository AchievementRepository => _achievementRepository ??= new AchievementRepository(_context);
         public IRewardRepository RewardRepository => _rewardRepository ??= new RewardRepository(_context);
         public IUserAchievementRepository UserAchievementRepository => _userAchievementRepository ??= new UserAchievementRepository(_context);
+        public IAuctionSessionRepository AuctionSessionRepository => _auctionSessionRepository ??= new AuctionSessionRepository(_context);
 
         public UnitOfWork(MongoDbContext context, IOptions<FeeSettings> feeOptions)
         {

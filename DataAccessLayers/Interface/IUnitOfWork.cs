@@ -44,6 +44,7 @@ namespace DataAccessLayers.Interface
         IAchievementRepository AchievementRepository { get; }
         IRewardRepository RewardRepository { get; }
         IUserAchievementRepository UserAchievementRepository { get; }
+        IAuctionSessionRepository AuctionSessionRepository { get; }
         Task SaveChangesAsync();
     }
 }

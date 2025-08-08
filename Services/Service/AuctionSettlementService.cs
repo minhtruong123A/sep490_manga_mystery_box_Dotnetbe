@@ -137,5 +137,19 @@ namespace Services.Service
                 await _unitOfWork.UserProductRepository.AddAsync(session, newUserProduct);
             }
         }
+
+        public async Task<bool> ChangeStatusAsync(string auctionSessionId,int status)
+        {
+            var auctionSession = await _unitOfWork.AuctionSessionRepository.GetByIdAsync(auctionSessionId);
+            if(auctionSession == null) throw new Exception("AuctionSession not founded");
+            if (auctionSession.Status == 0)
+            {
+                auctionSession.Status = status;
+                await _unitOfWork.AuctionSessionRepository.UpdateAsync(auctionSessionId, auctionSession);
+                await _unitOfWork.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
     }
 }

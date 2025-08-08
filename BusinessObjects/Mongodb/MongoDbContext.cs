@@ -77,5 +77,6 @@ namespace BusinessObjects.Mongodb
         public IMongoCollection<UserAchievement> UserAchievements => _database.GetCollection<UserAchievement>("UserAchievement");
         public IMongoCollection<Reward> Rewards => _database.GetCollection<Reward>("Reward");
         public IMongoCollection<UserReward> UserRewards => _database.GetCollection<UserReward>("UserReward");
+        public IMongoCollection<AuctionSession> AuctionSessions => _database.GetCollection<AuctionSession>("AuctionSession");
     }
 }

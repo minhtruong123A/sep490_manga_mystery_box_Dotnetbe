@@ -57,7 +57,14 @@ namespace SEP_MMB_API.Controllers
             {
                 var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
                 var response = await _productFavoriteService.CreateAsync(account.Id, userProductId);
-
+                if (!response)
+                {
+                    return BadRequest(new ResponseModel<string>
+                    {
+                        Success = true,
+                        Data = "Add to favorite failed because this product exist in your favorite"
+                    });
+                }
                 return Ok(new ResponseModel<string>
                 {
                     Success = true,

@@ -43,7 +43,7 @@ namespace Services.Service
             foreach (var reward in dto.dtos)
             {
                 string url = null;
-                if (reward != null) url = await _imageService.UploadModeratorProductOrMysteryBoxImageAsync(reward.Url_image);
+                if (reward != null) url = await _imageService.UploadProfileImageAsync(reward.Url_image);
 
                 var newReward = new Reward
                 {

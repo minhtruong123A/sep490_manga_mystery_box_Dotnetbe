@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Dtos.Achievement;
+using BusinessObjects.Dtos.Reward;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,9 @@ namespace Services.Interface
     {
         Task<List<GetAchievementMedalRewardDto>> GetAllMedalOfUserAsync(string userId);
         Task<List<GetAchievementMedalRewardDto>> GetAllMedalPublicOfUserAsync(string userId);
+        Task<AchievementWithAllRewardDto> GetAchiementWithRewardByCollectionIdAsync(string collectionId);
         Task<bool> ChangePublicOrPrivateAsync(string userRewardId);
-        Task<bool> CreateAchievementWithRewardOfCollection(string collectionId, AchievementWithRewardsCreateDto dto);
+        Task<bool> CreateAchievementOfCollection(string collectionId, string name_Achievement);
+        Task<bool> CreateRewardOfAchievement(string collectionId, RewardCreateDto dto);
     }
 }

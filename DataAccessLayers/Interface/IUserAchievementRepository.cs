@@ -1,4 +1,5 @@
 ﻿using BusinessObjects;
+using BusinessObjects.Dtos.Achievement;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +11,8 @@ namespace DataAccessLayers.Interface
     public interface IUserAchievementRepository : IGenericRepository<UserAchievement>
     {
         Task<bool> CheckAchievement(string userID);
+        Task<List<GetAchievementMedalRewardDto>> GetAllMedalOfUserAsync(string userId);
+        Task<List<GetAchievementMedalRewardDto>> GetAllMedalPublicOfUserAsync(string userId);
+        Task<bool> ChangePublicOrPrivateOfMedalAsync(string userRewardId);
     }
 }

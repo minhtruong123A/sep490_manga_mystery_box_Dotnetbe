@@ -16,5 +16,6 @@ namespace BusinessObjects
         public string UserId { get; set; }
         public string RewardId { get; set; }
         public bool isReceive { get; set; }
+        public bool isPublic { get; set; }
     }
 }

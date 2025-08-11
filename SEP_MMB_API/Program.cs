@@ -217,6 +217,7 @@ builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<IAuctionSettlementService, AuctionSettlementService>();
 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 builder.Services.AddScoped<IProductFavoriteService, ProductFavoriteService>();
+builder.Services.AddScoped<IAchievementService, AchievementService>();
 
 //AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

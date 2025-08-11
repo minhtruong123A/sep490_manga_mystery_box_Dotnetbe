@@ -126,7 +126,7 @@ namespace SEP_MMB_API.Controllers
             }
         }
 
-        [Authorize(Roles = "user")]
+        [Authorize]
         [HttpPut("profile/change-password")]
         public async Task<ActionResult<ResponseModel<string>>> ChangePasswordAsync(ChangePasswordDto dto)
         {

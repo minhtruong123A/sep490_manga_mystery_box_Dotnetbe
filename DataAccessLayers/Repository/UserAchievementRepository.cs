@@ -1,4 +1,5 @@
 ﻿using BusinessObjects;
+using BusinessObjects.Dtos.Achievement;
 using BusinessObjects.Mongodb;
 using DataAccessLayers.Interface;
 using MongoDB.Driver;
@@ -85,6 +86,64 @@ namespace DataAccessLayers.Repository
                 }
             }
             return true;
+        }
+
+        public async Task<List<GetAchievementMedalRewardDto>> GetAllMedalOfUserAsync(string userId)
+        {
+            var userRewards = await _userRewardCollection.Find(x => x.UserId.Equals(userId)).ToListAsync();
+            var rewardIds = userRewards.Select(x=>x.RewardId).Distinct().ToList();
+            var rewards = await _rewardCollection.Find(x=>rewardIds.Contains(x.Id) && x.Url_image!=null).ToListAsync();
+
+            return userRewards.Select(u =>
+            {
+                var reward = rewards.FirstOrDefault(x => x.Id.Equals(u.RewardId));
+                return new GetAchievementMedalRewardDto
+                {
+                    userRewardId = u.Id,
+                    UrlImage = reward.Url_image,
+                    isPublic = u.isPublic
+                };
+            }
+            ).ToList();
+        }
+
+        public async Task<List<GetAchievementMedalRewardDto>> GetAllMedalPublicOfUserAsync(string userId)
+        {
+            var userRewards = await _userRewardCollection.Find(x => x.UserId.Equals(userId)&& x.isPublic==true).ToListAsync();
+            var rewardIds = userRewards.Select(x => x.RewardId).Distinct().ToList();
+            var rewards = await _rewardCollection.Find(x => rewardIds.Contains(x.Id) && x.Url_image != null).ToListAsync();
+
+            return userRewards.Select(u =>
+            {
+                var reward = rewards.FirstOrDefault(x => x.Id.Equals(u.RewardId));
+                return new GetAchievementMedalRewardDto
+                {
+                    userRewardId = u.Id,
+                    UrlImage = reward.Url_image,
+                    isPublic = u.isPublic
+                };
+            }
+            ).ToList();
+        }
+
+        public async Task<bool> ChangePublicOrPrivateOfMedalAsync(string userRewardId)
+        {
+            var userReward = await _userRewardCollection.Find(x => x.Id.Equals(userRewardId)).FirstOrDefaultAsync();
+            if (userReward == null) throw new Exception("Medal not exist");
+            if (userReward.isPublic)
+            {
+                var filter = Builders<UserReward>.Update.Set(x => x.isPublic, false);
+                await _userRewardCollection.UpdateOneAsync(x => x.Id.Equals(userRewardId), filter);
+                return true;
+            }
+            if (!userReward.isPublic)
+            {
+                var filter = Builders<UserReward>.Update.Set(x => x.isPublic, true);
+                await _userRewardCollection.UpdateOneAsync(x => x.Id.Equals(userRewardId), filter);
+                return true;
+            }
+            return false;
+
         }
     }
 }

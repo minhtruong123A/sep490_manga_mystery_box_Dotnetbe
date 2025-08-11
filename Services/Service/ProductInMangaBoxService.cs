@@ -25,7 +25,59 @@ namespace Services.Service
         {
             var boxDetail = await _uniUnitOfWork.MangaBoxRepository.GetByIdWithDetailsAsync(boxId);
             var box = await _uniUnitOfWork.MangaBoxRepository.GetByIdAsync(boxId);
-            
+            if (boxId.Equals("6899caa6250b50c9837a4aec"))
+            {
+                if(boxDetail.Products.Count() == boxDetail.TotalProduct)
+                {
+                    var mysteryBox = await _uniUnitOfWork.MysteryBoxRepository.GetByIdAsync(box.MysteryBoxId);
+                    mysteryBox.TotalProduct += dtos.Count();
+                    await _uniUnitOfWork.MysteryBoxRepository.UpdateAsync(mysteryBox.Id, mysteryBox);
+                    await _uniUnitOfWork.SaveChangesAsync();
+                }else if((boxDetail.Products.Count() + dtos.Count()) > boxDetail.TotalProduct)
+                {
+                    var total = boxDetail.Products.Count() + dtos.Count();
+                    var inc = total - boxDetail.TotalProduct;
+                    var mysteryBox = await _uniUnitOfWork.MysteryBoxRepository.GetByIdAsync(box.MysteryBoxId);
+                    mysteryBox.TotalProduct += inc;
+                    await _uniUnitOfWork.MysteryBoxRepository.UpdateAsync(mysteryBox.Id, mysteryBox);
+                    await _uniUnitOfWork.SaveChangesAsync();
+                }
+                boxDetail = await _uniUnitOfWork.MangaBoxRepository.GetByIdWithDetailsAsync(boxId);
+                box = await _uniUnitOfWork.MangaBoxRepository.GetByIdAsync(boxId);
+                foreach (var dto in dtos)
+                {
+                    var exist = boxDetail.Products.Where(x => x.ProductId.Equals(dto.ProductId)).Any();
+                    if (!exist)
+                    {
+                        var productWithRarity = await _uniUnitOfWork.ProductRepository.GetProductWithRarityByIdAsync(dto.ProductId.ToString());
+                        var product = await _uniUnitOfWork.ProductRepository.GetByIdAsync(dto.ProductId);
+                        if (productWithRarity.RarityName.Equals("epic") || productWithRarity.RarityName.Equals("legendary"))
+                        {
+                            var productInMangaBoxs = await _uniUnitOfWork.ProductInMangaBoxRepository.GetAllAsync();
+                            var productInMangaBoxExist = productInMangaBoxs.Where(x => x.ProductId.Equals(productWithRarity.ProductId)).Any();
+                            if (!productInMangaBoxExist)
+                            {
+                                if (product == null) throw new Exception("Product not exist");
+                                if (box.CollectionTopicId.Equals(product.CollectionId))
+                                {
+                                    var productInMangaBox = new ProductInMangaBox();
+                                    productInMangaBox.ProductId = dto.ProductId;
+                                    productInMangaBox.Chance = dto.Chance;
+                                    productInMangaBox.MangaBoxId = boxId;
+                                    productInMangaBox.Name = product.Name;
+                                    productInMangaBox.Description = product.Description;
+                                    await _uniUnitOfWork.ProductInMangaBoxRepository.AddAsync(productInMangaBox);
+                                }
+                                else
+                                {
+                                    throw new Exception("Products not included in this box");
+                                }
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
                 if ((boxDetail.TotalProduct - boxDetail.Products.Count()) == dtos.Count())
                 {
                     foreach (var dto in dtos)
@@ -51,9 +103,13 @@ namespace Services.Service
                                         productInMangaBox.Name = product.Name;
                                         productInMangaBox.Description = product.Description;
                                         await _uniUnitOfWork.ProductInMangaBoxRepository.AddAsync(productInMangaBox);
+                                        boxDetail = await _uniUnitOfWork.MangaBoxRepository.GetByIdWithDetailsAsync(boxId);
+                                    if (boxDetail.TotalProduct == boxDetail.Products.Count())
+                                    {
                                         box.Status = 1;
                                         await _uniUnitOfWork.MangaBoxRepository.UpdateAsync(box.Id, box);
                                         await _uniUnitOfWork.SaveChangesAsync();
+                                    }
                                     }
                                     else
                                     {

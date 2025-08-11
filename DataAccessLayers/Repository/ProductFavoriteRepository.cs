@@ -105,21 +105,22 @@ namespace DataAccessLayers.Repository
             var productDict = products.ToDictionary(p => p.Id.ToString());
 
 
-            var result = await Task.WhenAll(userProducts.Select(async p =>
+            var result = await Task.WhenAll(productFavorites.Select(async p =>
             {
-                var productId = p.ProductId.Trim();
+                var userProduct = userProducts.FirstOrDefault(x => x.Id.Equals(p.User_productId));
+                var productId = userProduct.ProductId.Trim();
                 var hasProduct = productDict.TryGetValue(productId, out var product);
-                var rarity = await _rarityCollection.Find(x => x.Id == p.ProductId).FirstOrDefaultAsync();
+                var rarity = await _rarityCollection.Find(x => x.Id == userProduct.ProductId).FirstOrDefaultAsync();
                 var rarityName = rarity?.Name ?? "Unknown";
 
                 return new CollectionProductsDto
                 {
                     Id = p.Id.ToString(),
-                    CollectionId = p.CollectionId,
+                    CollectionId = userProduct.CollectionId,
                     ProductId = productId,
-                    Quantity = p.Quantity,
-                    CollectedAt = p.CollectedAt,
-                    CollectorId = p.CollectorId,
+                    Quantity = userProduct.Quantity,
+                    CollectedAt = userProduct.CollectedAt,
+                    CollectorId = userProduct.CollectorId,
                     ProductName = hasProduct ? product.Name : null,
                     UrlImage = hasProduct ? product.UrlImage : null,
                     RarityName = rarityName

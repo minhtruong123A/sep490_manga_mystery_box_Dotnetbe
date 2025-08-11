@@ -108,7 +108,7 @@ namespace DataAccessLayers.Repository
             var result = await Task.WhenAll(productFavorites.Select(async p =>
             {
                 var userProduct = userProducts.FirstOrDefault(x => x.Id.Equals(p.User_productId));
-                var productId = userProduct.ProductId.Trim();
+                var productId = userProduct.ProductId;
                 var hasProduct = productDict.TryGetValue(productId, out var product);
                 var rarity = await _rarityCollection.Find(x => x.Id == userProduct.ProductId).FirstOrDefaultAsync();
                 var rarityName = rarity?.Name ?? "Unknown";

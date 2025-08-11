@@ -1,6 +1,8 @@
 using AspNetCoreRateLimit;
 using BusinessObjects;
+using BusinessObjects.Dtos.PayOS;
 using BusinessObjects.Mongodb;
+using BusinessObjects.Options;
 using DataAccessLayers.Interface;
 using DataAccessLayers.Repository;
 using DataAccessLayers.UnitOfWork;
@@ -8,19 +10,18 @@ using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using MongoDB.Driver;
+using Net.payOS;
 using SEP_MMB_API;
+using Services;
 using Services.AutoMapper;
+using Services.Helper.Supabase;
 using Services.Interface;
 using Services.Service;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text;
-using System.Text.RegularExpressions;
-using BusinessObjects.Dtos.PayOS;
-using Net.payOS;
 using System.Text.Json.Serialization;
-using Services.Helper.Supabase;
-using MongoDB.Driver;
-using BusinessObjects.Options;
+using System.Text.RegularExpressions;
 
 var builder = WebApplication.CreateBuilder(args);
 var devPassword = builder.Configuration["DevSettings:DevPassword"];
@@ -106,6 +107,7 @@ builder.Services.AddSwaggerGen(c =>
                 Array.Empty<string>()
             }
     });
+    c.SchemaFilter<IFormFileSchemaFilter>();
 });
 //}
 

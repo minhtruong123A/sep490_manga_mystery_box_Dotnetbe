@@ -89,7 +89,7 @@ namespace DataAccessLayers.Repository
                 .ToListAsync();
             var userProductIds = productFavorites.Select(x=>x.User_productId).Distinct().ToList();
             var userProducts = await _userProductCollection
-                .Find(p => userProductIds.Contains(p.Id) )
+                .Find(p => userProductIds.Contains(p.Id.ToString()) && p.CollectorId.Equals(userId))
                 .ToListAsync();
             if (!userProducts.Any())
                 return new List<CollectionProductsDto>();
@@ -140,7 +140,7 @@ namespace DataAccessLayers.Repository
             var userProducts = await _userProductCollection
                 .Find(p => userProductIds.Contains(p.Id))
                 .ToListAsync();
-            var userProductNotValid = userProducts.Where(x => x.Quantity > 0).ToList();
+            var userProductNotValid = userProducts.Where(x => x.Quantity == 0).ToList();
             if (!userProductNotValid.Any()) return;
             foreach (var userProduct in userProductNotValid)
             {

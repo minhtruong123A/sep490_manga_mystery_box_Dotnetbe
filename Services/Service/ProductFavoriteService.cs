@@ -30,6 +30,7 @@ namespace Services.Service
             if (count >= 6) return false;
             var newFavorite = new ProductFavorite {User_Id = userId, User_productId = userProductId};
             await _unitOfWork.ProductFavoriteRepository.AddAsync(newFavorite);
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
 

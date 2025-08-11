@@ -26,7 +26,7 @@ namespace Services.Service
         public async Task<List<GetAchievementMedalRewardDto>> GetAllMedalOfUserAsync(string userId)=> await _unitOfWork.UserAchievementRepository.GetAllMedalOfUserAsync(userId);
         public async Task<List<GetAchievementMedalRewardDto>> GetAllMedalPublicOfUserAsync(string userId) => await _unitOfWork.UserAchievementRepository.GetAllMedalPublicOfUserAsync(userId);
         public async Task<bool> ChangePublicOrPrivateAsync(string userRewardId) => await _unitOfWork.UserAchievementRepository.ChangePublicOrPrivateOfMedalAsync(userRewardId);
-        public async Task<bool> CreateAchievementWithRewardOfCollectioṇ(string collectionId, AchievementWithRewardsCreateDto dto)
+        public async Task<bool> CreateAchievementWithRewardOfCollection(string collectionId, AchievementWithRewardsCreateDto dto)
         {
             if(collectionId.Equals("689874ca303a71b2024bcda4")) return false;
             var aId = ObjectId.GenerateNewId().ToString();

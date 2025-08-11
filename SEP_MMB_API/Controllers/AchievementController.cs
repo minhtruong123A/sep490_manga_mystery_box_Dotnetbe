@@ -22,12 +22,12 @@ namespace SEP_MMB_API.Controllers
 
         [Authorize]
         [HttpPost("Create-achievement-of-collection")]
-        public async Task<ActionResult<ResponseModel<string>>> CreateAchievementWithReward(string collectionId, [FromBody]AchievementWithRewardsCreateDto dto)
+        public async Task<ActionResult<ResponseModel<string>>> CreateAchievementWithReward(string collectionId, [FromForm]AchievementWithRewardsCreateDto dto)
         {
             try
             {
                 var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var response = await _achievementService.CreateAchievementWithRewardOfCollectioṇ(collectionId, dto);
+                var response = await _achievementService.CreateAchievementWithRewardOfCollection(collectionId, dto);
                 if (!response)
                 {
                     return BadRequest(new ResponseModel<string>

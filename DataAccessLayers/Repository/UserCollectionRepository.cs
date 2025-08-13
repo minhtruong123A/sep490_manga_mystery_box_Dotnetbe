@@ -20,16 +20,19 @@ namespace DataAccessLayers.Repository
         private readonly IMongoCollection<Collection> _collection;
         private readonly IMongoCollection<UserProduct> _userProductCollection;
         private readonly IMongoCollection<Product> _productCollection;
-        public UserCollectionRepository(MongoDbContext context) : base(context.GetCollection<UserCollection>("UserCollection"))
+        private readonly IUserAchievementRepository _userAchievementRepository;
+        public UserCollectionRepository(MongoDbContext context, IUserAchievementRepository userAchievementRepository) : base(context.GetCollection<UserCollection>("UserCollection"))
         {
             _userCollection = context.GetCollection<UserCollection>("UserCollection");
             _collection = context.GetCollection<Collection>("Collection");
             _userProductCollection = context.GetCollection<UserProduct>("User_Product");
             _productCollection = context.GetCollection<Product>("Product");
+            _userAchievementRepository = userAchievementRepository;
         }
 
         public async Task<List<UserCollectionGetAllDto>> GetAllWithDetailsAsync(string userId)
         {
+            await _userAchievementRepository.CheckAchievement(userId);
             // 1. Lấy danh sách UserCollection của user
             var userCollections = await _userCollection.Find(c => c.UserId == userId).ToListAsync();
             if (!userCollections.Any()) return [];

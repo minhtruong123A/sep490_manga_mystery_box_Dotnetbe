@@ -135,7 +135,7 @@ namespace DataAccessLayers.Repository
             userBox.UpdatedAt = DateTime.UtcNow;
             await _userBoxCollection.ReplaceOneAsync(b => b.Id == userBox.Id, userBox);
 
-            /*await _userAchievementRepository.CheckAchievement(userId);*/
+            await _userAchievementRepository.CheckAchievement(userId);
             return new ProductResultDto
             {
                 ProductId = selectedProduct.ProductId,

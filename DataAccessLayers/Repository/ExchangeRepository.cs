@@ -263,8 +263,8 @@ namespace DataAccessLayers.Repository
                     );
 
                     await session.CommitTransactionAsync();
-                    /*await _userAchievementRepository.CheckAchievement(info.BuyerId);
-                    await _userAchievementRepository.CheckAchievement(sell.SellerId);*/
+                    await _userAchievementRepository.CheckAchievement(info.BuyerId);
+                    await _userAchievementRepository.CheckAchievement(sell.SellerId);
                     return true;
                 }
                 catch (Exception ex)

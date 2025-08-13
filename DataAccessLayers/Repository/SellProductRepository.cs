@@ -365,7 +365,7 @@ namespace DataAccessLayers.Repository
 
             await UpdateUserCollectionAndProductAsync(buyerId, sellProduct.ProductId, quantity);
 
-            /*await _userAchievementRepository.CheckAchievement(buyerId);*/
+            await _userAchievementRepository.CheckAchievement(buyerId);
             return buyerHistory.Id;
         }
 

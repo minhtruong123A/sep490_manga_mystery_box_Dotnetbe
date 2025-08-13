@@ -30,7 +30,7 @@ namespace DataAccessLayers.Repository
             _userRewardCollection = context.GetCollection<UserReward>("UserReward");
             _rewardCollection = context.GetCollection<Reward>("Reward");
             _userCollectionCollection = context.GetCollection<UserCollection>("UserCollection");
-            _userProductCollection = context.GetCollection<UserProduct>("UserProduct");
+            _userProductCollection = context.GetCollection<UserProduct>("User_Product");
             _collectionCollection = context.GetCollection<Collection>("Collection");
             _productCollection = context.GetCollection<Product>("Product");
             _userBoxCollection = context.GetCollection<UserBox>("UserBox");

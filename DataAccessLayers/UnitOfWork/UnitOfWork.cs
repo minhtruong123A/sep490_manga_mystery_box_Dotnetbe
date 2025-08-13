@@ -60,7 +60,7 @@ namespace DataAccessLayers.UnitOfWork
         public IEmailVerificationRepository EmailVerificationRepository => _emailVerificationRepository ??= new EmailVerificationRepository(_context);
         public IMangaBoxRepository MangaBoxRepository => _mangaBoxRepository ??= new MangaBoxRepository(_context);
         public ISellProductRepository SellProductRepository => _sellProductRepository ??= new SellProductRepository(_context, _feeOptions, UserAchievementRepository);
-        public IUserCollectionRepository UserCollectionRepository => _userCollectionRepository ??= new UserCollectionRepository(_context);
+        public IUserCollectionRepository UserCollectionRepository => _userCollectionRepository ??= new UserCollectionRepository(_context, UserAchievementRepository);
         public ICommentRepository CommentRepository => _commentRepository ??= new CommentRepository(_context);
         public IPayOSRepository PayOSRepository => _payosRepository ??= new PayOSRepository(_context);
         public IUseDigitalWalletRepository UseDigitalWalletRepository => _useDigitalWalletRepository ??= new UseDigitalWalletRepository(_context);

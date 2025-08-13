@@ -59,12 +59,11 @@ namespace SEP_MMB_API.Controllers
         }
         [Authorize(Roles ="user")]
         [HttpGet("get-all-medal-public-of-user")]
-        public async Task<IActionResult> GetAllMeadalPublicOfUserAsync()
+        public async Task<IActionResult> GetAllMeadalPublicOfUserAsync(string userId)
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var data = await _achievementService.GetAllMedalPublicOfUserAsync(account.Id);
+                var data = await _achievementService.GetAllMedalPublicOfUserAsync(userId);
                 if (data == null)
                 {
                     return NotFound(new ResponseModel<string>

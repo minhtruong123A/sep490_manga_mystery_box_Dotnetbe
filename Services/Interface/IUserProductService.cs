@@ -10,6 +10,5 @@ namespace Services.Interface
     public interface IUserProductService
     {
         Task<List<CollectionProductsDto>> GetAllWithDetailsAsync(string id, string collectionId);
-        Task AddCardsToCollectionAsync(string userId, string collectionId, List<string> productIds);
     }
 }

@@ -50,34 +50,5 @@ namespace SEP_MMB_API.Controllers
             }
         }
 
-        [Authorize]
-        [HttpPost("add-cards-to-collection")]
-        public async Task<ActionResult<ResponseModel<string>>> AddCardsToOwnCollection([FromBody] AddCardsToCollectionDto dto)
-        {
-            try
-            {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                string userId = account.Id.ToString();
-
-                await _userProductService.AddCardsToCollectionAsync(userId, dto.CollectionId, dto.ProductIds);
-
-                return Ok(new ResponseModel<string>
-                {
-                    Data = "Cards added successfully",
-                    Success = true
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ResponseModel<string>
-                {
-                    Data = null,
-                    Success = false,
-                    Error = ex.Message,
-                    ErrorCode = 400
-                });
-            }
-        }
-
     }
 }

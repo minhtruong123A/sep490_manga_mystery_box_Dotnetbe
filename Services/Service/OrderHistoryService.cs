@@ -47,7 +47,7 @@ namespace Services.Service
                 foreach (var orderHis in orderHistories)
                 {
                     var boxOrder = boxOrders.FirstOrDefault(b => b.Id.ToString() == orderHis.BoxOrderId);
-                   
+
                     if (boxOrder == null) continue;
                     if (!mangaBoxDict.TryGetValue(boxOrder.BoxId, out var mangaBox)) continue;
                     if (!mysteryBoxDict.TryGetValue(mangaBox.MysteryBoxId, out var mysteryBox)) continue;
@@ -110,7 +110,7 @@ namespace Services.Service
                         if (order.SellerId == userId)
                         {
                             if (addedTransactionCodes.Contains(payment.Id.ToString())) continue;
-                            
+
                             addedTransactionCodes.Add(payment.Id.ToString());
                             tempResult.Add(new OrderHistoryDto
                             {
@@ -131,7 +131,7 @@ namespace Services.Service
                         else if (order.BuyerId == userId)
                         {
                             if (addedTransactionCodes.Contains(payment.Id.ToString())) continue;
-                            
+
                             addedTransactionCodes.Add(payment.Id.ToString());
                             tempResult.Add(new OrderHistoryDto
                             {
@@ -178,6 +178,24 @@ namespace Services.Service
             }
 
             return result.OrderByDescending(r => r.PurchasedAt).ToList();
+        }
+
+        public async Task<List<UserOrderHistoryResultDto>> GetAllUserOrderHistoriesAsync()
+        {
+            var users = await _unitOfWork.UserRepository.GetAllAsync();
+
+            var tasks = users.Select(async user =>
+            {
+                var history = await GetOrderHistoryAsync(user.Id);
+                return new UserOrderHistoryResultDto
+                {
+                    UserId = user.Id,
+                    Username = user.Username,
+                    OrderHistories = history
+                };
+            });
+
+            return (await Task.WhenAll(tasks)).ToList();
         }
     }
 }

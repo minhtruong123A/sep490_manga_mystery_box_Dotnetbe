@@ -1,8 +1,10 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Dtos.Achievement;
 using BusinessObjects.Dtos.Reward;
+using BusinessObjects.Options;
 using DataAccessLayers.Interface;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using Services.Interface;
 using System;
@@ -18,11 +20,13 @@ namespace Services.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IImageService _imageService;
+        private readonly RewardSettings _settings;
 
-        public AchievementService(IUnitOfWork unitOfWork,IImageService imageService)
+        public AchievementService(IUnitOfWork unitOfWork, IImageService imageService, IOptions<RewardSettings> settings)
         {
             _unitOfWork = unitOfWork;
             _imageService = imageService;
+            _settings = settings.Value;
         }
 
         public async Task<List<GetAchievementMedalRewardDto>> GetAllMedalOfUserAsync(string userId)=> await _unitOfWork.UserAchievementRepository.GetAllMedalOfUserAsync(userId);
@@ -32,7 +36,7 @@ namespace Services.Service
         public async Task<AchievementOfUserCollectionCompletionProgressDto> GetUserCollectionCompletionProgressAsync(string userCollectionId) => await _unitOfWork.UserAchievementRepository.GetUserCollectionCompletionProgressAsync(userCollectionId);
         public async Task<bool> CreateAchievementOfCollection(string collectionId, string name_Achievement)
         {
-            if (collectionId.Equals("689874ca303a71b2024bcda4")) return false;
+            if (collectionId.Equals(_settings.UniqueRewardCollectionId)) return false;
             var achievement = await _unitOfWork.AchievementRepository.GetAchievementByCollectionId(collectionId);
             if (achievement != null) return false;
             var newAchievement = new Achievement
@@ -58,7 +62,7 @@ namespace Services.Service
             {
                 AchievementId = achievement.Id,
                 Conditions = dto.Conditions,
-                MangaBoxId = "6899caa6250b50c9837a4aec",
+                MangaBoxId = _settings.UniqueRewardMangaBoxId,
                 Quantity_box = dto.Quantity_box,
                 Url_image = url,
             };

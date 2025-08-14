@@ -2,7 +2,9 @@
 using BusinessObjects.Dtos.Product;
 using BusinessObjects.Dtos.UserCollection;
 using BusinessObjects.Mongodb;
+using BusinessObjects.Options;
 using DataAccessLayers.Interface;
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -18,13 +20,15 @@ namespace DataAccessLayers.Repository
         private readonly IMongoCollection<UserProduct> _userProductCollection;
         private readonly IMongoCollection<Product> _productCollection;
         private readonly IMongoCollection<Rarity> _rarityCollection;
+        private readonly FavoritesSettings _favoriteSettings;
 
-        public ProductFavoriteRepository(MongoDbContext context) : base(context.GetCollection<ProductFavorite>("ProductFavorite"))
+        public ProductFavoriteRepository(MongoDbContext context, IOptions<FavoritesSettings> favoritesSettings) : base(context.GetCollection<ProductFavorite>("ProductFavorite"))
         {
             _productFavorite = context.GetCollection<ProductFavorite>("ProductFavorite");
             _userProductCollection = context.GetCollection<UserProduct>("User_Product");
             _productCollection = context.GetCollection<Product>("Product");
             _rarityCollection = context.GetCollection<Rarity>("Rarity");
+            _favoriteSettings = favoritesSettings.Value;
         }
 
         public async Task<List<UserCollectionGetAllDto>> GetFavoriteListWithDetailsAsync(string userId)
@@ -71,10 +75,10 @@ namespace DataAccessLayers.Repository
             {
                 new UserCollectionGetAllDto
                 {
-                    Id = "FavoriteList",
+                    Id = _favoriteSettings.CollectionTopic,
                     UserId = userId,
                     CollectionId = null,
-                    CollectionTopic = "Favorites",
+                    CollectionTopic = _favoriteSettings.CollectionTopic,
                     Image = images,
                     Count = 0
                 }

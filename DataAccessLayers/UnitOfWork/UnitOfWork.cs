@@ -16,6 +16,9 @@ namespace DataAccessLayers.UnitOfWork
     {
         private readonly MongoDbContext _context;
         private readonly IOptions<FeeSettings> _feeOptions;
+        private readonly IOptions<FavoritesSettings> _favoritesSettings;
+        private readonly IOptions<ExchangeSettings> _exchangeSettings;
+        private readonly IOptions<ProductPriceSettings> _productPriceSettings;
         private readonly IMongoClient _mongoClient;
         private IUserRepository _users;
         private IEmailVerificationRepository _emailVerificationRepository;
@@ -59,7 +62,7 @@ namespace DataAccessLayers.UnitOfWork
         public IUserRepository UserRepository => _users ??= new UserRepository(_context);
         public IEmailVerificationRepository EmailVerificationRepository => _emailVerificationRepository ??= new EmailVerificationRepository(_context);
         public IMangaBoxRepository MangaBoxRepository => _mangaBoxRepository ??= new MangaBoxRepository(_context);
-        public ISellProductRepository SellProductRepository => _sellProductRepository ??= new SellProductRepository(_context, _feeOptions, UserAchievementRepository);
+        public ISellProductRepository SellProductRepository => _sellProductRepository ??= new SellProductRepository(_context, _feeOptions, _productPriceSettings, UserAchievementRepository);
         public IUserCollectionRepository UserCollectionRepository => _userCollectionRepository ??= new UserCollectionRepository(_context, UserAchievementRepository);
         public ICommentRepository CommentRepository => _commentRepository ??= new CommentRepository(_context);
         public IPayOSRepository PayOSRepository => _payosRepository ??= new PayOSRepository(_context);
@@ -76,14 +79,14 @@ namespace DataAccessLayers.UnitOfWork
         public IDigitalPaymentSessionRepository DigitalPaymentSessionRepository => _digitalPaymentSessionRepository ??= new DigitalPaymentSessionRepository(_context);
         public IProductOrderRepository productOrderRepository => _productOrderRepository ??= new ProductOrderRepository(_context);
         public IReportRepository ReportRepository => _reportRepository ??= new ReportRepository(_context);
-        public IExchangeRepository ExchangeRepository => _exchangeRepository ??= new ExchangeRepository(_context, _mongoClient, UserAchievementRepository);
+        public IExchangeRepository ExchangeRepository => _exchangeRepository ??= new ExchangeRepository(_context, _mongoClient, UserAchievementRepository, _exchangeSettings);
         public IExchangeSessionRepository ExchangeSessionRepository => _exchangeSessionRepository ??= new ExchangeSessionRepository(_context);
         public ICollectionRepository CollectionRepository => _collectionRepository ??= new CollectionRepository(_context);
         public IUserBankRepository UserBankRepository => _userBankRepository ??= new UserBankRepository(_context);
         public IBankRepository BankRepository => _bankRepository ??= new BankRepository(_context);
         public IFeedbackRepository FeedbackRepository => _feedbackRepository ??= new FeedbackRepository(_context);
         public ISubscriptionRepository SubscriptionRepository => _subscriptionRepository ??= new SubscriptionRepository(_context);
-        public IProductFavoriteRepository ProductFavoriteRepository => _favoriteRepository ??= new ProductFavoriteRepository(_context);
+        public IProductFavoriteRepository ProductFavoriteRepository => _favoriteRepository ??= new ProductFavoriteRepository(_context, _favoritesSettings);
         public IAuctionPaymentSessionRepository AuctionPaymentSessionRepository => _auctionPaymentSessionRepository ??= new AuctionPaymentSessionRepository(_context);
         public IAuctionResultRepository AuctionResultRepository => _auctionResultRepository ??= new AuctionResultRepository(_context);
         public ITransactionFeeRepository TransactionFeeRepository => _transactionFeeRepository ??= new TransactionFeeRepository(_context);
@@ -93,10 +96,13 @@ namespace DataAccessLayers.UnitOfWork
         public IUserAchievementRepository UserAchievementRepository => _userAchievementRepository ??= new UserAchievementRepository(_context);
         public IAuctionSessionRepository AuctionSessionRepository => _auctionSessionRepository ??= new AuctionSessionRepository(_context);
 
-        public UnitOfWork(MongoDbContext context, IOptions<FeeSettings> feeOptions)
+        public UnitOfWork(MongoDbContext context, IOptions<FeeSettings> feeOptions, IOptions<FavoritesSettings> favoritesSettings, IOptions<ExchangeSettings> exchangeSettings, IOptions<ProductPriceSettings> productPriceSettings)
         {
             _context = context;
             _feeOptions = feeOptions ?? throw new ArgumentNullException(nameof(feeOptions));
+            _favoritesSettings = favoritesSettings ?? throw new ArgumentNullException(nameof(favoritesSettings));
+            _exchangeSettings = exchangeSettings ?? throw new ArgumentNullException(nameof(exchangeSettings));
+            _productPriceSettings = productPriceSettings ?? throw new ArgumentNullException(nameof(productPriceSettings));
         }
 
         public Task SaveChangesAsync() => Task.CompletedTask;

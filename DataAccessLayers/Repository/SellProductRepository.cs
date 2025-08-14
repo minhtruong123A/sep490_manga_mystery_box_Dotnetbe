@@ -36,8 +36,9 @@ namespace DataAccessLayers.Repository
         private readonly IMongoCollection<TransactionFee> _transactionFeeCollection;
         private readonly IUserAchievementRepository _userAchievementRepository;
         private readonly FeeSettings _feeSettings;
+        private readonly ProductPriceSettings _priceSettings;
 
-        public SellProductRepository(MongoDbContext context, IOptions<FeeSettings> feeOptions, IUserAchievementRepository userAchievementRepository) : base(context.GetCollection<SellProduct>("SellProduct"))
+        public SellProductRepository(MongoDbContext context, IOptions<FeeSettings> feeOptions, IOptions<ProductPriceSettings> priceSettings, IUserAchievementRepository userAchievementRepository) : base(context.GetCollection<SellProduct>("SellProduct"))
         {
             _sellProductCollection = context.GetCollection<SellProduct>("SellProduct");
             _userProductCollection = context.GetCollection<UserProduct>("User_Product");
@@ -54,12 +55,15 @@ namespace DataAccessLayers.Repository
             _mangaBoxCollection = context.GetCollection<MangaBox>("MangaBox");
             _transactionFeeCollection = context.GetCollection<TransactionFee>("TransactionFee");
             _feeSettings = feeOptions.Value;
+            _priceSettings = priceSettings.Value;
             _userAchievementRepository = userAchievementRepository;
         }
 
         public async Task<int> CreateSellProductAsync(SellProductCreateDto dto, string userId)
         {
             if (dto.Quantity <= 0) throw new Exception("Quantity must be greater than 0.");
+
+            if (dto.Price < _priceSettings.MinPrice || dto.Price > _priceSettings.MaxPrice) throw new Exception($"Price must be between {_priceSettings.MinPrice:N0} VND and {_priceSettings.MaxPrice:N0} VND.");
 
             var filter = Builders<UserProduct>.Filter.And(
                 Builders<UserProduct>.Filter.Eq(x => x.Id, dto.UserProductId),

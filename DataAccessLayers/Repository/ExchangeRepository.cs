@@ -2,7 +2,9 @@
 using BusinessObjects.Dtos.Exchange;
 using BusinessObjects.Enum;
 using BusinessObjects.Mongodb;
+using BusinessObjects.Options;
 using DataAccessLayers.Interface;
+using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -27,8 +29,9 @@ namespace DataAccessLayers.Repository
         private readonly IMongoCollection<UserCollection> _userCollection;
         private readonly IUserAchievementRepository _userAchievementRepository;
         private readonly IMongoClient _mongoClient;
+        private readonly ExchangeSettings _settings;
 
-        public ExchangeRepository(MongoDbContext context, IMongoClient mongoClient, IUserAchievementRepository userAchievementRepository) : base(context.GetCollection<ExchangeInfo>("ExchangeInfo"))
+        public ExchangeRepository(MongoDbContext context, IMongoClient mongoClient, IUserAchievementRepository userAchievementRepository, IOptions<ExchangeSettings> settings) : base(context.GetCollection<ExchangeInfo>("ExchangeInfo"))
         {
             _exchangeInfo = context.GetCollection<ExchangeInfo>("Exchangeinfo");
             _exchangeProduct = context.GetCollection<ExchangeProduct>("ExchangeProduct");
@@ -40,6 +43,7 @@ namespace DataAccessLayers.Repository
             _mangaBox = context.GetCollection<MangaBox>("MangaBox");
             _userCollection = context.GetCollection<UserCollection>("UserCollection");
             _mongoClient = mongoClient;
+            _settings = settings.Value;
             _userAchievementRepository = userAchievementRepository;
         }
 
@@ -348,9 +352,8 @@ namespace DataAccessLayers.Repository
 
         private async Task RejectIfExpiredAsync(List<ExchangeInfo> infos)
         {
-            // Lọc các exchange hết hạn và vẫn đang Pending
             var expiredInfos = infos
-                .Where(x => x.Datetime.AddDays(7) < DateTime.UtcNow && x.Status == (int)ExchangeStatus.Pending)
+                .Where(x => x.Datetime.AddDays(_settings.PendingExpireDays) < DateTime.UtcNow && x.Status == (int)ExchangeStatus.Pending)
                 .ToList();
 
             if (!expiredInfos.Any()) return;
@@ -358,17 +361,14 @@ namespace DataAccessLayers.Repository
             var expiredIds = expiredInfos.Select(x => x.Id).ToList();
             var expiredSessionIds = expiredInfos.Select(x => x.ItemGiveId).ToList();
 
-            // ✅ Update ExchangeInfo -> Reject
             var exchangeFilter = Builders<ExchangeInfo>.Filter.In(x => x.Id, expiredIds);
             var exchangeUpdate = Builders<ExchangeInfo>.Update.Set(x => x.Status, (int)ExchangeStatus.Reject);
             await _exchangeInfo.UpdateManyAsync(exchangeFilter, exchangeUpdate);
 
-            // ✅ Update ExchangeSession -> Status = 0 (mở lại session)
             var sessionFilter = Builders<ExchangeSession>.Filter.In(x => x.Id, expiredSessionIds);
             var sessionUpdate = Builders<ExchangeSession>.Update.Set(x => x.Status, 0);
             await _exchangeSession.UpdateManyAsync(sessionFilter, sessionUpdate);
 
-            // ✅ Cập nhật lại trạng thái trong `infos` truyền vào (nếu cần xử lý tiếp)
             foreach (var info in infos)
             {
                 if (expiredIds.Contains(info.Id))

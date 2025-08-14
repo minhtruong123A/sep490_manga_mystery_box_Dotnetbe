@@ -144,10 +144,17 @@ builder.Services.AddSingleton<IMongoClient>(s =>
     new MongoClient(builder.Configuration.GetConnectionString("MongoDb"))
 );
 
+//config appsettings
 //Feesettings
-builder.Services.Configure<FeeSettings>(
-    builder.Configuration.GetSection("FeeSettings")
-);
+builder.Services.Configure<FeeSettings>(builder.Configuration.GetSection("FeeSettings"));
+//Favoritesettings
+builder.Services.Configure<FavoritesSettings>(builder.Configuration.GetSection("FavoritesSettings"));
+//Rewardsettings
+builder.Services.Configure<RewardSettings>(builder.Configuration.GetSection("RewardSettings"));
+//Exchangesettings
+builder.Services.Configure<ExchangeSettings>(builder.Configuration.GetSection("ExchangeSettings"));
+//Productpricesettings
+builder.Services.Configure<ProductPriceSettings>(builder.Configuration.GetSection("ProductPriceSettings"));
 
 //Repository
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));

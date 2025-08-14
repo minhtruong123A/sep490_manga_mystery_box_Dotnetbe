@@ -1,6 +1,7 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Dtos.Product;
 using BusinessObjects.Dtos.Schema_Response;
+using BusinessObjects.Dtos.UserCollection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver.Core.Events;
@@ -22,7 +23,31 @@ namespace SEP_MMB_API.Controllers
             _authService = authService;
             _productFavoriteService = productFavoriteService;
         }
+        [Authorize]
+        [HttpGet("get-image-product-favorite")]
+        public async Task<ActionResult<ResponseModel<List<UserCollectionGetAllDto>>>> GetImageOfFavoriteListAsync()
+        {
+            try
+            {
+                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var response = await _productFavoriteService.GetFavoriteListWithDetailsAsync(account.Id);
 
+                return Ok(new ResponseModel<List<UserCollectionGetAllDto>>
+                {
+                    Success = true,
+                    Data = response
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, new ResponseModel<object>
+                {
+                    Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
         [Authorize]
         [HttpGet("get-all-product-favorite")]
         public async Task<ActionResult<ResponseModel<List<CollectionProductsDto>>>> GetAllAsync()

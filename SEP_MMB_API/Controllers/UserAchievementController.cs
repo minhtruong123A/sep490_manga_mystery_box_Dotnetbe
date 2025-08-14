@@ -95,6 +95,43 @@ namespace SEP_MMB_API.Controllers
             }
         }
         [Authorize(Roles ="user")]
+        [HttpGet("get-user-collection-completion-achievement-progress")]
+        public async Task<IActionResult> GetUserCollectionCompletionProgressAsync(string userCollectionId)
+        {
+            try
+            {
+                var data = await _achievementService.GetUserCollectionCompletionProgressAsync(userCollectionId);
+                if (data == null)
+                {
+                    return NotFound(new ResponseModel<string>
+                    {
+                        Success = false,
+                        Data = null,
+                        Error = "Don't have any report",
+                        ErrorCode = 404
+                    });
+                }
+
+                return Ok(new ResponseModel<AchievementOfUserCollectionCompletionProgressDto>
+                {
+                    Success = true,
+                    Data = data,
+                    Error = null,
+                    ErrorCode = 0
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string>
+                {
+                    Success = false,
+                    Data = null,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
+        [Authorize(Roles ="user")]
         [HttpPatch("private-or-public-medal-of-user")]
         public async Task<IActionResult> ChangePrivateOrPublicMedalAsync(string userRewardId)
         {

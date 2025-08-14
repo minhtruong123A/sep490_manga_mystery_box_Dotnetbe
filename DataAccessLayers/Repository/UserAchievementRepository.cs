@@ -1,5 +1,6 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Dtos.Achievement;
+using BusinessObjects.Dtos.Reward;
 using BusinessObjects.Mongodb;
 using DataAccessLayers.Interface;
 using MongoDB.Driver;
@@ -143,6 +144,46 @@ namespace DataAccessLayers.Repository
                 return true;
             }
             return false;
+
+        }
+
+        public async Task<AchievementOfUserCollectionCompletionProgressDto> GetUserCollectionCompletionProgressAsync(string userCollectionId)
+        {
+            var userCollection = await _userCollectionCollection.Find(x=>x.Id.Equals(userCollectionId)).FirstOrDefaultAsync();
+            var achievement = await _achievementCollection.Find(x => x.CollectionId.Equals(userCollection.CollectionId)).FirstOrDefaultAsync();
+
+            var userRewards = await _userRewardCollection.Find(x => x.UserId.Equals(userCollection.UserId)).ToListAsync();
+            var rewards = await _rewardCollection.Find(x => x.AchievementId.Equals(achievement.Id)).ToListAsync();
+            var rewardDtos = rewards.Select(r =>
+            {
+                var existComplete = userRewards.FirstOrDefault(x => x.RewardId.Equals(r.Id));
+                if (existComplete != null)
+                {
+                    return new ReawrdCompletionProgressOfUserCollectionDto
+                    {
+                        Conditions = r.Conditions,
+                        MangaBoxId = r.MangaBoxId,
+                        Quantity_box = r.Quantity_box,
+                        Url_image = r.Url_image ?? "",
+                        ísComplete = true
+                    };
+                }
+                return new ReawrdCompletionProgressOfUserCollectionDto
+                {
+                    Conditions = r.Conditions,
+                    MangaBoxId = r.MangaBoxId,
+                    Quantity_box = r.Quantity_box,
+                    Url_image = r.Url_image ?? "",
+                    ísComplete = false
+                };
+            }).ToList();
+            return new AchievementOfUserCollectionCompletionProgressDto
+            {
+                Id = achievement.Id,
+                CollectionId = achievement.CollectionId,
+                Name = achievement.Name,
+                dtos = rewardDtos
+            };
 
         }
     }

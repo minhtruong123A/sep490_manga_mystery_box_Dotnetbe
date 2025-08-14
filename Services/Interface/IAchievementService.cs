@@ -14,6 +14,7 @@ namespace Services.Interface
         Task<List<GetAchievementMedalRewardDto>> GetAllMedalPublicOfUserAsync(string userId);
         Task<AchievementWithAllRewardDto> GetAchiementWithRewardByCollectionIdAsync(string collectionId);
         Task<bool> ChangePublicOrPrivateAsync(string userRewardId);
+        Task<AchievementOfUserCollectionCompletionProgressDto> GetUserCollectionCompletionProgressAsync(string userCollectionId);
         Task<bool> CreateAchievementOfCollection(string collectionId, string name_Achievement);
         Task<bool> CreateRewardOfAchievement(string collectionId, RewardCreateDto dto);
     }

@@ -11,6 +11,7 @@ namespace DataAccessLayers.Interface
     public interface IUserAchievementRepository : IGenericRepository<UserAchievement>
     {
         Task<bool> CheckAchievement(string userID);
+        Task<AchievementOfUserCollectionCompletionProgressDto> GetUserCollectionCompletionProgressAsync(string userCollectionId);
         Task<List<GetAchievementMedalRewardDto>> GetAllMedalOfUserAsync(string userId);
         Task<List<GetAchievementMedalRewardDto>> GetAllMedalPublicOfUserAsync(string userId);
         Task<bool> ChangePublicOrPrivateOfMedalAsync(string userRewardId);

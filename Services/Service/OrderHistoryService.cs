@@ -1,7 +1,9 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Dtos.OrderHistory;
 using BusinessObjects.Enum;
+using BusinessObjects.Options;
 using DataAccessLayers.Interface;
+using Microsoft.Extensions.Options;
 using Services.Interface;
 using System;
 using System.Collections.Generic;
@@ -14,10 +16,12 @@ namespace Services.Service
     public class OrderHistoryService : IOrderHistoryService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly FeeSettings _feeSettings;
 
-        public OrderHistoryService(IUnitOfWork unitOfWork)
+        public OrderHistoryService(IUnitOfWork unitOfWork, IOptions<FeeSettings> feeOptions)
         {
             _unitOfWork = unitOfWork;
+            _feeSettings = feeOptions.Value;
         }
 
         public async Task<List<OrderHistoryDto>> GetOrderHistoryAsync(string userId)
@@ -120,7 +124,8 @@ namespace Services.Service
                                 Quantity = 1,
                                 TotalAmount = (int)Math.Floor(payment.Amount * 0.95),
                                 TransactionCode = payment.Id.ToString(),
-                                PurchasedAt = history.Datetime
+                                PurchasedAt = history.Datetime,
+                                transactionFeeRate = _feeSettings.AuctionFeeRate
                             });
                         }
                         else if (order.BuyerId == userId)

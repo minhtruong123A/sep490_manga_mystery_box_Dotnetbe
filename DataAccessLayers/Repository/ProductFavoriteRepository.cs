@@ -66,15 +66,15 @@ namespace DataAccessLayers.Repository
                 .Where(img => img != null)
                 .Take(4)
                 .ToList();
-
-            return new List<UserCollectionGetAllDto>
+            
+           return new List<UserCollectionGetAllDto>
             {
                 new UserCollectionGetAllDto
                 {
                     Id = "FavoriteList",
                     UserId = userId,
                     CollectionId = null,
-                    CollectionTopic = "Favorite List",
+                    CollectionTopic = "Favorites",
                     Image = images,
                     Count = 0
                 }

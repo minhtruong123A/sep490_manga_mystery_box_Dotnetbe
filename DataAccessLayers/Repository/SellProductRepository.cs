@@ -114,7 +114,43 @@ namespace DataAccessLayers.Repository
 
             return true;
         }
+        public async Task<bool> CancelSellProductAsync(string sellProductId)
+        {
+            var filterSellProduct = Builders<SellProduct>.Filter.Eq(x => x.Id, sellProductId);
 
+            var sellProduct = await _sellProductCollection.Find(x => x.Id.Equals(sellProductId)).FirstOrDefaultAsync();
+            if (sellProduct != null) throw new Exception("Not found SellProduct");
+            var updateStatusSell = Builders<SellProduct>.Update
+                .Set(x => x.IsSell, false);
+            var updateQuantitySell = Builders<SellProduct>.Update
+                .Set(x => x.Quantity, 0);
+
+            var resultSellProduct= await _sellProductCollection.UpdateOneAsync(filterSellProduct, updateStatusSell);
+            resultSellProduct = await _sellProductCollection.UpdateOneAsync(filterSellProduct, updateQuantitySell);
+            if (resultSellProduct.ModifiedCount == 0) throw new Exception("Sell product not found.");
+
+            var userProduct = await _userProductCollection.Find(x => x.ProductId.Equals(sellProduct.ProductId) && x.CollectorId.Equals(sellProduct.SellerId)).FirstOrDefaultAsync();
+            var filterUserProduct = Builders<UserProduct>.Filter.And(
+               Builders<UserProduct>.Filter.Eq(x => x.Id, userProduct.Id),
+               Builders<UserProduct>.Filter.Eq(x => x.CollectorId, userProduct.CollectorId)
+           );
+            var updateQuantityUserProduct = Builders<UserProduct>.Update.Inc(x => x.Quantity, sellProduct.Quantity);
+            var resultUserProduct = await _userProductCollection.UpdateOneAsync(filterUserProduct, updateQuantityUserProduct);
+            if (resultUserProduct.ModifiedCount == 0) throw new Exception("User product not found.");
+
+            var updateUpdateDateUserProduct = Builders<UserProduct>.Update.Set(x => x.UpdateAt, DateTime.UtcNow);
+            resultUserProduct = await _userProductCollection.UpdateOneAsync(filterUserProduct, updateUpdateDateUserProduct);
+            if (resultUserProduct.ModifiedCount == 0) throw new Exception("product not found.");
+
+            var updateCheckQuantityIncUserProduct = Builders<UserProduct>.Update.Set(x => x.isQuantityUpdateInc, true);
+            resultUserProduct = await _userProductCollection.UpdateOneAsync(filterUserProduct, updateCheckQuantityIncUserProduct);
+            if (resultUserProduct.ModifiedCount == 0) throw new Exception("product not found.");
+
+            var updatedUserProduct = await _userProductCollection.Find(x => x.Id == userProduct.Id).FirstOrDefaultAsync();
+            if (updatedUserProduct == null) throw new Exception("Unexpected error: UserProduct not found after update.");
+
+            return true;
+        }
         public async Task<bool> ChangestatusSellProductAsync(string id)
         {
             var filter = Builders<SellProduct>.Filter.Eq(x => x.Id, id);

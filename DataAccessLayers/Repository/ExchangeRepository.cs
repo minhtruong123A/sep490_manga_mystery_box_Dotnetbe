@@ -328,6 +328,8 @@ namespace DataAccessLayers.Repository
             }
 
             var filter = Builders<UserProduct>.Filter.Where(x => x.CollectorId.Equals(userId) && x.ProductId.Equals(productId));
+            var updateCheckIncQuantity = Builders<UserProduct>.Update.Set(x => x.isQuantityUpdateInc, true);
+            var updateDate = Builders<UserProduct>.Update.Set(x => x.UpdateAt, DateTime.UtcNow);
             var existing = await _userProduct.Find(session, filter).FirstOrDefaultAsync();
 
             if (existing != null)
@@ -337,6 +339,8 @@ namespace DataAccessLayers.Repository
                     filter,
                     Builders<UserProduct>.Update.Inc(x => x.Quantity, quantity)
                 );
+                await _userProduct.UpdateOneAsync(session,filter, updateCheckIncQuantity);
+                await _userProduct.UpdateOneAsync(session, filter, updateDate);
             }
             else
             {
@@ -349,6 +353,8 @@ namespace DataAccessLayers.Repository
                     CollectedAt = DateTime.UtcNow
                 };
                 await _userProduct.InsertOneAsync(session, newUserProduct);
+                await _userProduct.UpdateOneAsync(session,filter, updateCheckIncQuantity);
+                await _userProduct.UpdateOneAsync(session, filter, updateDate);
             }
         }
 

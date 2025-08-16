@@ -17,6 +17,8 @@ namespace BusinessObjects
         public string ProductId { get; set; }
         public int Quantity { get; set; }
         public DateTime CollectedAt { get; set; }
+        public DateTime UpdateAt { get; set; }
         public string CollectorId { get; set; }
+        public bool isQuantityUpdateInc { get; set; }
     }
 }

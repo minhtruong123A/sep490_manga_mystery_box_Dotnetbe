@@ -61,8 +61,8 @@ namespace DataAccessLayers.Repository
 
             var infos = await _exchangeInfo.Find(p =>
                 sellIds.Contains(p.ItemReciveId) &&
-                p.Status == (int)ExchangeStatus.Pending || p.Status == (int)ExchangeStatus.Finish 
-                ).ToListAsync();
+                (p.Status == (int)ExchangeStatus.Pending || p.Status == (int)ExchangeStatus.Finish 
+                )).ToListAsync();
 
             if (!infos.Any()) return [];
 
@@ -205,6 +205,8 @@ namespace DataAccessLayers.Repository
             info.ItemGiveId = session.Id;
             await _exchangeSession.InsertOneAsync(session);
 
+            var sellProduct = await _sellProduct.Find(x => x.Id.Equals(info.ItemReciveId)).FirstOrDefaultAsync();
+            if (info.BuyerId.Equals(sellProduct.SellerId)) throw new Exception("Unable to exchange with oneself");
             await _exchangeInfo.InsertOneAsync(info);
 
 
@@ -247,7 +249,13 @@ namespace DataAccessLayers.Repository
                         Builders<SellProduct>.Filter.Eq(x => x.Id, info.ItemReciveId),
                         Builders<SellProduct>.Filter.Gte(x => x.Quantity, 1)
                     );
-                    var sellProductUpdate = Builders<SellProduct>.Update.Inc(x => x.Quantity, -1);
+                    var sellProduct = await _sellProduct.Find(session, x => x.Id == info.ItemReciveId).FirstOrDefaultAsync();
+                    var isSaleUpdate = sellProduct.Quantity - 1 <= 0 ? false : sellProduct.IsSell;
+
+                    var sellProductUpdate = Builders<SellProduct>.Update
+                        .Inc(x => x.Quantity, -1)
+                        .Set(x => x.IsSell, isSaleUpdate);
+
                     var updateSellResult = await _sellProduct.UpdateOneAsync(session, sellProductFilter, sellProductUpdate);
 
                     if (updateSellResult.ModifiedCount == 0)

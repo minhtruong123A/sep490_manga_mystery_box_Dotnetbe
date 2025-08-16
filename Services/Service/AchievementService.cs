@@ -33,7 +33,7 @@ namespace Services.Service
         public async Task<List<GetAchievementMedalRewardDto>> GetAllMedalPublicOfUserAsync(string userId) => await _unitOfWork.UserAchievementRepository.GetAllMedalPublicOfUserAsync(userId);
         public async Task<AchievementWithAllRewardDto> GetAchiementWithRewardByCollectionIdAsync(string collectionId) => await _unitOfWork.AchievementRepository.GetAchiementWithRewardByCollectionIdAsync(collectionId);
         public async Task<bool> ChangePublicOrPrivateAsync(string userRewardId) => await _unitOfWork.UserAchievementRepository.ChangePublicOrPrivateOfMedalAsync(userRewardId);
-        public async Task<AchievementOfUserCollectionCompletionProgressDto> GetUserCollectionCompletionProgressAsync(string userCollectionId) => await _unitOfWork.UserAchievementRepository.GetUserCollectionCompletionProgressAsync(userCollectionId);
+        public async Task<List<AchievementOfUserCollectionCompletionProgressDto>> GetUserCollectionCompletionProgressAsync(string userId) => await _unitOfWork.UserAchievementRepository.GetUserCollectionCompletionProgressAsync(userId);
         public async Task<bool> CreateAchievementOfCollection(string collectionId, string name_Achievement)
         {
             if (collectionId.Equals(_settings.UniqueRewardCollectionId)) return false;

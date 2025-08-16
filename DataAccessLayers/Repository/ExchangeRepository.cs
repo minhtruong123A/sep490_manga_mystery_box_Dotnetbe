@@ -26,7 +26,8 @@ namespace DataAccessLayers.Repository
         private readonly IMongoCollection<Product> _product;
         private readonly IMongoCollection<ProductInMangaBox> _productInMangaBox;
         private readonly IMongoCollection<MangaBox> _mangaBox;
-        private readonly IMongoCollection<UserCollection> _userCollection;
+        private readonly IMongoCollection<UserCollection> _userCollectionCollection;
+        private readonly IMongoCollection<User> _userCollection;
         private readonly IUserAchievementRepository _userAchievementRepository;
         private readonly IMongoClient _mongoClient;
         private readonly ExchangeSettings _settings;
@@ -41,7 +42,8 @@ namespace DataAccessLayers.Repository
             _product = context.GetCollection<Product>("Product");
             _productInMangaBox = context.GetCollection<ProductInMangaBox>("ProductInMangaBox");
             _mangaBox = context.GetCollection<MangaBox>("MangaBox");
-            _userCollection = context.GetCollection<UserCollection>("UserCollection");
+            _userCollectionCollection = context.GetCollection<UserCollection>("UserCollection");
+            _userCollection = context.GetCollection<User>("User");
             _mongoClient = mongoClient;
             _settings = settings.Value;
             _userAchievementRepository = userAchievementRepository;
@@ -49,6 +51,7 @@ namespace DataAccessLayers.Repository
 
         public async Task<List<ExchangeGetAllWithProductDto>> GetExchangesWithProductsByItemReciveIdAsync(string userId)
         {
+            var user = await _userCollection.Find(x=>x.Id.Equals(userId)).FirstOrDefaultAsync();
             var sellproducts = await _sellProduct.Find(x => x.SellerId.Equals(userId)).ToListAsync();
             var sellIds = sellproducts.Select(x => x.Id).Distinct().ToList();
             var sellps = sellproducts.Select(x => x.ProductId).Distinct().ToList();
@@ -64,6 +67,8 @@ namespace DataAccessLayers.Repository
             if (!infos.Any()) return [];
 
             await RejectIfExpiredAsync(infos);
+            var buyerIds = infos.Select(x => x.BuyerId).Distinct().ToList();
+            var buyers = await _userCollection.Find(x => buyerIds.Contains(x.Id)).ToListAsync();
             var sessionIds = infos.Select(x => x.ItemGiveId).Distinct().ToList();
             var exchangeSessions = await _exchangeSession.Find(x => sessionIds.Contains(x.Id)).ToListAsync();
             var eproducts = await _exchangeProduct.Find(p => sessionIds.Contains(p.ExchangeId)).ToListAsync();
@@ -95,17 +100,23 @@ namespace DataAccessLayers.Repository
                 var imageUrl = images.FirstOrDefault(p => p.Id == itemReciveProductId)?.UrlImage;
                 var exchangeSession = exchangeSessions.FirstOrDefault(x => x.Id.Equals(info.ItemGiveId));
                 var isFeedback = exchangeSession?.FeedbackId != null && exchangeSession.FeedbackId.Any();
-
+                var buyer = buyers.FirstOrDefault(x => x.Id.Equals(info.BuyerId));
 
                 return new ExchangeGetAllWithProductDto
                 {
                     Id = info.Id,
                     BuyerId = info.BuyerId,
+                    BuyerName = buyer.Username,
+                    BuyerImage = buyer.ProfileImage,
+                    SellerId = userId,
+                    SellerName = user.Username,
+                    SellerImage = user.ProfileImage,
                     ItemReciveId = info.ItemReciveId,
                     IamgeItemRecive = imageUrl,
                     ItemGiveId = info.ItemGiveId,
                     Status = info.Status,
                     Datetime = info.Datetime,
+                    Enddate = info.Datetime.AddDays(_settings.PendingExpireDays),
                     IsFeedback = isFeedback,
                     Products = productList
                 };
@@ -118,12 +129,17 @@ namespace DataAccessLayers.Repository
         }
         public async Task<List<ExchangeGetAllWithProductDto>> GetExchangesWithProductsOfBuyerAsync(string userId)
         {
+            var buyer =await _userCollection.Find(x=>x.Id.Equals(userId)).FirstOrDefaultAsync();
             var infos = await _exchangeInfo.Find(x => x.BuyerId == userId).ToListAsync();
             if (!infos.Any()) return [];
             await RejectIfExpiredAsync(infos);
 
             var itemReciveIds = infos.Select(x => x.ItemReciveId).Distinct().ToList();
             var sellProducts = await _sellProduct.Find(p => itemReciveIds.Contains(p.Id)).ToListAsync();
+
+            var sellerIds = sellProducts.Select(x => x.SellerId).Distinct().ToList();
+            var sellers = await _userCollection.Find(x => sellerIds.Contains(x.Id)).ToListAsync();
+
             var reciveProductIds = sellProducts.Select(x => x.ProductId).Distinct().ToList();
             var reciveProducts = await _product.Find(p => reciveProductIds.Contains(p.Id)).ToListAsync();
 
@@ -160,15 +176,23 @@ namespace DataAccessLayers.Repository
                 var reciveProduct = reciveProducts.FirstOrDefault(p => p.Id == sellProduct?.ProductId);
                 var exchangeSession = exchangeSessions.FirstOrDefault(x => x.Id.Equals(info.ItemGiveId));
                 var isFeedback = exchangeSession?.FeedbackId != null && exchangeSession.FeedbackId.Any();
+
+                var seller = sellers.FirstOrDefault(x => x.Id.Equals(sellProduct.SellerId));
                 return new ExchangeGetAllWithProductDto
                 {
                     Id = info.Id,
                     BuyerId = info.BuyerId,
+                    BuyerName = buyer.Username,
+                    BuyerImage = buyer.ProfileImage,
+                    SellerId = sellProduct?.SellerId,
+                    SellerName = seller.Username,
+                    SellerImage = seller.ProfileImage,
                     ItemReciveId = info.ItemReciveId,
                     IamgeItemRecive = reciveProduct?.UrlImage,
                     ItemGiveId = info.ItemGiveId,
                     Status = info.Status,
                     Datetime = info.Datetime,
+                    Enddate = info.Datetime.AddDays(_settings.PendingExpireDays),
                     IsFeedback = isFeedback,
                     Products = productList
                 };
@@ -289,7 +313,7 @@ namespace DataAccessLayers.Repository
 
             var collectionId = mangaBox.CollectionTopicId;
 
-            var userCollection = await _userCollection
+            var userCollection = await _userCollectionCollection
                 .Find(session, uc => uc.UserId.Equals(userId) && uc.CollectionId.Equals(collectionId))
                 .FirstOrDefaultAsync();
 
@@ -300,7 +324,7 @@ namespace DataAccessLayers.Repository
                     CollectionId = collectionId,
                     UserId = userId
                 };
-                await _userCollection.InsertOneAsync(session, userCollection);
+                await _userCollectionCollection.InsertOneAsync(session, userCollection);
             }
 
             var filter = Builders<UserProduct>.Filter.Where(x => x.CollectorId.Equals(userId) && x.ProductId.Equals(productId));

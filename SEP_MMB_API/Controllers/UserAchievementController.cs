@@ -96,11 +96,12 @@ namespace SEP_MMB_API.Controllers
         }
         [Authorize(Roles ="user")]
         [HttpGet("get-user-collection-completion-achievement-progress")]
-        public async Task<IActionResult> GetUserCollectionCompletionProgressAsync(string userCollectionId)
+        public async Task<IActionResult> GetUserCollectionCompletionProgressAsync()
         {
             try
             {
-                var data = await _achievementService.GetUserCollectionCompletionProgressAsync(userCollectionId);
+                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var data = await _achievementService.GetUserCollectionCompletionProgressAsync(account.Id);
                 if (data == null)
                 {
                     return NotFound(new ResponseModel<string>
@@ -112,7 +113,7 @@ namespace SEP_MMB_API.Controllers
                     });
                 }
 
-                return Ok(new ResponseModel<AchievementOfUserCollectionCompletionProgressDto>
+                return Ok(new ResponseModel<List<AchievementOfUserCollectionCompletionProgressDto>>
                 {
                     Success = true,
                     Data = data,

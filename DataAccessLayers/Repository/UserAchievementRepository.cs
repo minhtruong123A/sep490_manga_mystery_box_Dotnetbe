@@ -147,44 +147,59 @@ namespace DataAccessLayers.Repository
 
         }
 
-        public async Task<AchievementOfUserCollectionCompletionProgressDto> GetUserCollectionCompletionProgressAsync(string userCollectionId)
+        public async Task<List<AchievementOfUserCollectionCompletionProgressDto>> GetUserCollectionCompletionProgressAsync(string userId)
         {
-            var userCollection = await _userCollectionCollection.Find(x=>x.Id.Equals(userCollectionId)).FirstOrDefaultAsync();
-            var achievement = await _achievementCollection.Find(x => x.CollectionId.Equals(userCollection.CollectionId)).FirstOrDefaultAsync();
+            var userCollections = await _userCollectionCollection.Find(x=>x.UserId.Equals(userId)).ToListAsync();
+            var userCollectionIds = userCollections.Select(x=>x.CollectionId).Distinct().ToList();
 
-            var userRewards = await _userRewardCollection.Find(x => x.UserId.Equals(userCollection.UserId)).ToListAsync();
-            var rewards = await _rewardCollection.Find(x => x.AchievementId.Equals(achievement.Id)).ToListAsync();
-            var rewardDtos = rewards.Select(r =>
+            var achievements = await _achievementCollection.Find(x => userCollectionIds.Contains(x.CollectionId)).ToListAsync();
+            var achievementIds = achievements.Select(x => x.Id).Distinct().ToList();
+
+            var userRewards = await _userRewardCollection.Find(x => x.UserId.Equals(userId)).ToListAsync();
+            var rewards = await _rewardCollection.Find(x => achievementIds.Contains(x.AchievementId)).ToListAsync();
+           
+            return achievements.Select(a =>
             {
-                var existComplete = userRewards.FirstOrDefault(x => x.RewardId.Equals(r.Id));
-                if (existComplete != null)
+                var rewardDtos = rewards.Select(r =>
                 {
-                    return new ReawrdCompletionProgressOfUserCollectionDto
+                    if (r.AchievementId.Equals(a.Id))
                     {
-                        Conditions = r.Conditions,
-                        MangaBoxId = r.MangaBoxId,
-                        Quantity_box = r.Quantity_box,
-                        Url_image = r.Url_image ?? "",
-                        ísComplete = true
-                    };
-                }
-                return new ReawrdCompletionProgressOfUserCollectionDto
+                        var existComplete = userRewards.FirstOrDefault(x => x.RewardId.Equals(r.Id));
+                        if (existComplete != null)
+                        {
+                            return new ReawrdCompletionProgressOfUserCollectionDto
+                            {
+                                AchievementId = a.Id,
+                                Conditions = r.Conditions,
+                                MangaBoxId = r.MangaBoxId,
+                                Quantity_box = r.Quantity_box,
+                                Url_image = r.Url_image ?? "",
+                                ísComplete = true
+                            };
+                        }
+                        return new ReawrdCompletionProgressOfUserCollectionDto
+                        {
+                            AchievementId = a.Id,
+                            Conditions = r.Conditions,
+                            MangaBoxId = r.MangaBoxId,
+                            Quantity_box = r.Quantity_box,
+                            Url_image = r.Url_image ?? "",
+                            ísComplete = false
+                        };
+                    }
+                    return new ReawrdCompletionProgressOfUserCollectionDto();
+                }).ToList();
+
+                var collection = _collectionCollection.Find(x => x.Id.Equals(a.CollectionId)).FirstOrDefault();
+                return new AchievementOfUserCollectionCompletionProgressDto
                 {
-                    Conditions = r.Conditions,
-                    MangaBoxId = r.MangaBoxId,
-                    Quantity_box = r.Quantity_box,
-                    Url_image = r.Url_image ?? "",
-                    ísComplete = false
+                    Id = a.Id,
+                    CollectionId = a.CollectionId,
+                    AchievementName = a.Name,
+                    CollectionName = collection.Topic,
+                    dtos = rewardDtos.Where(x=>x.AchievementId!=null).ToList()
                 };
             }).ToList();
-            return new AchievementOfUserCollectionCompletionProgressDto
-            {
-                Id = achievement.Id,
-                CollectionId = achievement.CollectionId,
-                Name = achievement.Name,
-                dtos = rewardDtos
-            };
-
         }
     }
 }

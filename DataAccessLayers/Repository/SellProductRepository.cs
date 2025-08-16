@@ -572,7 +572,12 @@ namespace DataAccessLayers.Repository
             var userProduct = await _userProductCollection.Find(up => up.CollectorId == buyerId && up.ProductId == productId).FirstOrDefaultAsync();
             if (userProduct != null)
             {
-                var update = Builders<UserProduct>.Update.Inc(x => x.Quantity, quantity);
+                //var update = Builders<UserProduct>.Update.Inc(x => x.Quantity, quantity);
+                var update = Builders<UserProduct>.Update.Combine(
+                            Builders<UserProduct>.Update.Inc(x => x.Quantity, quantity),
+                            Builders<UserProduct>.Update.Set(x => x.UpdateAt, DateTime.UtcNow),
+                            Builders<UserProduct>.Update.Set(x => x.isQuantityUpdateInc, true)
+                 );
                 await _userProductCollection.UpdateOneAsync(x => x.Id == userProduct.Id, update);
             }
             else

@@ -13,6 +13,6 @@ namespace BusinessObjects.Dtos.Reward
         public string? Url_image { get; set; }
         public string MangaBoxId { get; set; }
         public int Quantity_box { get; set; }
-        public bool ísComplete { get; set; }
+        public bool isComplete { get; set; }
     }
 }

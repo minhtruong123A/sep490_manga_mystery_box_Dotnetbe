@@ -174,7 +174,7 @@ namespace DataAccessLayers.Repository
                                 MangaBoxId = r.MangaBoxId,
                                 Quantity_box = r.Quantity_box,
                                 Url_image = r.Url_image ?? "",
-                                ísComplete = true
+                                isComplete = true
                             };
                         }
                         return new ReawrdCompletionProgressOfUserCollectionDto
@@ -184,7 +184,7 @@ namespace DataAccessLayers.Repository
                             MangaBoxId = r.MangaBoxId,
                             Quantity_box = r.Quantity_box,
                             Url_image = r.Url_image ?? "",
-                            ísComplete = false
+                            isComplete = false
                         };
                     }
                     return new ReawrdCompletionProgressOfUserCollectionDto();

@@ -13,6 +13,8 @@ namespace BusinessObjects.Dtos.Product
         public string ProductId { get; set; }
         public int Quantity { get; set; }
         public DateTime CollectedAt { get; set; }
+        public DateTime UpdateAt { get; set; }
+        public bool isQuantityUpdateInc { get; set; }
         public string CollectorId { get; set; }
         public string ProductName { get; set; }
         public string UrlImage { get; set; }

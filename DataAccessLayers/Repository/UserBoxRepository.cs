@@ -116,6 +116,8 @@ namespace DataAccessLayers.Repository
             if (userProduct != null)
             {
                 userProduct.Quantity++;
+                userProduct.isQuantityUpdateInc = true;
+                userProduct.UpdateAt = DateTime.UtcNow;
                 await _userProductCollection.ReplaceOneAsync(p => p.Id == userProduct.Id, userProduct);
             }
             else
@@ -127,6 +129,8 @@ namespace DataAccessLayers.Repository
                     Quantity = 1,
                     CollectedAt = DateTime.UtcNow,
                     CollectorId = userId,
+                    UpdateAt = DateTime.UtcNow,
+                    isQuantityUpdateInc = true
                 };
                 await _userProductCollection.InsertOneAsync(userProduct);
             }

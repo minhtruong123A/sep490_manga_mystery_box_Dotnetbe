@@ -67,7 +67,9 @@ namespace DataAccessLayers.Repository
                     CollectorId = p.CollectorId,
                     ProductName = hasProduct ? product.Name : null,
                     UrlImage = hasProduct ? product.UrlImage : null,
-                    RarityName = rarityName
+                    RarityName = rarityName,
+                    UpdateAt = p.UpdateAt,
+                    isQuantityUpdateInc = p.isQuantityUpdateInc
                 };
             }));
 

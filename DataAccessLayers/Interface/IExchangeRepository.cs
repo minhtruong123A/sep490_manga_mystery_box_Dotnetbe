@@ -17,6 +17,7 @@ namespace DataAccessLayers.Interface
         Task<ExchangeInfo> GetExchangeInfoById(string id);
         Task<bool> CancelExchangeAsync(string exchangeId, string userId);
         Task<bool> RejectExchangeAsync(string exchangeId, string userId);
+        Task<bool> RejectExchangeAutoWhenCancelSellProductAsync(string sellProductId);
     }
 
 }

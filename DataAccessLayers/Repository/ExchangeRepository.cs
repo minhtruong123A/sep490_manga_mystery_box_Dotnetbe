@@ -443,5 +443,24 @@ namespace DataAccessLayers.Repository
             return true;
         }
 
+        public async Task<bool> RejectExchangeAutoWhenCancelSellProductAsync(string sellProductId)
+        {
+            var infos = await _exchangeInfo.Find(x => x.ItemReciveId.Equals(sellProductId)).ToListAsync();
+            if (infos == null) return true;
+            foreach (var info in infos.Where(x=>x.Status == (int)ExchangeStatus.Pending).ToList())
+            {
+                await _exchangeInfo.UpdateOneAsync(
+                x => x.Id == info.Id,
+                Builders<ExchangeInfo>.Update.Set(x => x.Status, (int)ExchangeStatus.Reject)
+                );
+
+                await _exchangeSession.UpdateOneAsync(
+                    x => x.Id == info.ItemGiveId,
+                    Builders<ExchangeSession>.Update.Set(x => x.Status, 0)
+                );
+            }
+            return true;
+        } 
+
     }
 }

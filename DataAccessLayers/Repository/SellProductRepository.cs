@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net.WebSockets;
 
 
 namespace DataAccessLayers.Repository
@@ -35,10 +36,11 @@ namespace DataAccessLayers.Repository
         private readonly IMongoCollection<MangaBox> _mangaBoxCollection;
         private readonly IMongoCollection<TransactionFee> _transactionFeeCollection;
         private readonly IUserAchievementRepository _userAchievementRepository;
+        private readonly IExchangeRepository _exchangeRepository;
         private readonly FeeSettings _feeSettings;
         private readonly ProductPriceSettings _priceSettings;
 
-        public SellProductRepository(MongoDbContext context, IOptions<FeeSettings> feeOptions, IOptions<ProductPriceSettings> priceSettings, IUserAchievementRepository userAchievementRepository) : base(context.GetCollection<SellProduct>("SellProduct"))
+        public SellProductRepository(MongoDbContext context, IOptions<FeeSettings> feeOptions, IOptions<ProductPriceSettings> priceSettings, IUserAchievementRepository userAchievementRepository, IExchangeRepository exchangeRepository) : base(context.GetCollection<SellProduct>("SellProduct"))
         {
             _sellProductCollection = context.GetCollection<SellProduct>("SellProduct");
             _userProductCollection = context.GetCollection<UserProduct>("User_Product");
@@ -57,6 +59,7 @@ namespace DataAccessLayers.Repository
             _feeSettings = feeOptions.Value;
             _priceSettings = priceSettings.Value;
             _userAchievementRepository = userAchievementRepository;
+            _exchangeRepository = exchangeRepository;
         }
 
         public async Task<int> CreateSellProductAsync(SellProductCreateDto dto, string userId)
@@ -116,6 +119,7 @@ namespace DataAccessLayers.Repository
         }
         public async Task<bool> CancelSellProductAsync(string sellProductId)
         {
+            await _exchangeRepository.RejectExchangeAutoWhenCancelSellProductAsync(sellProductId);
             var filterSellProduct = Builders<SellProduct>.Filter.Eq(x => x.Id, sellProductId);
 
             var sellProduct = await _sellProductCollection.Find(x => x.Id.Equals(sellProductId)).FirstOrDefaultAsync();
@@ -134,16 +138,14 @@ namespace DataAccessLayers.Repository
                Builders<UserProduct>.Filter.Eq(x => x.Id, userProduct.Id),
                Builders<UserProduct>.Filter.Eq(x => x.CollectorId, userProduct.CollectorId)
            );
-            var updateQuantityUserProduct = Builders<UserProduct>.Update.Inc(x => x.Quantity, sellProduct.Quantity);
-            var resultUserProduct = await _userProductCollection.UpdateOneAsync(filterUserProduct, updateQuantityUserProduct);
-            if (resultUserProduct.ModifiedCount == 0) throw new Exception("User product not found.");
+            var update = Builders<UserProduct>.Update.Combine(
+                              Builders<UserProduct>.Update.Inc(x => x.Quantity, sellProduct.Quantity),
+                              Builders<UserProduct>.Update.Set(x => x.UpdateAt, DateTime.UtcNow),
+                              Builders<UserProduct>.Update.Set(x => x.isQuantityUpdateInc, true)
+                         );
 
-            var updateUpdateDateUserProduct = Builders<UserProduct>.Update.Set(x => x.UpdateAt, DateTime.UtcNow);
-            resultUserProduct = await _userProductCollection.UpdateOneAsync(filterUserProduct, updateUpdateDateUserProduct);
-            if (resultUserProduct.ModifiedCount == 0) throw new Exception("product not found.");
-
-            var updateCheckQuantityIncUserProduct = Builders<UserProduct>.Update.Set(x => x.isQuantityUpdateInc, true);
-            resultUserProduct = await _userProductCollection.UpdateOneAsync(filterUserProduct, updateCheckQuantityIncUserProduct);
+            
+            var resultUserProduct = await _userProductCollection.UpdateOneAsync(filterUserProduct, update);
             if (resultUserProduct.ModifiedCount == 0) throw new Exception("product not found.");
 
             var updatedUserProduct = await _userProductCollection.Find(x => x.Id == userProduct.Id).FirstOrDefaultAsync();
@@ -580,8 +582,6 @@ namespace DataAccessLayers.Repository
                             Builders<UserProduct>.Update.Set(x => x.isQuantityUpdateInc, true)
                  );
                 await _userProductCollection.UpdateOneAsync(x => x.Id == userProduct.Id, update);
-                await _userProductCollection.UpdateOneAsync(x => x.Id == userProduct.Id, updateCheck);
-                await _userProductCollection.UpdateOneAsync(x => x.Id == userProduct.Id, updateDate);
             }
             else
             {

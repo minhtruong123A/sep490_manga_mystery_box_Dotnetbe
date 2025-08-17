@@ -228,5 +228,29 @@ namespace SEP_MMB_API.Controllers
                 return BadRequest(response);
             }
         }
+        [Authorize(Roles = "user")]
+        [HttpPatch("cancel-sell-product")]
+        public async Task<ActionResult<ResponseModel<object>>> CancelSellProduct(string sellProductId)
+        {
+            var response = new ResponseModel<object>();
+            try
+            {
+                bool exchange = await _sellProductService.CancelSellProductAsync(sellProductId);
+                response.Success = true;
+                response.Data = new
+                {
+                    Message = "Sell Product cancel successfully."
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Error = ex.Message;
+                response.ErrorCode = 400;
+                return BadRequest(response);
+            }
+        }
     }
 }

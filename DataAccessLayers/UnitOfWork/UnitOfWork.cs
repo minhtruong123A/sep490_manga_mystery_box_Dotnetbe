@@ -62,7 +62,7 @@ namespace DataAccessLayers.UnitOfWork
         public IUserRepository UserRepository => _users ??= new UserRepository(_context);
         public IEmailVerificationRepository EmailVerificationRepository => _emailVerificationRepository ??= new EmailVerificationRepository(_context);
         public IMangaBoxRepository MangaBoxRepository => _mangaBoxRepository ??= new MangaBoxRepository(_context);
-        public ISellProductRepository SellProductRepository => _sellProductRepository ??= new SellProductRepository(_context, _feeOptions, _productPriceSettings, UserAchievementRepository);
+        public ISellProductRepository SellProductRepository => _sellProductRepository ??= new SellProductRepository(_context, _feeOptions, _productPriceSettings, UserAchievementRepository, ExchangeRepository);
         public IUserCollectionRepository UserCollectionRepository => _userCollectionRepository ??= new UserCollectionRepository(_context, UserAchievementRepository);
         public ICommentRepository CommentRepository => _commentRepository ??= new CommentRepository(_context);
         public IPayOSRepository PayOSRepository => _payosRepository ??= new PayOSRepository(_context);

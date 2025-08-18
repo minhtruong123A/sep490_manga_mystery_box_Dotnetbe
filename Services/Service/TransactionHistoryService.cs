@@ -51,7 +51,7 @@ namespace Services.Service
             if (transaction == null) throw new Exception("Transaction not found");
             var wallet = await _unitOfWork.UseDigitalWalletRepository.GetByIdAsync(transaction.WalletId);
             if (wallet == null) throw new Exception("Wallet not found");
-
+            if (wallet.Ammount < transaction.Amount) throw new Exception("User wallet not enough");
             wallet.Ammount -= transaction.Amount;
             await _unitOfWork.UseDigitalWalletRepository.UpdateAsync(transaction.WalletId,wallet);
 

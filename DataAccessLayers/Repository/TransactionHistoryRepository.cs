@@ -72,6 +72,7 @@ namespace DataAccessLayers.Repository
                     BankId = userBank.BankId,
                     AccountBankName = userBank.AccountBankName,
                     BankNumber = userBank.BankNumber,
+                    TransactionCode = tr.TransactionCode
                 };
             }).ToList();
         }

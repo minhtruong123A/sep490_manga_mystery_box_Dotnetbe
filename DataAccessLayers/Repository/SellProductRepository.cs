@@ -123,7 +123,7 @@ namespace DataAccessLayers.Repository
             var filterSellProduct = Builders<SellProduct>.Filter.Eq(x => x.Id, sellProductId);
 
             var sellProduct = await _sellProductCollection.Find(x => x.Id.Equals(sellProductId)).FirstOrDefaultAsync();
-            if (sellProduct != null) throw new Exception("Not found SellProduct");
+            if (sellProduct == null) throw new Exception("Not found SellProduct");
             var updateStatusSell = Builders<SellProduct>.Update
                 .Set(x => x.IsSell, false);
             var updateQuantitySell = Builders<SellProduct>.Update

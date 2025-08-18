@@ -11,7 +11,6 @@ namespace DataAccessLayers.Interface
     public interface ITransactionHistoryRepository : IGenericRepository<TransactionHistory>
     {
         Task<List<TransactionHistoryDto>> GetTransactionsByWalletIdAsync(string walletId);
-        Task<List<TransactionHistoryDto>> GetTransactionsWithdrawByWalletIdAsync(string walletId);
         Task<List<TransactionHistoryRequestWithdrawOfUserDto>> GetAllRequestWithdrawAsync();
     }
 }

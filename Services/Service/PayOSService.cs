@@ -132,7 +132,7 @@ namespace Services.Service
             return updatedCount;
         }
 
-        private async Task<string> GetPayOSStatusViaSdkAsync(string orderCode)
+        public async Task<string> GetPayOSStatusViaSdkAsync(string orderCode)
         {
             try
             {

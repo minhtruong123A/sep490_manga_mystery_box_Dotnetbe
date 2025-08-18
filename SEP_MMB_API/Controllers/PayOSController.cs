@@ -98,5 +98,20 @@ namespace SEP_MMB_API.Controllers
                 });
             }
         }
+
+        [HttpGet("payment-status")]
+        public async Task<IActionResult> GetPaymentStatus([FromQuery] string orderCode)
+        {
+            if (string.IsNullOrWhiteSpace(orderCode))
+                return BadRequest(new { message = "orderCode is required" });
+
+            var status = await _payOSService.GetPayOSStatusViaSdkAsync(orderCode);
+
+            return Ok(new
+            {
+                orderCode,
+                status
+            });
+        }
     }
 }

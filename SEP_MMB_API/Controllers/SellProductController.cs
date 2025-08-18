@@ -228,6 +228,7 @@ namespace SEP_MMB_API.Controllers
                 return BadRequest(response);
             }
         }
+
         [Authorize(Roles = "user")]
         [HttpPatch("cancel-sell-product")]
         public async Task<ActionResult<ResponseModel<object>>> CancelSellProduct(string sellProductId)
@@ -250,6 +251,34 @@ namespace SEP_MMB_API.Controllers
                 response.Error = ex.Message;
                 response.ErrorCode = 400;
                 return BadRequest(response);
+            }
+        }
+
+        [Authorize(Roles = "user")]
+        [HttpGet("get-all-sellproduct-suggestions")]
+        public async Task<ActionResult<ResponseModel<List<SellProductGetAllDto>>>> GetAllSellProductSuggestions()
+        {
+            try
+            {
+                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var result = await _sellProductService.GetAllSellProductSuggestionsAsync(account.Id);
+
+                return Ok(new ResponseModel<List<SellProductGetAllDto>>
+                {
+                    Data = result,
+                    Error = null,
+                    Success = true
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<List<SellProductGetAllDto>>
+                {
+                    Data = null,
+                    Error = ex.Message,
+                    Success = false,
+                    ErrorCode = 400
+                });
             }
         }
     }

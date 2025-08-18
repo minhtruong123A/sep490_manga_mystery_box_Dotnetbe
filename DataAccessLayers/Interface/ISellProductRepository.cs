@@ -19,5 +19,6 @@ namespace DataAccessLayers.Interface
                 Task<List<SellProductGetAllDto>> GetAllProductOnSaleOfUserIdAsync(string id);
                 Task<SellProductDetailDto?> GetProductDetailByIdAsync(string id);
                 Task<string> BuySellProductAsync(string buyerId, string sellProductId, int quantity);
+                Task<List<SellProductGetAllDto>> GetAllSellProductSuggestionsAsync(string userId);
         }
 }

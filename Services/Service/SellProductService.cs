@@ -36,6 +36,8 @@ namespace Services.Service
         //if (product != null && !string.IsNullOrEmpty(product.UrlImage)) product.UrlImage = await _supabaseStorageHelper.CreateSignedUrlAsync(product.UrlImage);
 
                 public async Task<string> BuySellProductAsync(string buyerId, string sellProductId, int quantity) => await _uniUnitOfWork.SellProductRepository.BuySellProductAsync(buyerId, sellProductId, quantity);
+                public async Task<List<SellProductGetAllDto>> GetAllSellProductSuggestionsAsync(string userId) => await _uniUnitOfWork.SellProductRepository.GetAllSellProductSuggestionsAsync(userId);
+
 
 
                 public async Task<bool> CancelSellProductAsync(string sellProductId) => await _uniUnitOfWork.SellProductRepository.CancelSellProductAsync(sellProductId);

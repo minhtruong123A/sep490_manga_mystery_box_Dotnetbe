@@ -21,6 +21,7 @@ namespace Services.Service
         }
 
         public async Task<List<TransactionHistoryDto>> GetTransactionHistoryAsync(string walletId) => await _unitOfWork.TransactionHistoryRepository.GetTransactionsByWalletIdAsync(walletId);
+        public async Task<List<TransactionHistoryDto>> GetTransactionsWithdrawByWalletIdAsync(string walletId) => await _unitOfWork.TransactionHistoryRepository.GetTransactionsWithdrawByWalletIdAsync(walletId);
         public async Task<bool> CreateRequestWithdrawAsync(string userId,int amount)
         {
             var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);

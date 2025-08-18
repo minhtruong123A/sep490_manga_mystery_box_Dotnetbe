@@ -48,6 +48,35 @@ namespace SEP_MMB_API.Controllers
                 });
             }
         }
+        [Authorize(Roles = "user")]
+        [HttpGet("withdraw-transaction-history")]
+        public async Task<ActionResult<ResponseModel<List<TransactionHistoryDto>>>> GetUserWalletWithdrawTransactions()
+        {
+            try
+            {
+                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var walletId = account.WalletId;
+                var transactions = await _transactionHistoryService.GetTransactionsWithdrawByWalletIdAsync(walletId);
+
+                return Ok(new ResponseModel<List<TransactionHistoryDto>>
+                {
+                    Data = transactions,
+                    Success = true,
+                    Error = null,
+                    ErrorCode = 0
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<List<TransactionHistoryDto>>
+                {
+                    Data = null,
+                    Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
         [Authorize]
         [HttpGet("withdraw-transaction-request")]
         public async Task<ActionResult<ResponseModel<List<TransactionHistoryRequestWithdrawOfUserDto>>>> GetRequestWithdrawTransaction()

@@ -99,19 +99,46 @@ namespace SEP_MMB_API.Controllers
             }
         }
 
+        [Authorize(Roles = "user")]
         [HttpGet("payment-status")]
-        public async Task<IActionResult> GetPaymentStatus([FromQuery] string orderCode)
+        public async Task<ActionResult<ResponseModel<object>>> GetPaymentStatus([FromQuery] string orderCode)
         {
-            if (string.IsNullOrWhiteSpace(orderCode))
-                return BadRequest(new { message = "orderCode is required" });
-
-            var status = await _payOSService.GetPayOSStatusViaSdkAsync(orderCode);
-
-            return Ok(new
+            try
             {
-                orderCode,
-                status
-            });
+                if (string.IsNullOrWhiteSpace(orderCode))
+                {
+                    return BadRequest(new ResponseModel<object>
+                    {
+                        Data = null,
+                        Success = false,
+                        Error = "orderCode is required",
+                        ErrorCode = 400
+                    });
+                }
+
+                var status = await _payOSService.GetPayOSStatusViaSdkAsync(orderCode);
+
+                return Ok(new ResponseModel<object>
+                {
+                    Data = new
+                    {
+                        orderCode,
+                        status
+                    },
+                    Success = true,
+                    Error = null
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<object>
+                {
+                    Data = null,
+                    Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
         }
     }
 }

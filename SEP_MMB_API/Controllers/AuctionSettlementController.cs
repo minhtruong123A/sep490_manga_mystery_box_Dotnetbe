@@ -17,7 +17,6 @@ namespace SEP_MMB_API.Controllers
             _auctionSettlementService = auctionSettlementService;
         }
 
-        [Authorize]
         [HttpPost("finalize-auction/{auctionId}")]
         public async Task<ActionResult<ResponseModel<object>>> FinalizeAuction(string auctionId)
         {

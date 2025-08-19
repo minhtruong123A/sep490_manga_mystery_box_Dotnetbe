@@ -36,7 +36,7 @@ namespace Services.Service
                 Type = (int)TransactionType.Withdraw,
                 Status = (int)TransactionStatus.Pending,
                 DataTime = DateTime.UtcNow,
-                TransactionCode = null
+                TransactionCode = "WAITING_MOD_REVIEW"
             };
             await _unitOfWork.TransactionHistoryRepository.AddAsync(newWithdraw);
             await _unitOfWork.SaveChangesAsync();
@@ -68,6 +68,7 @@ namespace Services.Service
             if (transaction == null) throw new Exception("Transaction not found");
 
             transaction.Status = (int)TransactionStatus.Cancel;
+            transaction.TransactionCode = "REJECTED_BY_MOD";
             await _unitOfWork.TransactionHistoryRepository.UpdateAsync(transactionId, transaction);
             await _unitOfWork.SaveChangesAsync();
             return true;

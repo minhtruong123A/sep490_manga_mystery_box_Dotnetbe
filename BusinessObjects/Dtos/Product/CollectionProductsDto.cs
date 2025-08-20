@@ -19,5 +19,6 @@ namespace BusinessObjects.Dtos.Product
         public string ProductName { get; set; }
         public string UrlImage { get; set; }
         public string RarityName { get; set; }
+        public bool Product_isBlock {  get; set; }
     }
 }

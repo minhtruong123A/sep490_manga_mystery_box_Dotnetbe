@@ -54,7 +54,7 @@ namespace DataAccessLayers.Repository
             {
                 var productId = p.ProductId.Trim();
                 var hasProduct = productDict.TryGetValue(productId, out var product);
-                var rarity = await _rarityCollection.Find(x => x.Id == p.ProductId).FirstOrDefaultAsync();
+                var rarity = await _rarityCollection.Find(x => x.Id == product.RarityId).FirstOrDefaultAsync();
                 var rarityName = rarity?.Name ?? "Unknown";
 
                 return new CollectionProductsDto
@@ -69,7 +69,8 @@ namespace DataAccessLayers.Repository
                     UrlImage = hasProduct ? product.UrlImage : null,
                     RarityName = rarityName,
                     UpdateAt = p.UpdateAt,
-                    isQuantityUpdateInc = p.isQuantityUpdateInc
+                    isQuantityUpdateInc = p.isQuantityUpdateInc,
+                    Product_isBlock = product.Is_Block,
                 };
             }));
 

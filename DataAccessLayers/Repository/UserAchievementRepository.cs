@@ -2,7 +2,9 @@
 using BusinessObjects.Dtos.Achievement;
 using BusinessObjects.Dtos.Reward;
 using BusinessObjects.Mongodb;
+using BusinessObjects.Options;
 using DataAccessLayers.Interface;
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -23,8 +25,8 @@ namespace DataAccessLayers.Repository
         private readonly IMongoCollection<Collection> _collectionCollection;
         private readonly IMongoCollection<Product> _productCollection;
         private readonly IMongoCollection<UserBox> _userBoxCollection;
-
-        public UserAchievementRepository(MongoDbContext context) : base(context.GetCollection<UserAchievement>("UserAchievement"))
+        private readonly RewardSettings _settings;
+        public UserAchievementRepository(MongoDbContext context, IOptions<RewardSettings> settings) : base(context.GetCollection<UserAchievement>("UserAchievement"))
         {
             _userAchievementCollection = context.GetCollection<UserAchievement>("UserAchievement");
             _achievementCollection = context.GetCollection<Achievement>("Achievement");
@@ -35,6 +37,7 @@ namespace DataAccessLayers.Repository
             _collectionCollection = context.GetCollection<Collection>("Collection");
             _productCollection = context.GetCollection<Product>("Product");
             _userBoxCollection = context.GetCollection<UserBox>("UserBox");
+            _settings = settings.Value;
         }
 
         public async Task<bool> CheckAchievement(string userID)
@@ -61,14 +64,20 @@ namespace DataAccessLayers.Repository
                         var exist = await _userRewardCollection.Find(x=>x.RewardId.Equals(reward.Id)&&x.UserId.Equals(userID)).FirstOrDefaultAsync();
                         if (exist == null)
                         {
-                            var newRewardBox = new UserBox
+                            var rewardBoxExist = await _userBoxCollection.Find(x => x.BoxId.Equals(_settings.UniqueRewardMangaBoxId)).FirstOrDefaultAsync();
+                            if (rewardBoxExist == null)
                             {
-                                BoxId = reward.MangaBoxId,
-                                Quantity = reward.Quantity_box,
-                                UserId = userID,
-                                UpdatedAt = DateTime.UtcNow,
-                            };
-                            await _userBoxCollection.InsertOneAsync(newRewardBox);
+                                var newRewardBox = new UserBox
+                                {
+                                    BoxId = reward.MangaBoxId,
+                                    Quantity = reward.Quantity_box,
+                                    UserId = userID,
+                                    UpdatedAt = DateTime.UtcNow,
+                                };
+                                await _userBoxCollection.InsertOneAsync(newRewardBox);
+                            }
+                            var updateQuantity = Builders<UserBox>.Update.Inc(x => x.Quantity, reward.Quantity_box);
+                            await _userBoxCollection.UpdateOneAsync(rewardBoxExist.Id, updateQuantity);
 
                             var newUserReward = new UserReward {RewardId = reward.Id, UserId = userID, isReceive = true };
                             await _userRewardCollection.InsertOneAsync(newUserReward);

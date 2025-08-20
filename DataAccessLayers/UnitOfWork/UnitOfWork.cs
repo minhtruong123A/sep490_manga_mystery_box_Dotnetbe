@@ -19,6 +19,7 @@ namespace DataAccessLayers.UnitOfWork
         private readonly IOptions<FavoritesSettings> _favoritesSettings;
         private readonly IOptions<ExchangeSettings> _exchangeSettings;
         private readonly IOptions<ProductPriceSettings> _productPriceSettings;
+        private readonly IOptions<RewardSettings> _rewardSettings;
         private readonly IMongoClient _mongoClient;
         private IUserRepository _users;
         private IEmailVerificationRepository _emailVerificationRepository;
@@ -93,16 +94,17 @@ namespace DataAccessLayers.UnitOfWork
         public IRarityRepository RarityRepository => _rarityRepository ??= new RarityRepository(_context);
         public IAchievementRepository AchievementRepository => _achievementRepository ??= new AchievementRepository(_context);
         public IRewardRepository RewardRepository => _rewardRepository ??= new RewardRepository(_context);
-        public IUserAchievementRepository UserAchievementRepository => _userAchievementRepository ??= new UserAchievementRepository(_context);
+        public IUserAchievementRepository UserAchievementRepository => _userAchievementRepository ??= new UserAchievementRepository(_context, _rewardSettings);
         public IAuctionSessionRepository AuctionSessionRepository => _auctionSessionRepository ??= new AuctionSessionRepository(_context);
 
-        public UnitOfWork(MongoDbContext context, IOptions<FeeSettings> feeOptions, IOptions<FavoritesSettings> favoritesSettings, IOptions<ExchangeSettings> exchangeSettings, IOptions<ProductPriceSettings> productPriceSettings)
+        public UnitOfWork(MongoDbContext context, IOptions<FeeSettings> feeOptions, IOptions<FavoritesSettings> favoritesSettings, IOptions<ExchangeSettings> exchangeSettings, IOptions<ProductPriceSettings> productPriceSettings, IOptions<RewardSettings> rewardSettings)
         {
             _context = context;
             _feeOptions = feeOptions ?? throw new ArgumentNullException(nameof(feeOptions));
             _favoritesSettings = favoritesSettings ?? throw new ArgumentNullException(nameof(favoritesSettings));
             _exchangeSettings = exchangeSettings ?? throw new ArgumentNullException(nameof(exchangeSettings));
             _productPriceSettings = productPriceSettings ?? throw new ArgumentNullException(nameof(productPriceSettings));
+            _rewardSettings = rewardSettings ?? throw new ArgumentNullException(nameof(rewardSettings));
         }
 
         public Task SaveChangesAsync() => Task.CompletedTask;

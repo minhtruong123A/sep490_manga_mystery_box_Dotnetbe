@@ -98,7 +98,7 @@ namespace DataAccessLayers.UnitOfWork
         public IAuctionSessionRepository AuctionSessionRepository => _auctionSessionRepository ??= new AuctionSessionRepository(_context);
 
 
-        public UnitOfWork(MongoDbContext context, IOptions<FeeSettings> feeOptions, IOptions<FavoritesSettings> favoritesSettings, IOptions<ExchangeSettings> exchangeSettings, IOptions<ProductPriceSettings> productPriceSettings, IOptions<RewardSettings> rewardSettings)
+        public UnitOfWork(MongoDbContext context, IMongoClient mongoClient, IOptions<FeeSettings> feeOptions, IOptions<FavoritesSettings> favoritesSettings, IOptions<ExchangeSettings> exchangeSettings, IOptions<ProductPriceSettings> productPriceSettings, IOptions<RewardSettings> rewardSettings)
         {
             _context = context;
             _mongoClient = mongoClient;

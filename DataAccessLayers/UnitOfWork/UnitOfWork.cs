@@ -66,7 +66,7 @@ namespace DataAccessLayers.UnitOfWork
         public ISellProductRepository SellProductRepository => _sellProductRepository ??= new SellProductRepository(_context, _feeOptions, _productPriceSettings, UserAchievementRepository, ExchangeRepository);
         public IUserCollectionRepository UserCollectionRepository => _userCollectionRepository ??= new UserCollectionRepository(_context, UserAchievementRepository);
         public ICommentRepository CommentRepository => _commentRepository ??= new CommentRepository(_context);
-        public IPayOSRepository PayOSRepository => _payosRepository ??= new PayOSRepository(_context);
+        public IPayOSRepository PayOSRepository => _payosRepository ??= new PayOSRepository(_context, _mongoClient);
         public IUseDigitalWalletRepository UseDigitalWalletRepository => _useDigitalWalletRepository ??= new UseDigitalWalletRepository(_context);
         public ITransactionHistoryRepository TransactionHistoryRepository => _transactionHistoryRepository ??= new TransactionHistoryRepository(_context);
         public ICartRepository CartRepository => _cartRepository ??= new CartRepository(_context);
@@ -97,9 +97,11 @@ namespace DataAccessLayers.UnitOfWork
         public IUserAchievementRepository UserAchievementRepository => _userAchievementRepository ??= new UserAchievementRepository(_context, _rewardSettings);
         public IAuctionSessionRepository AuctionSessionRepository => _auctionSessionRepository ??= new AuctionSessionRepository(_context);
 
+
         public UnitOfWork(MongoDbContext context, IOptions<FeeSettings> feeOptions, IOptions<FavoritesSettings> favoritesSettings, IOptions<ExchangeSettings> exchangeSettings, IOptions<ProductPriceSettings> productPriceSettings, IOptions<RewardSettings> rewardSettings)
         {
             _context = context;
+            _mongoClient = mongoClient;
             _feeOptions = feeOptions ?? throw new ArgumentNullException(nameof(feeOptions));
             _favoritesSettings = favoritesSettings ?? throw new ArgumentNullException(nameof(favoritesSettings));
             _exchangeSettings = exchangeSettings ?? throw new ArgumentNullException(nameof(exchangeSettings));

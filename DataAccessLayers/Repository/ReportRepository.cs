@@ -131,14 +131,14 @@ namespace DataAccessLayers.Repository
                     Id = report.Id,
                     SellerId = report.SellerId,
                     Content = report.Content,
-                    CreatedAt = report.CreatedAt, // tốt hơn dùng thời gian tạo từ DB thay vì DateTime.Now
-                    ProductName = product?.Name ?? "Unknown",
-                    SellerName = user?.Username ?? "Unknown",
-                    SellProductId = sellproduct?.Id ?? "Unknown",
+                    CreatedAt = report.CreatedAt, 
+                    ProductName = product?.Name,
+                    SellerName = user?.Username ,
+                    SellProductId = sellproduct?.Id ,
                     Status = report.Status,
                     Title = report.Title,
                     UserId = report.UserId,
-                    UserName = userReport?.Username ?? "Unknown",
+                    UserName = userReport?.Username ,
                 };
             }).ToList();
         }

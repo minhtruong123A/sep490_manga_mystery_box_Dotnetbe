@@ -26,7 +26,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var data = await _reportService.GetAllAsync();
+                var data = await _reportService.GetAllReportAsync();
                 if (data == null)
                 {
                     return NotFound(new ResponseModel<string>
@@ -38,7 +38,7 @@ namespace SEP_MMB_API.Controllers
                     });
                 }
 
-                return Ok(new ResponseModel<List<Report>>
+                return Ok(new ResponseModel<List<ReportResponeDto>>
                 {
                     Success = true,
                     Data = data,

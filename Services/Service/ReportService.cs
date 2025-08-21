@@ -34,10 +34,9 @@ namespace Services.Service
             return true;
         }
 
-        public async Task<List<Report>> GetAllAsync()
+        public async Task<List<ReportResponeDto>> GetAllReportAsync()
         {
-           var result = await _uniUnitOfWork.ReportRepository.GetAllAsync();
-           return result.ToList();
+           return await _uniUnitOfWork.ReportRepository.GetAllReportAsync();
         }
 
         public async Task<List<ReportResponeDto>> GetAllReportOfUserAsync(string userId) => await _uniUnitOfWork.ReportRepository.GetAllReportOfUserAsync(userId);

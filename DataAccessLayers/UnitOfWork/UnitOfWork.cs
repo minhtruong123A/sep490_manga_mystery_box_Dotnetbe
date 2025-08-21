@@ -71,7 +71,7 @@ namespace DataAccessLayers.UnitOfWork
         public ITransactionHistoryRepository TransactionHistoryRepository => _transactionHistoryRepository ??= new TransactionHistoryRepository(_context);
         public ICartRepository CartRepository => _cartRepository ??= new CartRepository(_context);
         public IProductInMangaBoxRepository ProductInMangaBoxRepository => _productInMangaBoxRepository ?? new ProductInMangaBoxRepository(_context);
-        public IProductRepository ProductRepository => _productRepository ??= new ProductRepository(_context);
+        public IProductRepository ProductRepository => _productRepository ??= new ProductRepository(_context, SellProductRepository);
         public IUserBoxRepository UserBoxRepository => _userBoxRepository ??= new UserBoxRepository(_context, MangaBoxRepository, UserAchievementRepository);
         public IUserProductRepository UserProductRepository => _userProductRepository ??= new UserProductRepository(_context);
         public IMysteryBoxRepository MysteryBoxRepository => _mysteryBoxRepository ??= new MysteryBoxRepository(_context);

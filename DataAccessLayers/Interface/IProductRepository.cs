@@ -12,5 +12,6 @@ namespace DataAccessLayers.Interface
     {
         Task<ProductWithRarityDto?> GetProductWithRarityByIdAsync(string productId);
         Task<List<ProductWithRarityForModeratorDto>> GetAllProductsWithRarityAsync();
+        Task CheckProduct(string productId);
     }
 }

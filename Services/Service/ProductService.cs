@@ -85,6 +85,8 @@ namespace Services.Service
             }
             await _unitOfWork.ProductRepository.UpdateAsync(product.Id,product);
             await _unitOfWork.SaveChangesAsync();
+
+            await _unitOfWork.ProductRepository.CheckProduct(product.Id);
             return 1;
         }
     }

@@ -83,7 +83,7 @@ namespace SEP_MMB_API.Controllers
             {
                 var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
                 var transaction = await _transactionHistoryService.CreateRequestWithdrawAsync(account.Id,amount);
-                if (transaction == false)
+                if (transaction == null)
                 {
                     return BadRequest(new ResponseModel<string>
                     {
@@ -93,6 +93,17 @@ namespace SEP_MMB_API.Controllers
                         ErrorCode = 400
                     });
                 }
+                if (transaction is WithdrawLimitInfoDto limitInfo)
+                {
+                    return BadRequest(new ResponseModel<WithdrawLimitInfoDto>
+                    {
+                        Data = limitInfo,
+                        Success = false,
+                        Error = limitInfo.Message,
+                        ErrorCode = 400
+                    });
+                }
+
                 return Ok(new ResponseModel<string>
                 {
                     Data = "Create request withdraw successfull ",

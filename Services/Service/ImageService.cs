@@ -18,6 +18,8 @@ using DataAccessLayers.Repository;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 using System.Text.RegularExpressions;
+using BusinessObjects.Options;
+using Microsoft.Extensions.Options;
 
 namespace Services.Service
 {
@@ -31,6 +33,8 @@ namespace Services.Service
         private record CachedImage(byte[] Content, string ContentType);
         private static readonly FontCollection _fontCollection = new();
         private static readonly FontFamily _customFontFamily;
+        private readonly ImageProxySettings _proxySettings;
+
         static ImageService()
         {
             var fontPath = Path.Combine(AppContext.BaseDirectory, "Fonts", "arial.ttf");
@@ -40,13 +44,14 @@ namespace Services.Service
             }
         }
 
-        public ImageService(ISupabaseStorageHelper supabaseStorageHelper, IMemoryCache cache, IUnitOfWork unitOfWork, ILogger<ImageService> logger)
+        public ImageService(ISupabaseStorageHelper supabaseStorageHelper, IMemoryCache cache, IUnitOfWork unitOfWork, ILogger<ImageService> logger, IOptions<ImageProxySettings> proxySettings)
         {
             _supabaseStorageHelper = supabaseStorageHelper;
             _httpClient = new HttpClient();
             _cache = cache;
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _proxySettings = proxySettings.Value;
         }
 
         //cache warm-up
@@ -85,11 +90,14 @@ namespace Services.Service
                     {
                         var encodedPath = Uri.EscapeDataString(url);
                         //var proxyUrl = $"https://mmb-be-dotnet.onrender.com/api/ImageProxy/{encodedPath}";
-                        var proxyUrls = new[]
-                        {
-                            $"https://mmb-be-dotnet.onrender.com/api/ImageProxy/{encodedPath}",
-                            $"https://api.mmb.io.vn/cs/api/ImageProxy/{encodedPath}"
-                        };  
+                        //var proxyUrls = new[]
+                        //{
+                        //    $"https://mmb-be-dotnet.onrender.com/api/ImageProxy/{encodedPath}",
+                        //    $"https://api.mmb.io.vn/cs/api/ImageProxy/{encodedPath}"
+                        //};  
+                        var proxyUrls = _proxySettings.BaseUrls
+                            .Select(baseUrl => $"{baseUrl.TrimEnd('/')}/{_proxySettings.Path.Trim('/')}/{encodedPath}")
+                            .ToArray();
 
                         var cts = new CancellationTokenSource(TimeSpan.FromSeconds(50));
                         //await _httpClient.GetAsync(proxyUrl, cts.Token);

@@ -8,26 +8,62 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DataAccessLayers.Exceptions;
+using BusinessObjects.Options;
+using Microsoft.Extensions.Options;
 
 namespace Services.Service
 {
     public class TransactionHistoryService : ITransactionHistoryService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly WithdrawRulesSettings _withdrawRulesSettings;
 
-        public TransactionHistoryService(IUnitOfWork unitOfWork)
+        public TransactionHistoryService(IUnitOfWork unitOfWork, IOptions<WithdrawRulesSettings> withdrawRulesSettings)
         {
             _unitOfWork = unitOfWork;
+            _withdrawRulesSettings = withdrawRulesSettings.Value;
         }
 
         public async Task<List<TransactionHistoryDto>> GetTransactionHistoryAsync(string walletId) => await _unitOfWork.TransactionHistoryRepository.GetTransactionsByWalletIdAsync(walletId);
-        public async Task<bool> CreateRequestWithdrawAsync(string userId,int amount)
+        public async Task<object?> CreateRequestWithdrawAsync(string userId, int amount)
         {
             var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
             if (user == null) throw new Exception("User not found");
+
             var userBanks = await _unitOfWork.UserBankRepository.GetAllAsync();
-            var userBank = userBanks.FirstOrDefault(x=>x.UserId.Equals(user.Id));
-            if (userBank == null) return false;
+            var userBank = userBanks.FirstOrDefault(x => x.UserId.Equals(user.Id));
+            if (userBank == null) return null;
+
+            var todayStart = DateTime.UtcNow.Date;
+            var todayEnd = todayStart.AddDays(1).AddTicks(-1);
+            var withdrawCountTodayLong = await _unitOfWork.TransactionHistoryRepository.CountAsync(
+                x => x.WalletId == user.WalletId &&
+                     x.Type == (int)TransactionType.Withdraw &&
+                     x.DataTime >= todayStart &&
+                     x.DataTime <= todayEnd);
+            var withdrawCountToday = (int)withdrawCountTodayLong;
+            var remainingLimit = Math.Max(0, _withdrawRulesSettings.LimitWithdraw - withdrawCountToday);
+
+            if (amount < _withdrawRulesSettings.MinAmount || amount > _withdrawRulesSettings.MaxAmount)
+            {
+                return new WithdrawLimitInfoDto
+                {
+                    WithdrawCountToday = withdrawCountToday,
+                    RemainingLimit = remainingLimit,
+                    Message = $"Số tiền rút phải nằm trong khoảng từ {_withdrawRulesSettings.MinAmount:N0} VNĐ đến {_withdrawRulesSettings.MaxAmount:N0} VNĐ."
+                };
+            }
+
+            if (withdrawCountToday >= _withdrawRulesSettings.LimitWithdraw)
+            {
+                return new WithdrawLimitInfoDto
+                {
+                    WithdrawCountToday = withdrawCountToday,
+                    RemainingLimit = remainingLimit,
+                    Message = $"You have reached the maximum number of withdraw requests for today ({_withdrawRulesSettings.LimitWithdraw})."
+                };
+            }
 
             var newWithdraw = new TransactionHistory
             {
@@ -36,12 +72,20 @@ namespace Services.Service
                 Type = (int)TransactionType.Withdraw,
                 Status = (int)TransactionStatus.Pending,
                 DataTime = DateTime.UtcNow,
-                TransactionCode = "WAITING_MOD_REVIEW"
+                TransactionCode = _withdrawRulesSettings.Statuses.WaitingModReview
             };
             await _unitOfWork.TransactionHistoryRepository.AddAsync(newWithdraw);
             await _unitOfWork.SaveChangesAsync();
 
-            return true;
+            return new TransactionHistoryDto
+            {
+                Id = newWithdraw.Id,
+                Amount = newWithdraw.Amount,
+                Status = (TransactionStatus)newWithdraw.Status,
+                Type = (TransactionType)newWithdraw.Type,
+                DataTime = newWithdraw.DataTime,
+                TransactionCode = newWithdraw.TransactionCode
+            };
         }
 
         public async Task<List<TransactionHistoryRequestWithdrawOfUserDto>> GetAllRequestWithdrawAsync() => await _unitOfWork.TransactionHistoryRepository.GetAllRequestWithdrawAsync();
@@ -68,7 +112,7 @@ namespace Services.Service
             if (transaction == null) throw new Exception("Transaction not found");
 
             transaction.Status = (int)TransactionStatus.Cancel;
-            transaction.TransactionCode = "REJECTED_BY_MOD";
+            transaction.TransactionCode = _withdrawRulesSettings.Statuses.RejectedByMod;
             await _unitOfWork.TransactionHistoryRepository.UpdateAsync(transactionId, transaction);
             await _unitOfWork.SaveChangesAsync();
             return true;

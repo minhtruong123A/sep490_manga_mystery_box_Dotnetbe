@@ -127,5 +127,10 @@ namespace DataAccessLayers.Repository
         {
             return await _collection.Find(session, predicate).ToListAsync();
         }
+
+        public async Task<long> CountAsync(Expression<Func<T, bool>> expression)
+        {
+            return await _collection.CountDocumentsAsync(expression);
+        }
     }
 }

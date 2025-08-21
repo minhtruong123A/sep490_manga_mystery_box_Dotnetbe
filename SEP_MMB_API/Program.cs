@@ -155,6 +155,10 @@ builder.Services.Configure<RewardSettings>(builder.Configuration.GetSection("Rew
 builder.Services.Configure<ExchangeSettings>(builder.Configuration.GetSection("ExchangeSettings"));
 //Productpricesettings
 builder.Services.Configure<ProductPriceSettings>(builder.Configuration.GetSection("ProductPriceSettings"));
+//Withdrawrulessettings
+builder.Services.Configure<WithdrawRulesSettings>(builder.Configuration.GetSection("WithdrawRules"));
+//Imageproxysettings
+builder.Services.Configure<ImageProxySettings>(builder.Configuration.GetSection("ImageProxySettings"));
 
 //Repository
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));

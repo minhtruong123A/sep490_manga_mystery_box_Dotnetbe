@@ -51,7 +51,7 @@ namespace Services.Service
                 {
                     WithdrawCountToday = withdrawCountToday,
                     RemainingLimit = remainingLimit,
-                    Message = $"Số tiền rút phải nằm trong khoảng từ {_withdrawRulesSettings.MinAmount:N0} VNĐ đến {_withdrawRulesSettings.MaxAmount:N0} VNĐ."
+                    Message = $"The withdrawal amount must be between {_withdrawRulesSettings.MinAmount:N0} VND and {_withdrawRulesSettings.MaxAmount:N0} VND."
                 };
             }
 

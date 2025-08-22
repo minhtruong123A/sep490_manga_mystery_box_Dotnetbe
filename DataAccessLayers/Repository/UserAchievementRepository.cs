@@ -25,6 +25,8 @@ namespace DataAccessLayers.Repository
         private readonly IMongoCollection<Collection> _collectionCollection;
         private readonly IMongoCollection<Product> _productCollection;
         private readonly IMongoCollection<UserBox> _userBoxCollection;
+        private readonly IMongoCollection<MangaBox> _mangaBoxCollection;
+        private readonly IMongoCollection<MysteryBox> _mysteryBoxCollection;
         private readonly RewardSettings _settings;
         public UserAchievementRepository(MongoDbContext context, IOptions<RewardSettings> settings) : base(context.GetCollection<UserAchievement>("UserAchievement"))
         {
@@ -37,6 +39,8 @@ namespace DataAccessLayers.Repository
             _collectionCollection = context.GetCollection<Collection>("Collection");
             _productCollection = context.GetCollection<Product>("Product");
             _userBoxCollection = context.GetCollection<UserBox>("UserBox");
+            _mangaBoxCollection = context.GetCollection<MangaBox>("MangaBox");
+            _mysteryBoxCollection = context.GetCollection<MysteryBox>("MysteryBox");
             _settings = settings.Value;
         }
 
@@ -166,7 +170,10 @@ namespace DataAccessLayers.Repository
 
             var userRewards = await _userRewardCollection.Find(x => x.UserId.Equals(userId)).ToListAsync();
             var rewards = await _rewardCollection.Find(x => achievementIds.Contains(x.AchievementId)).ToListAsync();
-           
+
+            var mangaBox = await _mangaBoxCollection.Find(x => x.Id.Equals(_settings.UniqueRewardMangaBoxId)).FirstOrDefaultAsync();
+            var mysBox = await _mysteryBoxCollection.Find(x => x.Id.Equals(mangaBox.MysteryBoxId)).FirstOrDefaultAsync();
+
             return achievements.Select(a =>
             {
                 var rewardDtos = rewards.Select(r =>
@@ -183,6 +190,7 @@ namespace DataAccessLayers.Repository
                                 MangaBoxId = r.MangaBoxId,
                                 Quantity_box = r.Quantity_box,
                                 Url_image = r.Url_image ?? "",
+                                MangaBox_image = mysBox?.UrlImage ?? "",
                                 isComplete = true
                             };
                         }
@@ -193,6 +201,7 @@ namespace DataAccessLayers.Repository
                             MangaBoxId = r.MangaBoxId,
                             Quantity_box = r.Quantity_box,
                             Url_image = r.Url_image ?? "",
+                            MangaBox_image = mysBox?.UrlImage ?? "",
                             isComplete = false
                         };
                     }

@@ -20,56 +20,56 @@ namespace SEP_MMB_API.Controllers
             _authService = authService;
             _bankService = bankService;
         }
-        [Authorize]
-        [HttpGet("get-all-bank")]
-        public async Task<ActionResult<ResponseModel<List<Bank>>>> GetAllAsync()
-        {
-            try
-            {
+        //[Authorize]
+        //[HttpGet("get-all-bank")]
+        //public async Task<ActionResult<ResponseModel<List<Bank>>>> GetAllAsync()
+        //{
+        //    try
+        //    {
                 
-                var response = await _bankService.GetAllAsync();
+        //        var response = await _bankService.GetAllAsync();
 
-                return Ok(new ResponseModel<List<Bank>>
-                {
-                    Success = true,
-                    Data = response
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(400, new ResponseModel<object>
-                {
-                    Success = false,
-                    Error = ex.Message,
-                    ErrorCode = 400
-                });
-            }
-        }
+        //        return Ok(new ResponseModel<List<Bank>>
+        //        {
+        //            Success = true,
+        //            Data = response
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(400, new ResponseModel<object>
+        //        {
+        //            Success = false,
+        //            Error = ex.Message,
+        //            ErrorCode = 400
+        //        });
+        //    }
+        //}
 
-        [Authorize]
-        [HttpPost("system/add-bank")]
-        public async Task<ActionResult<ResponseModel<string>>> CreateBankAsync([FromBody] List<BankCreateDto> dto)
-        {
-            try
-            {
+        //[Authorize]
+        //[HttpPost("system/add-bank")]
+        //public async Task<ActionResult<ResponseModel<string>>> CreateBankAsync([FromBody] List<BankCreateDto> dto)
+        //{
+        //    try
+        //    {
 
-                var response = await _bankService.CreateAsync(dto);
+        //        var response = await _bankService.CreateAsync(dto);
 
-                return Ok(new ResponseModel<string>
-                {
-                    Success = true,
-                    Data = response
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(400, new ResponseModel<object>
-                {
-                    Success = false,
-                    Error = ex.Message,
-                    ErrorCode = 400
-                });
-            }
-        }
+        //        return Ok(new ResponseModel<string>
+        //        {
+        //            Success = true,
+        //            Data = response
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(400, new ResponseModel<object>
+        //        {
+        //            Success = false,
+        //            Error = ex.Message,
+        //            ErrorCode = 400
+        //        });
+        //    }
+        //}
     }
 }

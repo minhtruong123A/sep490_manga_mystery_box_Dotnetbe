@@ -88,6 +88,30 @@ namespace Services.Service
             };
         }
 
+        public async Task<List<UserTransactionDto>> GetAllUsersWithTransactionsAsync()
+        {
+            var users = await _unitOfWork.UserRepository.GetAllAsync();
+            var result = new List<UserTransactionDto>();
+
+            foreach (var user in users)
+            {
+                if (!string.IsNullOrEmpty(user.WalletId))
+                {
+                    var transactions = await _unitOfWork.TransactionHistoryRepository.GetTransactionsByWalletIdAsync(user.WalletId);
+
+                    result.Add(new UserTransactionDto
+                    {
+                        UserId = user.Id,
+                        Username = user.Username,
+                        WalletId = user.WalletId,
+                        Transactions = transactions
+                    });
+                }
+            }
+
+            return result;
+        }
+
         public async Task<List<TransactionHistoryRequestWithdrawOfUserDto>> GetAllRequestWithdrawAsync() => await _unitOfWork.TransactionHistoryRepository.GetAllRequestWithdrawAsync();
         public async Task<bool> AcceptTransactionWithdrawAsync(string transactionId, string transactionCode)
         {

@@ -14,6 +14,7 @@ namespace Services.Interface
         Task<object?> CreateRequestWithdrawAsync(string userId, int amount);
         Task<bool> AcceptTransactionWithdrawAsync(string transactionId, string transactionCode);
         Task<bool> RejectTransactionWithdrawAsync(string transactionId);
+        Task<List<UserTransactionDto>> GetAllUsersWithTransactionsAsync();
 
     }
 }

@@ -49,6 +49,32 @@ namespace SEP_MMB_API.Controllers
                 });
             }
         }
+        [Authorize]
+        [HttpPatch("checked-new-update-quantity-user-product")]
+        public async Task<ActionResult<ResponseModel<string>>> CheckedNewUpdateQuantityUserProduct(string userProductId)
+        {
+            try
+            {
+                var productsDto = await _userProductService.CheckedUpdateQuantityAsync(userProductId);
+
+                return Ok(new ResponseModel<string>
+                {
+                    Data = "Checked successfull",
+                    Error = null,
+                    Success = true
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string>
+                {
+                    Data = null,
+                    Error = ex.Message,
+                    Success = false,
+                    ErrorCode = 400
+                });
+            }
+        }
 
     }
 }

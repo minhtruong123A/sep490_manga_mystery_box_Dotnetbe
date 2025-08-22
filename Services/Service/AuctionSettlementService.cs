@@ -122,7 +122,12 @@ namespace Services.Service
             if (userProduct != null)
             {
                 var update = Builders<UserProduct>.Update.Inc(x => x.Quantity, quantity);
+                var updateIsQuantityUpdateInc = Builders<UserProduct>.Update.Set(x => x.isQuantityUpdateInc, true);
+                var updateUpdateAt = Builders<UserProduct>.Update.Set(x => x.UpdateAt, DateTime.UtcNow);
                 await _unitOfWork.UserProductRepository.UpdateFieldAsync(session, x => x.Id == userProduct.Id, update);
+                await _unitOfWork.UserProductRepository.UpdateFieldAsync(session, x => x.Id == userProduct.Id, updateIsQuantityUpdateInc);
+                await _unitOfWork.UserProductRepository.UpdateFieldAsync(session, x => x.Id == userProduct.Id, updateUpdateAt);
+                await _unitOfWork.SaveChangesAsync();
             }
             else
             {
@@ -132,7 +137,9 @@ namespace Services.Service
                     CollectorId = bidderId,
                     Quantity = quantity,
                     CollectedAt = DateTime.UtcNow,
-                    CollectionId = userCollection.Id
+                    CollectionId = userCollection.Id,
+                    isQuantityUpdateInc = true,
+                    UpdateAt = DateTime.UtcNow
                 };
                 await _unitOfWork.UserProductRepository.AddAsync(session, newUserProduct);
             }

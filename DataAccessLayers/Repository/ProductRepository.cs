@@ -83,8 +83,11 @@ namespace DataAccessLayers.Repository
             {
                 if (product.Is_Block)
                 {
-                    var updateStatus = Builders<MangaBox>.Update.Set(x => x.Status, 0);
-                    await _mangaBoxCollection.UpdateOneAsync(box.Id, updateStatus);
+                    var filter = Builders<MangaBox>.Filter.Eq(x => x.Id, box.Id);
+                    var update = Builders<MangaBox>.Update.Set(x => x.Status, 0);
+
+                    await _mangaBoxCollection.UpdateOneAsync(filter, update);
+
                 }
                 else
                 {
@@ -93,8 +96,13 @@ namespace DataAccessLayers.Repository
                     var productIsBlocks = await _productCollection.Find(x=> productBoxIds.Contains(x.Id) && x.Is_Block==true).ToListAsync();
                     if (!productIsBlocks.Any())
                     {
-                        var updateStatus = Builders<MangaBox>.Update.Set(x => x.Status, 1);
-                        await _mangaBoxCollection.UpdateOneAsync(box.Id, updateStatus);
+                        if (box.Status == 0)
+                        {
+                            var filter = Builders<MangaBox>.Filter.Eq(x => x.Id, box.Id);
+                            var updateStatus = Builders<MangaBox>.Update.Set(x => x.Status, 1);
+                            await _mangaBoxCollection.UpdateOneAsync(filter, updateStatus);
+                        }
+
                     }
                 }
             }

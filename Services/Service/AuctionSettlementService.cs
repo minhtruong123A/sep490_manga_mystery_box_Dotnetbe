@@ -1,4 +1,5 @@
 ﻿using BusinessObjects;
+using BusinessObjects.Dtos.Auction;
 using BusinessObjects.Options;
 using DataAccessLayers.Interface;
 using Microsoft.Extensions.Options;
@@ -157,6 +158,42 @@ namespace Services.Service
                 return true;
             }
             return false;
+        }
+
+        public async Task<AuctionResultDto?> GetAuctionResultByIdAsync(string auctionResultId)
+        {
+            var auctionResult = await _unitOfWork.AuctionResultRepository.FindOneAsync(ar => ar.Id == auctionResultId);
+            if (auctionResult == null) return null;
+
+            var product = await _unitOfWork.ProductRepository.FindOneAsync(p => p.Id == auctionResult.ProductId);
+            if (product == null) throw new Exception("Product not found");
+
+            var rarity = await _unitOfWork.RarityRepository.FindOneAsync(r => r.Id == product.RarityId);
+            if (rarity == null) throw new Exception("Rarity not found");
+
+            var bidder = await _unitOfWork.UserRepository.FindOneAsync(u => u.Id == auctionResult.BidderId);
+            var hoster = await _unitOfWork.UserRepository.FindOneAsync(u => u.Id == auctionResult.HosterId);
+
+            return new AuctionResultDto
+            {
+                Id = auctionResult.Id,
+                AuctionId = auctionResult.AuctionId,
+                ProductId = product.Id,
+                ProductName = product.Name,
+                ProductDescription = product.Description,
+                RarityId = rarity.Id,
+                RarityName = rarity.Name,
+                BidderId = auctionResult.BidderId,
+                BidderUsername = bidder?.Username,
+                BidderProfileImage = bidder?.ProfileImage,
+                HosterId = auctionResult.HosterId,
+                HosterUsername = hoster?.Username,
+                HosterProfileImage = hoster?.ProfileImage,
+                Quantity = auctionResult.Quantity,
+                BidderAmount = auctionResult.BidderAmount,
+                HostClaimAmount = auctionResult.HostClaimAmount,
+                IsSolved = auctionResult.IsSolved
+            };
         }
     }
 }

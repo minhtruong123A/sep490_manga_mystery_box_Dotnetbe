@@ -11,5 +11,6 @@ namespace Services.Interface
     {
         Task<List<OrderHistoryDto>> GetOrderHistoryAsync(string userId);
         Task<List<UserOrderHistoryResultDto>> GetAllUserOrderHistoriesAsync();
+        Task<OrderHistoryDto?> GetOrderHistoryByIdAsync(string orderHistoryId);
     }
 }

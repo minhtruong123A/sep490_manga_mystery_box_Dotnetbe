@@ -109,6 +109,10 @@ namespace DataAccessLayers.Repository
             {
                 return false;
             }
+
+            if (dto.Price < _priceSettings.MinPrice || dto.Price > _priceSettings.MaxPrice) throw new Exception($"Price must be between {_priceSettings.MinPrice:N0} VND and {_priceSettings.MaxPrice:N0} VND.");
+
+
             var filter = Builders<SellProduct>.Filter.Eq(x => x.Id, dto.Id);
             var update = Builders<SellProduct>.Update
                 .Set(x => x.Description, dto.Description)

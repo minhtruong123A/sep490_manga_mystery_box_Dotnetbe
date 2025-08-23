@@ -1,4 +1,5 @@
 ﻿using BusinessObjects;
+using BusinessObjects.Dtos.Auction;
 using BusinessObjects.Dtos.Schema_Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -85,6 +86,42 @@ namespace SEP_MMB_API.Controllers
                 {
                     Data = false,
                     Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpGet("get-by-id/{id}")]
+        public async Task<IActionResult> GetByIdAsync(string id)
+        {
+            try
+            {
+                var result = await _auctionSettlementService.GetAuctionResultByIdAsync(id);
+                if (result == null)
+                    return NotFound(new ResponseModel<string>
+                    {
+                        Success = false,
+                        Data = null,
+                        Error = "Auction result not found",
+                        ErrorCode = 404
+                    });
+
+                return Ok(new ResponseModel<AuctionResultDto>
+                {
+                    Success = true,
+                    Data = result,
+                    Error = null,
+                    ErrorCode = 0
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string>
+                {
+                    Success = false,
+                    Data = null,
                     Error = ex.Message,
                     ErrorCode = 400
                 });

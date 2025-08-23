@@ -592,7 +592,9 @@ namespace DataAccessLayers.Repository
                     CollectorId = buyerId,
                     Quantity = quantity,
                     CollectedAt = DateTime.UtcNow,
-                    CollectionId = userCollection.Id
+                    CollectionId = userCollection.Id,
+                    UpdateAt = DateTime.UtcNow,
+                    isQuantityUpdateInc = true
                 };
                 await _userProductCollection.InsertOneAsync(newUserProduct);
             }

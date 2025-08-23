@@ -1,4 +1,5 @@
 ﻿using BusinessObjects;
+using BusinessObjects.Dtos.Auction;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,6 @@ namespace Services.Interface
     {
         Task<bool> FinalizeAuctionResultAsync(string auctionId);
         Task<bool> ChangeStatusAsync(string auctionSessionId, int status);
+        Task<AuctionResultDto?> GetAuctionResultByIdAsync(string auctionResultId);
     }
 }

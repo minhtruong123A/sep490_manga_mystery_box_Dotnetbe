@@ -75,5 +75,42 @@ namespace SEP_MMB_API.Controllers
                 });
             }
         }
+
+        [Authorize(Roles = "admin")]
+        [HttpGet("{orderHistoryId}")]
+        public async Task<IActionResult> GetByIdAsync(string orderHistoryId)
+        {
+            try
+            {
+                var data = await _orderHistoryService.GetOrderHistoryByIdAsync(orderHistoryId);
+
+                if (data == null)
+                    return NotFound(new ResponseModel<string>
+                    {
+                        Success = false,
+                        Data = null,
+                        Error = "OrderHistory not found",
+                        ErrorCode = 404
+                    });
+
+                return Ok(new ResponseModel<OrderHistoryDto>
+                {
+                    Success = true,
+                    Data = data,
+                    Error = null,
+                    ErrorCode = 0
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string>
+                {
+                    Success = false,
+                    Data = null,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
     }
 }

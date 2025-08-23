@@ -122,7 +122,7 @@ namespace Services.Service
                                 SellerUrlImage = seller?.ProfileImage,
                                 IsSellSellProduct = sellProduct?.IsSell,
                                 Quantity = 1,
-                                TotalAmount = (int)Math.Floor(payment.Amount * 0.95),
+                                TotalAmount = (int)Math.Floor(payment.Amount * (1-_feeSettings.AuctionFeeRate)),
                                 TransactionCode = payment.Id.ToString(),
                                 PurchasedAt = history.Datetime,
                                 transactionFeeRate = _feeSettings.AuctionFeeRate
@@ -196,6 +196,81 @@ namespace Services.Service
             });
 
             return (await Task.WhenAll(tasks)).ToList();
+        }
+
+        public async Task<OrderHistoryDto?> GetOrderHistoryByIdAsync(string orderHistoryId)
+        {
+            var orderHistory = await _unitOfWork.OrderHistoryRepository.FindOneAsync(h => h.Id == orderHistoryId);
+            if (orderHistory == null) return null;
+
+            if (!string.IsNullOrEmpty(orderHistory.BoxOrderId))
+            {
+                if (!string.IsNullOrEmpty(orderHistory.BoxOrderId))
+                {
+                    var boxOrder = await _unitOfWork.BoxOrderRepository.FindOneAsync(b => b.Id.ToString() == orderHistory.BoxOrderId);
+                    if (boxOrder == null) return null;
+
+                    var mangaBox = await _unitOfWork.MangaBoxRepository.FindOneAsync(m => m.Id == boxOrder.BoxId);
+                    if (mangaBox == null) return null;
+
+                    var mysteryBox = await _unitOfWork.MysteryBoxRepository.FindOneAsync(m => m.Id == mangaBox.MysteryBoxId);
+                    if (mysteryBox == null) return null;
+
+                    var payment = await _unitOfWork.DigitalPaymentSessionRepository.FindOneAsync(p => p.OrderId == orderHistory.Id.ToString() && p.Type == nameof(DigitalPaymentSessionType.MysteryBox));
+                    if (payment == null) return null;
+
+                    return new OrderHistoryDto
+                    {
+                        Type = "Box",
+                        BoxId = mangaBox.Id,
+                        BoxName = mysteryBox.Name,
+                        Quantity = boxOrder.Quantity,
+                        TotalAmount = boxOrder.Amount,
+                        TransactionCode = payment.Id.ToString(),
+                        PurchasedAt = orderHistory.Datetime
+                    };
+                }
+            }
+
+            if (!string.IsNullOrEmpty(orderHistory.ProductOrderId))
+            {
+                if (!string.IsNullOrEmpty(orderHistory.ProductOrderId))
+                {
+                    var productOrder = await _unitOfWork.productOrderRepository.FindOneAsync(p => p.Id.ToString() == orderHistory.ProductOrderId);
+                    if (productOrder == null) return null;
+
+                    var sellProduct = await _unitOfWork.SellProductRepository.FindOneAsync(sp => sp.Id == productOrder.SellProductId);
+                    if (sellProduct == null) return null;
+
+                    var product = await _unitOfWork.ProductRepository.FindOneAsync(p => p.Id == sellProduct.ProductId);
+                    if (product == null) return null;
+
+                    var seller = await _unitOfWork.UserRepository.FindOneAsync(u => u.Id == productOrder.SellerId);
+
+                    var payment = await _unitOfWork.DigitalPaymentSessionRepository.FindOneAsync(p => p.OrderId == orderHistory.Id.ToString() && p.Type == nameof(DigitalPaymentSessionType.SellProduct));
+                    if (payment == null) return null;
+
+                    var isBuyer = productOrder.BuyerId == seller?.Id;
+
+                    return new OrderHistoryDto
+                    {
+                        Type = isBuyer ? "ProductBuy" : "ProductSell",
+                        SellProductId = productOrder.SellProductId,
+                        ProductId = product.Id,
+                        ProductName = product.Name,
+                        SellerUsername = seller?.Username,
+                        SellerUrlImage = seller?.ProfileImage,
+                        IsSellSellProduct = sellProduct?.IsSell,
+                        Quantity = 1,
+                        TotalAmount = isBuyer ? payment.Amount : (int)Math.Floor(payment.Amount * (1 - _feeSettings.AuctionFeeRate)),
+                        TransactionCode = payment.Id.ToString(),
+                        PurchasedAt = orderHistory.Datetime,
+                        transactionFeeRate = _feeSettings.AuctionFeeRate
+                    };
+                }
+            }
+
+            return null;
         }
     }
 }

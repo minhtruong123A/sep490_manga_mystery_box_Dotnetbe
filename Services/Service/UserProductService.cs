@@ -26,5 +26,16 @@ namespace Services.Service
         }
 
         public async Task<List<CollectionProductsDto>> GetAllWithDetailsAsync(string id, string collectionId) => await _uniUnitOfWork.UserProductRepository.GetAllWithDetailsAsync(id, collectionId);
+        public async Task<bool> CheckedUpdateQuantityAsync(string userProductId)
+        {
+            var userProduct = await _uniUnitOfWork.UserProductRepository.GetByIdAsync(userProductId);
+            if (userProduct == null) throw new Exception("User product not found!");
+
+            userProduct.isQuantityUpdateInc = false;
+            await _uniUnitOfWork.UserProductRepository.UpdateAsync(userProductId, userProduct);
+            await _uniUnitOfWork.SaveChangesAsync();
+
+            return true;
+        }
     }
 }

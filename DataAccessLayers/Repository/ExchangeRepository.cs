@@ -358,11 +358,11 @@ namespace DataAccessLayers.Repository
                     ProductId = productId,
                     Quantity = quantity,
                     CollectionId = userCollection.Id,
-                    CollectedAt = DateTime.UtcNow
+                    CollectedAt = DateTime.UtcNow,
+                    UpdateAt = DateTime.UtcNow,
+                    isQuantityUpdateInc = true
                 };
                 await _userProduct.InsertOneAsync(session, newUserProduct);
-                await _userProduct.UpdateOneAsync(session,filter, updateCheckIncQuantity);
-                await _userProduct.UpdateOneAsync(session, filter, updateDate);
             }
         }
 

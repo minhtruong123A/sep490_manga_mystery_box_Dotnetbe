@@ -230,6 +230,7 @@ builder.Services.AddScoped<IAuctionSettlementService, AuctionSettlementService>(
 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 builder.Services.AddScoped<IProductFavoriteService, ProductFavoriteService>();
 builder.Services.AddScoped<IAchievementService, AchievementService>();
+builder.Services.AddScoped<ITransactionFeeService, TransactionFeeService>();
 
 //AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

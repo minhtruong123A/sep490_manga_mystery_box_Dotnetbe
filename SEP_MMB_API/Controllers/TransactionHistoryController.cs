@@ -48,6 +48,35 @@ namespace SEP_MMB_API.Controllers
                 });
             }
         }
+
+        [Authorize(Roles = "admin")]
+        [HttpGet("all-users-transactions")]
+        public async Task<ActionResult<ResponseModel<List<UserTransactionDto>>>> GetAllUsersWithTransactions()
+        {
+            try
+            {
+                var result = await _transactionHistoryService.GetAllUsersWithTransactionsAsync();
+
+                return Ok(new ResponseModel<List<UserTransactionDto>>
+                {
+                    Data = result,
+                    Success = true,
+                    Error = null,
+                    ErrorCode = 0
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<List<UserTransactionDto>>
+                {
+                    Data = null,
+                    Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
+
         [Authorize]
         [HttpGet("withdraw-transaction-request")]
         public async Task<ActionResult<ResponseModel<List<TransactionHistoryRequestWithdrawOfUserDto>>>> GetRequestWithdrawTransaction()

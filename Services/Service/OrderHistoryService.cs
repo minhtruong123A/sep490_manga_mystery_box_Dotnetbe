@@ -262,7 +262,7 @@ namespace Services.Service
                         SellerUrlImage = seller?.ProfileImage,
                         IsSellSellProduct = sellProduct?.IsSell,
                         Quantity = 1,
-                        TotalAmount = isBuyer ? payment.Amount : (int)Math.Floor(payment.Amount * (1 - _feeSettings.AuctionFeeRate)),
+                        TotalAmount = payment.Amount,
                         TransactionCode = payment.Id.ToString(),
                         PurchasedAt = orderHistory.Datetime,
                         transactionFeeRate = _feeSettings.AuctionFeeRate

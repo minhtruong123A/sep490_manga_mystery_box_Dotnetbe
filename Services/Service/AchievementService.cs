@@ -57,8 +57,20 @@ namespace Services.Service
             string url = null;
 
             if (dto.Url_image != null) url = await _imageService.UploadProfileImageAsync(dto.Url_image);
-
-            var newReward = new Reward
+            if(dto.Quantity_box == null)
+            {
+                var newReward1 = new Reward
+                {
+                    AchievementId = achievement.Id,
+                    Conditions = dto.Conditions,
+                    MangaBoxId = _settings.UniqueRewardMangaBoxId,
+                    Quantity_box = 0,
+                    Url_image = url,
+                };
+                await _unitOfWork.RewardRepository.AddAsync(newReward1);
+                return true;
+            }
+             var newReward = new Reward
             {
                 AchievementId = achievement.Id,
                 Conditions = dto.Conditions,
@@ -67,6 +79,7 @@ namespace Services.Service
                 Url_image = url,
             };
             await _unitOfWork.RewardRepository.AddAsync(newReward);
+
             return true;
         }
         

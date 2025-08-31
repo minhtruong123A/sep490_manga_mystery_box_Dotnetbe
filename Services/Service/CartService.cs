@@ -41,6 +41,7 @@ namespace Services.Service
                 {
                     productList.Add(new CartProductDto
                     {
+                        CartProductId = cartProduct.Id,
                         SellProductId = cartProduct.SellProductId,
                         Product = detail,
                         Quantity = cartProduct.Quantity
@@ -56,6 +57,7 @@ namespace Services.Service
                 {
                     boxList.Add(new CartBoxDto
                     {
+                        CartBoxId = cartBox.Id,
                         MangaBoxId = cartBox.MangaBoxId,
                         Box = detail,
                         Quantity = cartBox.Quantity

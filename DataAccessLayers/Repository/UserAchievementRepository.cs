@@ -209,12 +209,15 @@ namespace DataAccessLayers.Repository
                 }).ToList();
 
                 var collection = _collectionCollection.Find(x => x.Id.Equals(a.CollectionId)).FirstOrDefault();
+                var userCollection = userCollections.FirstOrDefault(x => x.CollectionId.Equals(collection.Id));
+                var countUserProducts = _userProductCollection.Find(x => x.CollectionId.Equals(userCollection.Id)).ToList().Count();
                 return new AchievementOfUserCollectionCompletionProgressDto
                 {
                     Id = a.Id,
                     CollectionId = a.CollectionId,
                     AchievementName = a.Name,
                     CollectionName = collection.Topic,
+                    Count = countUserProducts,
                     dtos = rewardDtos.Where(x=>x.AchievementId!=null).ToList()
                 };
             }).ToList();

@@ -80,8 +80,12 @@ namespace DataAccessLayers.Repository
                                 };
                                 await _userBoxCollection.InsertOneAsync(newRewardBox);
                             }
+                            //var updateQuantity = Builders<UserBox>.Update.Inc(x => x.Quantity, reward.Quantity_box);
+                            //Console.WriteLine("ưefjiowfjojifeow" + rewardBoxExist.Id);
+                            //await _userBoxCollection.UpdateOneAsync(rewardBoxExist.Id, updateQuantity);
+                            var filter = Builders<UserBox>.Filter.Eq(x => x.Id, rewardBoxExist.Id);
                             var updateQuantity = Builders<UserBox>.Update.Inc(x => x.Quantity, reward.Quantity_box);
-                            await _userBoxCollection.UpdateOneAsync(rewardBoxExist.Id, updateQuantity);
+                            await _userBoxCollection.UpdateOneAsync(filter, updateQuantity);
 
                             var newUserReward = new UserReward {RewardId = reward.Id, UserId = userID, isReceive = true };
                             await _userRewardCollection.InsertOneAsync(newUserReward);

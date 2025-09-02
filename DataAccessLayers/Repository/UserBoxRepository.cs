@@ -87,6 +87,8 @@ namespace DataAccessLayers.Repository
             if (userBox.Quantity <= 0) throw new Exception("You have no boxes left to open.");
 
             var mangaBox = await _mangaBoxRepository.GetByIdWithDetailsAsync(userBox.BoxId);
+            Console.WriteLine("fsdfaadsafas" + mangaBox);
+            var gogo = mangaBox.Products;
             if (mangaBox == null || mangaBox.Products == null || !mangaBox.Products.Any()) throw new Exception("MangaBox not found or has no products.");
 
             var selectedProduct = RandomByChance(mangaBox.Products);
@@ -151,36 +153,47 @@ namespace DataAccessLayers.Repository
 
         private ProductInBoxDto RandomByChance(List<ProductInBoxDto> products)
         {
-            if (products == null || products.Count == 0) throw new ArgumentException("No products to choose from");
+            if (products == null || !products.Any())
+            {
+                throw new ArgumentException("No products to choose from");
+            }
 
             var rand = new Random();
-            var grouped = products
-                .GroupBy(p => p.Chance)
-                .OrderBy(g => g.Key)
+            var rarityChances = products
+                .GroupBy(p => p.RarityName)
+                .Select(group => new
+                {
+                    RarityName = group.Key,
+                    Chance = group.First().Chance
+                })
+                .OrderBy(r => r.Chance)
                 .ToList();
-            var ranges = new List<(double start, double end, List<ProductInBoxDto> items)>();
+
+            double rarityRoll = rand.NextDouble();
             double cumulative = 0;
+            string selectedRarityName = null;
 
-            foreach (var group in grouped)
+            foreach (var rarity in rarityChances)
             {
-                double rangeSize = group.Key * group.Count();
-                double start = cumulative;
-                double end = cumulative + rangeSize;
-
-                ranges.Add((start, end, group.ToList()));
-                cumulative = end;
+                cumulative += rarity.Chance;
+                if (rarityRoll < cumulative)
+                {
+                    selectedRarityName = rarity.RarityName;
+                    break;
+                }
             }
 
-            double roll = rand.NextDouble();
-
-            foreach (var (start, end, items) in ranges)
+            if (selectedRarityName == null)
             {
-                if (roll >= start && roll < end) return items[rand.Next(items.Count)];
-
+                selectedRarityName = rarityChances.Last().RarityName;
             }
 
-            return products.Last();
+            var itemsInSelectedRarity = products
+                .Where(p => p.RarityName == selectedRarityName)
+                .ToList();
+            int itemIndex = rand.Next(itemsInSelectedRarity.Count);
+
+            return itemsInSelectedRarity[itemIndex];
         }
-
     }
 }

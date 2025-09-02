@@ -81,8 +81,12 @@ namespace DataAccessLayers.Repository
                                 };
                                 await _userBoxCollection.InsertOneAsync(newRewardBox);
                             }
+                            //var updateQuantity = Builders<UserBox>.Update.Inc(x => x.Quantity, reward.Quantity_box);
+                            //Console.WriteLine("ưefjiowfjojifeow" + rewardBoxExist.Id);
+                            //await _userBoxCollection.UpdateOneAsync(rewardBoxExist.Id, updateQuantity);
+                            var filter = Builders<UserBox>.Filter.Eq(x => x.Id, rewardBoxExist.Id);
                             var updateQuantity = Builders<UserBox>.Update.Inc(x => x.Quantity, reward.Quantity_box);
-                            await _userBoxCollection.UpdateOneAsync(rewardBoxExist.Id, updateQuantity);
+                            await _userBoxCollection.UpdateOneAsync(filter, updateQuantity);
 
                             var newUserReward = new UserReward {RewardId = reward.Id, UserId = userID, isReceive = true };
                             await _userRewardCollection.InsertOneAsync(newUserReward);
@@ -210,12 +214,15 @@ namespace DataAccessLayers.Repository
                 }).ToList();
 
                 var collection = _collectionCollection.Find(x => x.Id.Equals(a.CollectionId)).FirstOrDefault();
+                var userCollection = userCollections.FirstOrDefault(x => x.CollectionId.Equals(collection.Id));
+                var countUserProducts = _userProductCollection.Find(x => x.CollectionId.Equals(userCollection.Id)).ToList().Count();
                 return new AchievementOfUserCollectionCompletionProgressDto
                 {
                     Id = a.Id,
                     CollectionId = a.CollectionId,
                     AchievementName = a.Name,
                     CollectionName = collection.Topic,
+                    Count = countUserProducts,
                     dtos = rewardDtos.Where(x=>x.AchievementId!=null).ToList()
                 };
             }).ToList();

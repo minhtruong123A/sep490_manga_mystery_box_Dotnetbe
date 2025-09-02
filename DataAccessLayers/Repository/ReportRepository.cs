@@ -33,6 +33,7 @@ namespace DataAccessLayers.Repository
         public async Task<bool> CreateReportAsync(ReportCreateDto dto, string userId)
         {
             if (userId.Equals(dto.SellerId)) throw new Exception("Hệ thống không chấp nhận sự ngu ngốc này!");
+            if (dto.Title == null || dto.Content == null) throw new Exception("Please fill title or content");
             var newReport = new Report
             {
                 UserId = userId,

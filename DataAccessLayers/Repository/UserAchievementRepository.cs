@@ -51,6 +51,7 @@ namespace DataAccessLayers.Repository
             {
                 var collection = await _collectionCollection.Find(x => x.Id.Equals(userCollection.CollectionId)).FirstOrDefaultAsync();
                 var achievement = await _achievementCollection.Find(x => x.CollectionId.Equals(collection.Id)).FirstOrDefaultAsync();
+                if (achievement == null) return true;
                 var rewards = await _rewardCollection.Find(x=>x.AchievementId.Equals(achievement.Id)).ToListAsync();
                 var countReward = rewards.Count();
                 var products = await _productCollection.Find(x => x.CollectionId.Equals(collection.Id)).ToListAsync();

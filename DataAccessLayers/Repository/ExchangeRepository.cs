@@ -238,7 +238,7 @@ namespace DataAccessLayers.Repository
                     if (sessionInfo == null) throw new Exception("Exchange session data not found.");
 
                     var sell = await _sellProduct.Find(session, x => x.Id.Equals(info.ItemReciveId)).FirstOrDefaultAsync();
-                    if (sell == null) throw new Exception("The product to be received no longer exists.");
+                    if (sell.IsSell == false) throw new Exception("The product to be received no longer exists.");
 
                     if (sell.SellerId != currentUserId)
                     {
@@ -266,6 +266,9 @@ namespace DataAccessLayers.Repository
                     var exchangeProducts = await _exchangeProduct.Find(session, x => x.ExchangeId == sessionInfo.Id).ToListAsync();
                     foreach (var ep in exchangeProducts)
                     {
+                        var userProduct = await _userProduct.Find(x=>x.Id.Equals(ep.ProductExchangeId)).FirstOrDefaultAsync();
+                        if(userProduct.Quantity-ep.QuantityProductExchange < 0 ) throw new Exception($"Not enough quantity for the product being offered: {ep.ProductExchangeId}");
+
                         var userProductFilter = Builders<UserProduct>.Filter.And(
                             Builders<UserProduct>.Filter.Eq(x => x.CollectorId, info.BuyerId),
                             Builders<UserProduct>.Filter.Eq(x => x.Id, ep.ProductExchangeId),

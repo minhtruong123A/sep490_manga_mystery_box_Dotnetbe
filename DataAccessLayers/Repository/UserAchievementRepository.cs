@@ -51,59 +51,62 @@ namespace DataAccessLayers.Repository
             {
                 var collection = await _collectionCollection.Find(x => x.Id.Equals(userCollection.CollectionId)).FirstOrDefaultAsync();
                 var achievement = await _achievementCollection.Find(x => x.CollectionId.Equals(collection.Id)).FirstOrDefaultAsync();
-                if (achievement == null) return true;
-                var rewards = await _rewardCollection.Find(x=>x.AchievementId.Equals(achievement.Id)).ToListAsync();
-                var countReward = rewards.Count();
-                var products = await _productCollection.Find(x => x.CollectionId.Equals(collection.Id)).ToListAsync();
-                var countProductOfCollection = products.Count();
-
-                var userProducts = await _userProductCollection.Find(x=>x.CollectorId.Equals(userID) 
-                                                                        && x.CollectionId.Equals(userCollection.Id))
-                                                               .ToListAsync();     
-                var countUserProduct = userProducts.Count();
-
-                foreach(var reward in rewards)
+                if (achievement != null)
                 {
-                    if(countUserProduct >= reward.Conditions)
+                    var rewards = await _rewardCollection.Find(x => x.AchievementId.Equals(achievement.Id)).ToListAsync();
+                    var countReward = rewards.Count();
+                    var products = await _productCollection.Find(x => x.CollectionId.Equals(collection.Id)).ToListAsync();
+                    var countProductOfCollection = products.Count();
+
+                    var userProducts = await _userProductCollection.Find(x => x.CollectorId.Equals(userID)
+                                                                            && x.CollectionId.Equals(userCollection.Id))
+                                                                   .ToListAsync();
+                    var countUserProduct = userProducts.Count();
+
+                    foreach (var reward in rewards)
                     {
-                        var exist = await _userRewardCollection.Find(x=>x.RewardId.Equals(reward.Id)&&x.UserId.Equals(userID)).FirstOrDefaultAsync();
+                        if (countUserProduct >= reward.Conditions)
+                        {
+                            var exist = await _userRewardCollection.Find(x => x.RewardId.Equals(reward.Id) && x.UserId.Equals(userID)).FirstOrDefaultAsync();
+                            if (exist == null)
+                            {
+                                var rewardBoxExist = await _userBoxCollection.Find(x => x.BoxId.Equals(_settings.UniqueRewardMangaBoxId)).FirstOrDefaultAsync();
+                                if (rewardBoxExist == null)
+                                {
+                                    var newRewardBox = new UserBox
+                                    {
+                                        BoxId = reward.MangaBoxId,
+                                        Quantity = reward.Quantity_box,
+                                        UserId = userID,
+                                        UpdatedAt = DateTime.UtcNow,
+                                    };
+                                    await _userBoxCollection.InsertOneAsync(newRewardBox);
+                                }
+                                //var updateQuantity = Builders<UserBox>.Update.Inc(x => x.Quantity, reward.Quantity_box);
+                                //Console.WriteLine("ưefjiowfjojifeow" + rewardBoxExist.Id);
+                                //await _userBoxCollection.UpdateOneAsync(rewardBoxExist.Id, updateQuantity);
+                                var filter = Builders<UserBox>.Filter.Eq(x => x.Id, rewardBoxExist.Id);
+                                var updateQuantity = Builders<UserBox>.Update.Inc(x => x.Quantity, reward.Quantity_box);
+                                await _userBoxCollection.UpdateOneAsync(filter, updateQuantity);
+
+                                var newUserReward = new UserReward { RewardId = reward.Id, UserId = userID, isReceive = true };
+                                await _userRewardCollection.InsertOneAsync(newUserReward);
+                            }
+                        }
+                    }
+
+                    if (countProductOfCollection == countUserProduct)
+                    {
+                        var exist = await _userAchievementCollection.Find(x => x.AchievementId.Equals(achievement.Id) && x.UserId.Equals(userID)).FirstOrDefaultAsync();
                         if (exist == null)
                         {
-                            var rewardBoxExist = await _userBoxCollection.Find(x => x.BoxId.Equals(_settings.UniqueRewardMangaBoxId)).FirstOrDefaultAsync();
-                            if (rewardBoxExist == null)
-                            {
-                                var newRewardBox = new UserBox
-                                {
-                                    BoxId = reward.MangaBoxId,
-                                    Quantity = reward.Quantity_box,
-                                    UserId = userID,
-                                    UpdatedAt = DateTime.UtcNow,
-                                };
-                                await _userBoxCollection.InsertOneAsync(newRewardBox);
-                            }
-                            //var updateQuantity = Builders<UserBox>.Update.Inc(x => x.Quantity, reward.Quantity_box);
-                            //Console.WriteLine("ưefjiowfjojifeow" + rewardBoxExist.Id);
-                            //await _userBoxCollection.UpdateOneAsync(rewardBoxExist.Id, updateQuantity);
-                            var filter = Builders<UserBox>.Filter.Eq(x => x.Id, rewardBoxExist.Id);
-                            var updateQuantity = Builders<UserBox>.Update.Inc(x => x.Quantity, reward.Quantity_box);
-                            await _userBoxCollection.UpdateOneAsync(filter, updateQuantity);
-
-                            var newUserReward = new UserReward {RewardId = reward.Id, UserId = userID, isReceive = true };
-                            await _userRewardCollection.InsertOneAsync(newUserReward);
+                            var newUserAchivement = new UserAchievement { AchievementId = achievement.Id, UserId = userID };
+                            await _userAchievementCollection.InsertOneAsync(newUserAchivement);
                         }
                     }
                 }
-
-                if(countProductOfCollection == countUserProduct)
-                {
-                    var exist = await _userAchievementCollection.Find(x => x.AchievementId.Equals(achievement.Id) && x.UserId.Equals(userID)).FirstOrDefaultAsync();
-                    if (exist == null)
-                    {
-                        var newUserAchivement = new UserAchievement { AchievementId = achievement.Id, UserId = userID };
-                        await _userAchievementCollection.InsertOneAsync(newUserAchivement);
-                    }
-                }
             }
+                
             return true;
         }
 

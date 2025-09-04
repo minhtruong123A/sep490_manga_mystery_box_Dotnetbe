@@ -1,32 +1,24 @@
-﻿using BusinessObjects;
-using BusinessObjects.Dtos.Achievement;
+﻿using BusinessObjects.Dtos.Achievement;
 using BusinessObjects.Dtos.Schema_Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
-using Services.Service;
 
 namespace SEP_MMB_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserAchievementController : ControllerBase
+    public class UserAchievementController(IAuthService authService, IAchievementService achievementService)
+        : ControllerBase
     {
-        private readonly IAuthService _authService;
-        private readonly IAchievementService _achievementService;
-        public UserAchievementController(IAuthService authService, IAchievementService achievementService)
-        {
-            _authService = authService;
-            _achievementService = achievementService;
-        }
         [Authorize(Roles ="user")]
         [HttpGet("get-all-medal-of-user")]
         public async Task<IActionResult> GetAllMedalOfUsersAsync()
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var data = await _achievementService.GetAllMedalOfUserAsync(account.Id);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                var data = await achievementService.GetAllMedalOfUserAsync(account.Id);
                 if (data == null)
                 {
                     return NotFound(new ResponseModel<string>
@@ -63,7 +55,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var data = await _achievementService.GetAllMedalPublicOfUserAsync(userId);
+                var data = await achievementService.GetAllMedalPublicOfUserAsync(userId);
                 if (data == null)
                 {
                     return NotFound(new ResponseModel<string>
@@ -100,8 +92,8 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var data = await _achievementService.GetUserCollectionCompletionProgressAsync(account.Id);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                var data = await achievementService.GetUserCollectionCompletionProgressAsync(account.Id);
                 if (data == null)
                 {
                     return NotFound(new ResponseModel<string>
@@ -138,7 +130,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var data = await _achievementService.ChangePublicOrPrivateAsync(userRewardId);
+                var data = await achievementService.ChangePublicOrPrivateAsync(userRewardId);
                 if (data == false)
                 {
                     return NotFound(new ResponseModel<string>

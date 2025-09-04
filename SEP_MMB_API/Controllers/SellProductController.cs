@@ -1,35 +1,22 @@
-﻿using BusinessObjects;
-using BusinessObjects.Dtos.MangaBox;
-using BusinessObjects.Dtos.Product;
+﻿using BusinessObjects.Dtos.Product;
 using BusinessObjects.Dtos.Schema_Response;
-using DataAccessLayers.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
-using Services.Service;
-using System.Security.Claims;
 
 namespace SEP_MMB_API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class SellProductController : ControllerBase
+    public class SellProductController(ISellProductService sellProductService, IAuthService authService)
+        : ControllerBase
     {
-        private readonly ISellProductService _sellProductService;
-        private readonly IAuthService _authService;
-
-        public SellProductController(ISellProductService sellProductService, IAuthService authService)
-        {
-            _sellProductService = sellProductService;
-            _authService = authService;
-        }
-
         [HttpGet("get-all-product-on-sale-of-user/{userId}")]
         public async Task<ActionResult<ResponseModel<List<SellProductGetAllDto>>>> GetAllProductOnSaleOfUser(string userId)
         {
             try
             {
-                var result = await _sellProductService.GetAllProductOnSaleOfUserAsync(userId);
+                var result = await sellProductService.GetAllProductOnSaleOfUserAsync(userId);
                 return Ok(new ResponseModel<List<SellProductGetAllDto>>
                 {
                     Data = result,
@@ -54,7 +41,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var result = await _sellProductService.GetAllProductOnSaleAsync();
+                var result = await sellProductService.GetAllProductOnSaleAsync();
                 return Ok(new ResponseModel<List<SellProductGetAllDto>>
                 {
                     Data = result,
@@ -79,7 +66,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var data = await _sellProductService.GetProductDetailByIdAsync(id);
+                var data = await sellProductService.GetProductDetailByIdAsync(id);
                 if (data == null)
                 {
                     return NotFound(new ResponseModel<string>
@@ -118,8 +105,8 @@ namespace SEP_MMB_API.Controllers
             var response = new ResponseModel<object>();
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                int exchangeCode = await _sellProductService.CreateSellProductAsync(dto, account.Id);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                int exchangeCode = await sellProductService.CreateSellProductAsync(dto, account.Id);
 
                 response.Success = true;
                 response.Data = new
@@ -146,8 +133,8 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var orderId = await _sellProductService.BuySellProductAsync(account.Id, request.SellProductId, request.Quantity);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                var orderId = await sellProductService.BuySellProductAsync(account.Id, request.SellProductId, request.Quantity);
 
                 return Ok(new ResponseModel<BuySellProductResponseDto>
                 {
@@ -181,7 +168,7 @@ namespace SEP_MMB_API.Controllers
             try
             {
 
-                bool exchangeCode = await _sellProductService.UpdateSellProductAsync(dto);
+                bool exchangeCode = await sellProductService.UpdateSellProductAsync(dto);
 
                 response.Success = true;
                 response.Data = new
@@ -209,7 +196,7 @@ namespace SEP_MMB_API.Controllers
             try
             {
 
-                bool exchangeCode = await _sellProductService.ChangestatusSellProductAsync(sellProductId);
+                bool exchangeCode = await sellProductService.ChangestatusSellProductAsync(sellProductId);
 
                 response.Success = true;
                 response.Data = new
@@ -236,7 +223,7 @@ namespace SEP_MMB_API.Controllers
             var response = new ResponseModel<object>();
             try
             {
-                bool exchange = await _sellProductService.CancelSellProductAsync(sellProductId);
+                bool exchange = await sellProductService.CancelSellProductAsync(sellProductId);
                 response.Success = true;
                 response.Data = new
                 {
@@ -260,8 +247,8 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var result = await _sellProductService.GetAllSellProductSuggestionsAsync(account.Id);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                var result = await sellProductService.GetAllSellProductSuggestionsAsync(account.Id);
 
                 return Ok(new ResponseModel<List<SellProductGetAllDto>>
                 {

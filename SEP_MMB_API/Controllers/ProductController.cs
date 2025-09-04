@@ -3,27 +3,19 @@ using BusinessObjects.Dtos.Schema_Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
-using Services.Service;
 
 namespace SEP_MMB_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductController : ControllerBase
+    public class ProductController(IProductService productService) : ControllerBase
     {
-        private readonly IProductService _productService;
-
-        public ProductController(IProductService productService)
-        {
-            _productService = productService;
-        }
-
         [HttpGet("get-product/{id}")]
         public async Task<IActionResult> GetById(string id)
         {
             try
             {
-                var data = await _productService.GetProductWithRarityByIdAsync(id);
+                var data = await productService.GetProductWithRarityByIdAsync(id);
                 if (data == null)
                 {
                     return NotFound(new ResponseModel<string>
@@ -60,7 +52,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var data = await _productService.GetAllProductsWithRarityAsync();
+                var data = await productService.GetAllProductsWithRarityAsync();
                 if (data == null)
                 {
                     return NotFound(new ResponseModel<string>
@@ -97,7 +89,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var data = await _productService.CreateProductAsync(dto);
+                var data = await productService.CreateProductAsync(dto);
                 if (data)
                 {
                     return Ok(new ResponseModel<string>
@@ -134,7 +126,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var data = await _productService.changeStatusProduct(id);
+                var data = await productService.changeStatusProduct(id);
                 if (data == 0)
                 {
                     return NotFound(new ResponseModel<string>

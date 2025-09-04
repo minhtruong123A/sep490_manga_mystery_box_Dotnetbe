@@ -1,26 +1,17 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
-namespace BusinessObjects
+namespace BusinessObjects;
+
+public class EmailVerification
 {
-    public class EmailVerification
-    {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+    [BsonId]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string Id { get; set; }
 
-        [BsonElement("email")]
-        public string Email { get; set; }
+    [BsonElement("email")] public string Email { get; set; }
 
-        [BsonElement("code")]
-        public string Code { get; set; }
+    [BsonElement("code")] public string Code { get; set; }
 
-        [BsonElement("expire_time")]
-        public DateTime ExpireTime { get; set; }
-    }
+    [BsonElement("expire_time")] public DateTime ExpireTime { get; set; }
 }

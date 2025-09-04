@@ -6,31 +6,22 @@ using DataAccessLayers.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
-using Services.Service;
 
 namespace SEP_MMB_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class AuthController(IAuthService authService, IUseDigitalWalletService useDigitalWalletService)
+        : ControllerBase
     {
-        private readonly IAuthService _authService;
-        private readonly IUseDigitalWalletService _useDigitalWalletService;
-
-        public AuthController(IAuthService authService, IUseDigitalWalletService useDigitalWalletService)
-        {
-            _authService = authService;
-            _useDigitalWalletService = useDigitalWalletService;
-        }
-
         [Authorize]
         [HttpGet("who-am-i")]
         public async Task<ActionResult<ResponseModel<UserTokenDto>>> WhoAmI()
         {
             try
             {
-                var (account, accessToken, refreshToken, tokenType) = await _authService.GetUserWithTokens(HttpContext);
-                var walletAmount = await _useDigitalWalletService.GetWalletByIdAsync(account.WalletId);
+                var (account, accessToken, refreshToken, tokenType) = await authService.GetUserWithTokens(HttpContext);
+                var walletAmount = await useDigitalWalletService.GetWalletByIdAsync(account.WalletId);
 
                 return Ok(new ResponseModel<UserTokenDto>()
                 {
@@ -74,7 +65,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var response = await _authService.Login(loginDto);
+                var response = await authService.Login(loginDto);
                 return Ok(new ResponseModel<AuthResponseDto>()
                 {
                     Data = response,

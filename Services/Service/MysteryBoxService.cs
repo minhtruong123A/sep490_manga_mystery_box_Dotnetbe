@@ -1,53 +1,39 @@
 ﻿using DataAccessLayers.Interface;
 using Services.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Services.Service
+namespace Services.Service;
+
+public class MysteryBoxService(IUnitOfWork unitOfWork) : IMysteryBoxService
 {
-    public class MysteryBoxService : IMysteryBoxService
+    public async Task<List<string>> GetAllUniqueImageUrlsAsync()
     {
-        private readonly IUnitOfWork _unitOfWork;
+        var boxes = await unitOfWork.MysteryBoxRepository.GetAllAsync();
+        var uniqueUrls = boxes
+            .Where(box => !string.IsNullOrEmpty(box.UrlImage))
+            .Select(box => box.UrlImage.Trim())
+            .Distinct()
+            .ToList();
 
-        public MysteryBoxService(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
-
-        public async Task<List<string>> GetAllUniqueImageUrlsAsync()
-        {
-            var boxes = await _unitOfWork.MysteryBoxRepository.GetAllAsync();
-            var uniqueUrls = boxes
-                .Where(box => !string.IsNullOrEmpty(box.UrlImage))
-                .Select(box => box.UrlImage.Trim())
-                .Distinct()
-                .ToList();
-
-            return uniqueUrls;
-        }
-
-        public async Task<string> GetImageUrlsByCollectionIdAsync(string collectionId)
-        {
-            var mangaBoxes = await _unitOfWork.MangaBoxRepository.FindAsync(x => x.CollectionTopicId == collectionId);
-            if (mangaBoxes == null || !mangaBoxes.Any()) return null;
-            var mysteryBoxIds = mangaBoxes
-                .Select(m => m.MysteryBoxId)
-                .Where(id => !string.IsNullOrEmpty(id))
-                .Distinct()
-                .ToList();
-            if (!mysteryBoxIds.Any())  return null;
-
-            var mysteryBoxes = await _unitOfWork.MysteryBoxRepository.FindAsync(x => mysteryBoxIds.Contains(x.Id));
-            var imageUrl = mysteryBoxes
-                .Where(box => !string.IsNullOrWhiteSpace(box.UrlImage))
-                .Select(box => box.UrlImage.Trim())
-                .Distinct().FirstOrDefault();
-
-            return string.IsNullOrEmpty(imageUrl) ? null : imageUrl;
-        }
+        return uniqueUrls;
     }
 
+    public async Task<string> GetImageUrlsByCollectionIdAsync(string collectionId)
+    {
+        var mangaBoxes = await unitOfWork.MangaBoxRepository.FindAsync(x => x.CollectionTopicId == collectionId);
+        if (mangaBoxes == null || !mangaBoxes.Any()) return null;
+        var mysteryBoxIds = mangaBoxes
+            .Select(m => m.MysteryBoxId)
+            .Where(id => !string.IsNullOrEmpty(id))
+            .Distinct()
+            .ToList();
+        if (!mysteryBoxIds.Any()) return null;
+
+        var mysteryBoxes = await unitOfWork.MysteryBoxRepository.FindAsync(x => mysteryBoxIds.Contains(x.Id));
+        var imageUrl = mysteryBoxes
+            .Where(box => !string.IsNullOrWhiteSpace(box.UrlImage))
+            .Select(box => box.UrlImage.Trim())
+            .Distinct().FirstOrDefault();
+
+        return string.IsNullOrEmpty(imageUrl) ? null : imageUrl;
+    }
 }

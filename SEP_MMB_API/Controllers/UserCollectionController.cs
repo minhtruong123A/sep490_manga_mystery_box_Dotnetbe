@@ -1,37 +1,27 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using BusinessObjects;
+﻿using BusinessObjects;
+using BusinessObjects.Dtos.Collection;
 using BusinessObjects.Dtos.Schema_Response;
-using BusinessObjects.Dtos.User;
+using BusinessObjects.Dtos.UserCollection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
-using Services.Service;
-using BusinessObjects.Dtos.UserCollection;
-using BusinessObjects.Dtos.Collection;
+
 namespace SEP_MMB_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserCollectionController : ControllerBase
+    public class UserCollectionController(IUserCollectionService userCollectionService, IAuthService authService)
+        : ControllerBase
     {
-        private readonly IUserCollectionService _userCollectionService;
-        private readonly IAuthService _authService;
-
-        public UserCollectionController(IUserCollectionService userCollectionService, IAuthService authService)
-        {
-            _userCollectionService = userCollectionService;
-            _authService = authService;
-        }
-
         [Authorize]
         [HttpGet("get-all-collection-of-profile")]
         public async Task<ActionResult<ResponseModel<List<UserCollectionGetAllDto>>>> GetAllCollectionOfProfile()
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
 
-                var collectionDto = await _userCollectionService.GetAllWithDetailsAsync(account.Id.ToString());
+                var collectionDto = await userCollectionService.GetAllWithDetailsAsync(account.Id.ToString());
 
                 return Ok(new ResponseModel<List<UserCollectionGetAllDto>>
                 {
@@ -59,7 +49,7 @@ namespace SEP_MMB_API.Controllers
             try
             {
 
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
 
                 var userCollection = new UserCollection
                 {
@@ -67,7 +57,7 @@ namespace SEP_MMB_API.Controllers
                     CollectionId = collectionId.ToString()
                 };
 
-                await _userCollectionService.CreateUserCollectionAsync(userCollection);
+                await userCollectionService.CreateUserCollectionAsync(userCollection);
 
                 return Ok(new ResponseModel<string>
                 {
@@ -94,10 +84,10 @@ namespace SEP_MMB_API.Controllers
             try
             {
 
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
 
                 
-                await _userCollectionService.CreateUserCollectionByUserAsync(account.Id, dto);
+                await userCollectionService.CreateUserCollectionByUserAsync(account.Id, dto);
 
                 return Ok(new ResponseModel<string>
                 {

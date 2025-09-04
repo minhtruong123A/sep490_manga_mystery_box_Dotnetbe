@@ -1,36 +1,25 @@
-﻿using BusinessObjects;
-using BusinessObjects.Dtos.Product;
+﻿using BusinessObjects.Dtos.Product;
 using BusinessObjects.Dtos.Schema_Response;
 using BusinessObjects.Dtos.UserCollection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver.Core.Events;
 using Services.Interface;
-using Services.Service;
-
 
 namespace SEP_MMB_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductFavoriteController : ControllerBase
+    public class ProductFavoriteController(IAuthService authService, IProductFavoriteService productFavoriteService)
+        : ControllerBase
     {
-        private readonly IAuthService _authService;
-        private readonly IProductFavoriteService _productFavoriteService;
-
-        public ProductFavoriteController(IAuthService authService, IProductFavoriteService productFavoriteService)
-        {
-            _authService = authService;
-            _productFavoriteService = productFavoriteService;
-        }
         [Authorize]
         [HttpGet("get-image-product-favorite")]
         public async Task<ActionResult<ResponseModel<List<UserCollectionGetAllDto>>>> GetImageOfFavoriteListAsync()
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var response = await _productFavoriteService.GetFavoriteListWithDetailsAsync(account.Id);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                var response = await productFavoriteService.GetFavoriteListWithDetailsAsync(account.Id);
 
                 return Ok(new ResponseModel<List<UserCollectionGetAllDto>>
                 {
@@ -54,8 +43,8 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var response = await _productFavoriteService.GetAllWithDetailsAsync(account.Id);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                var response = await productFavoriteService.GetAllWithDetailsAsync(account.Id);
 
                 return Ok(new ResponseModel<List<CollectionProductsDto>>
                 {
@@ -80,8 +69,8 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var response = await _productFavoriteService.CreateAsync(account.Id, userProductId);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                var response = await productFavoriteService.CreateAsync(account.Id, userProductId);
                 if (!response)
                 {
                     return BadRequest(new ResponseModel<string>
@@ -113,7 +102,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var response = await _productFavoriteService.DeleteAsync(favoriteId);
+                var response = await productFavoriteService.DeleteAsync(favoriteId);
 
                 return Ok(new ResponseModel<string>
                 {

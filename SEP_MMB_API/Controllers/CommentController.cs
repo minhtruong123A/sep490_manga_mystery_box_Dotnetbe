@@ -1,8 +1,6 @@
-﻿using BusinessObjects;
-using BusinessObjects.Dtos.Comment;
+﻿using BusinessObjects.Dtos.Comment;
 using BusinessObjects.Dtos.Schema_Response;
 using DataAccessLayers.Exceptions;
-using DataAccessLayers.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
@@ -11,24 +9,15 @@ namespace SEP_MMB_API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CommentController : ControllerBase
+    public class CommentController(ICommentService commentService, IAuthService authService) : ControllerBase
     {
-        private readonly ICommentService _commentService;
-        private readonly IAuthService _authService;
-
-        public CommentController(ICommentService commentService, IAuthService authService)
-        {
-            _commentService = commentService;
-            _authService = authService;
-        }
-
         [HttpGet("get-all-badwords")]
         public async Task<ActionResult<ResponseModel<object>>> GetAllBadWords()
         {
             var response = new ResponseModel<object>();
             try
             {
-                var badWords = await _commentService.GetAllBadWordsAsync();
+                var badWords = await commentService.GetAllBadWordsAsync();
                 response.Success = true;
                 response.Data = badWords;
                 return Ok(response);
@@ -68,7 +57,7 @@ namespace SEP_MMB_API.Controllers
             var response = new ResponseModel<object>();
             try
             {
-                var comments = await _commentService.GetAlCommentlBySellProductIdAsync(sellProductId);
+                var comments = await commentService.GetAlCommentlBySellProductIdAsync(sellProductId);
                 response.Success = true;
                 response.Data = comments;
                 return Ok(response);
@@ -88,7 +77,7 @@ namespace SEP_MMB_API.Controllers
             var response = new ResponseModel<object>();
             try
             {
-                var ratings = await _commentService.GetAllRatingBySellProductIdAsync(sellProductId);
+                var ratings = await commentService.GetAllRatingBySellProductIdAsync(sellProductId);
                 response.Success = true;
                 response.Data = ratings;
                 return Ok(response);
@@ -109,9 +98,9 @@ namespace SEP_MMB_API.Controllers
             var response = new ResponseModel<object>();
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
 
-                var comment = await _commentService.CreateCommentAsync(dto.SellProductId, account.Id, dto.Content);
+                var comment = await commentService.CreateCommentAsync(dto.SellProductId, account.Id, dto.Content);
                 response.Success = true;
                 response.Data = comment;
                 return Ok(response);
@@ -141,9 +130,9 @@ namespace SEP_MMB_API.Controllers
             var response = new ResponseModel<object>();
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
 
-                var comment = await _commentService.CreateRatingOnlyAsync(dto.SellProductId, account.Id, dto.Rating);
+                var comment = await commentService.CreateRatingOnlyAsync(dto.SellProductId, account.Id, dto.Rating);
                 response.Success = true;
                 response.Data = comment;
                 return Ok(response);
@@ -172,7 +161,7 @@ namespace SEP_MMB_API.Controllers
             var response = new ResponseModel<object>();
             try
             {
-                var comments = await _commentService.GetAllCommentProductOfUserAsync(userId, productName);
+                var comments = await commentService.GetAllCommentProductOfUserAsync(userId, productName);
                 response.Success = true;
                 response.Data = comments;
                 return Ok(response);
@@ -192,7 +181,7 @@ namespace SEP_MMB_API.Controllers
             var response = new ResponseModel<object>();
             try
             {
-                var comments = await _commentService.GetRatingOfUser(userId);
+                var comments = await commentService.GetRatingOfUser(userId);
                 response.Success = true;
                 response.Data = comments;
                 return Ok(response);
@@ -211,7 +200,7 @@ namespace SEP_MMB_API.Controllers
             var response = new ResponseModel<object>();
             try
             {
-                var comments = await _commentService.GetTotalAverageOfSellProductByIdAsync(sellProductId);
+                var comments = await commentService.GetTotalAverageOfSellProductByIdAsync(sellProductId);
                 response.Success = true;
                 response.Data = comments;
                 return Ok(response);

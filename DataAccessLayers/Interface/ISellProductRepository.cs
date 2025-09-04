@@ -1,24 +1,17 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Dtos.Product;
-using DataAccessLayers.Repository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DataAccessLayers.Interface
+namespace DataAccessLayers.Interface;
+
+public interface ISellProductRepository : IGenericRepository<SellProduct>
 {
-        public interface ISellProductRepository : IGenericRepository<SellProduct>
-        {
-                Task<int> CreateSellProductAsync(SellProductCreateDto dto, string userId);
-                Task<bool> UpdateSellProductAsync(UpdateSellProductDto dto);
-                Task<bool> CancelSellProductAsync(string sellProductId);
-                Task<bool> ChangestatusSellProductAsync(string id);
-                Task<List<SellProductGetAllDto>> GetAllProductOnSaleAsync();
-                Task<List<SellProductGetAllDto>> GetAllProductOnSaleOfUserIdAsync(string id);
-                Task<SellProductDetailDto?> GetProductDetailByIdAsync(string id);
-                Task<string> BuySellProductAsync(string buyerId, string sellProductId, int quantity);
-                Task<List<SellProductGetAllDto>> GetAllSellProductSuggestionsAsync(string userId);
-        }
+    Task<int> CreateSellProductAsync(SellProductCreateDto dto, string userId);
+    Task<bool> UpdateSellProductAsync(UpdateSellProductDto dto);
+    Task<bool> CancelSellProductAsync(string sellProductId);
+    Task<bool> ChangestatusSellProductAsync(string id);
+    Task<List<SellProductGetAllDto>> GetAllProductOnSaleAsync();
+    Task<List<SellProductGetAllDto>> GetAllProductOnSaleOfUserIdAsync(string id);
+    Task<SellProductDetailDto?> GetProductDetailByIdAsync(string id);
+    Task<string> BuySellProductAsync(string buyerId, string sellProductId, int quantity);
+    Task<List<SellProductGetAllDto>> GetAllSellProductSuggestionsAsync(string userId);
 }

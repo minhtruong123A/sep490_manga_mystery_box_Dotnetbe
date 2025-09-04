@@ -1,32 +1,22 @@
-﻿using BusinessObjects;
-using BusinessObjects.Dtos.Feedback;
-using BusinessObjects.Dtos.MangaBox;
+﻿using BusinessObjects.Dtos.Feedback;
 using BusinessObjects.Dtos.Schema_Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
-using Services.Service;
 
 namespace SEP_MMB_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FeedbackController : ControllerBase
+    public class FeedbackController(IAuthService authService, IFeedbackService feedbackService) : ControllerBase
     {
-        private readonly IAuthService _authService;
-        private readonly IFeedbackService _feedbackService;
-        public FeedbackController (IAuthService authService, IFeedbackService feedbackService)
-        {
-            _authService = authService;
-            _feedbackService = feedbackService;
-        }
         [Authorize]
         [HttpGet("Get-feedback-of-sell-product")]
         public async Task<ActionResult<ResponseModel<List<FeedbackResponeDto>>>> GetFeedbackAsync(string sellProductID)
         {
             try
             {
-                var response = await _feedbackService.GetAllFeedbackOfProductSaleAsync(sellProductID);
+                var response = await feedbackService.GetAllFeedbackOfProductSaleAsync(sellProductID);
                 if (response != null)
                 {
                     return Ok(new ResponseModel<List<FeedbackResponeDto>>
@@ -64,8 +54,8 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var response = await _feedbackService.CreateFeedbackAsync(account.Id,dto);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                var response = await feedbackService.CreateFeedbackAsync(account.Id,dto);
                 if (response)
                 {
                     return Ok(new ResponseModel<string>

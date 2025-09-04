@@ -2,27 +2,15 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
-using Services.Service;
-using System;
-using System.Threading.Tasks;
 
 namespace SEP_MMB_API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ImageProxyController : ControllerBase
+    public class ImageProxyController(
+        IImageService imageService)
+        : ControllerBase
     {
-        private readonly IImageService _imageService;
-        private readonly IAuthService _authService;
-        private readonly ILogger<ImageProxyController> _logger;
-
-        public ImageProxyController(IImageService imageService, ILogger<ImageProxyController> logger, IAuthService authService)
-        {
-            _imageService = imageService;
-            _logger = logger;
-            _authService = authService;
-        }
-
         [HttpGet("{*path}")]
         public async Task<IActionResult> ProxyImage(string path)
         {
@@ -39,7 +27,7 @@ namespace SEP_MMB_API.Controllers
 
             try
             {
-                return await _imageService.GetImageWithWatermarkAsync(path);
+                return await imageService.GetImageWithWatermarkAsync(path);
             }
             catch (Exception ex)
             {
@@ -85,7 +73,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var filePath = await _imageService.UploadModeratorProductOrMysteryBoxImageAsync(file);
+                var filePath = await imageService.UploadModeratorProductOrMysteryBoxImageAsync(file);
 
                 return Ok(new ResponseModel<string>
                 {
@@ -110,7 +98,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                _ = Task.Run(() => _imageService.WarmUpImageCacheAsync());
+                _ = Task.Run(() => imageService.WarmUpImageCacheAsync());
 
                 return Ok(new ResponseModel<object>
                 {

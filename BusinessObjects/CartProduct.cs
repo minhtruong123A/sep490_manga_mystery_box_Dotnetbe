@@ -1,20 +1,15 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
-namespace BusinessObjects
+namespace BusinessObjects;
+
+public class CartProduct
 {
-    public class CartProduct
-    {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
-        public string CartId { get; set; }
-        public string SellProductId { get; set; }
-        public int Quantity { get; set; }
-    }
+    [BsonId]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string Id { get; set; }
+
+    public string CartId { get; set; }
+    public string SellProductId { get; set; }
+    public int Quantity { get; set; }
 }

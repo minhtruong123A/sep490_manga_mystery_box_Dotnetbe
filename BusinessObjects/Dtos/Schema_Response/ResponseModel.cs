@@ -1,26 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
-namespace BusinessObjects.Dtos.Schema_Response
+namespace BusinessObjects.Dtos.Schema_Response;
+
+public class ResponseModel<T> where T : class
 {
-    public class ResponseModel<T> where T : class
+    public ResponseModel()
     {
-        [JsonPropertyName("status")]
-        public bool Success { get; set; }
-
-        [JsonPropertyName("data")]
-        public T? Data { get; set; }
-
-        [JsonPropertyName("error")]
-        public string? Error { get; set; }
-
-        [JsonPropertyName("errorCode")]
-        public int ErrorCode { get; set; }
-
-        public ResponseModel() => Success = true;
+        Success = true;
     }
+
+    [JsonPropertyName("status")] public bool Success { get; set; }
+
+    [JsonPropertyName("data")] public T? Data { get; set; }
+
+    [JsonPropertyName("error")] public string? Error { get; set; }
+
+    [JsonPropertyName("errorCode")] public int ErrorCode { get; set; }
 }

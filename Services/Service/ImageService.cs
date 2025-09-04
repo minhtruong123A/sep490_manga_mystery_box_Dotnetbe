@@ -280,7 +280,8 @@ public class ImageService(
             var maxNumber = 0;
             var numberExtractor = new Regex($@"^{rarity}CardNo(?<number>\d+){manga}$", RegexOptions.IgnoreCase);
 
-            foreach (var matchNum in matchingFiles.Select(file => Path.GetFileNameWithoutExtension(file)).Select(name => numberExtractor.Match(name)))
+            foreach (var matchNum in matchingFiles.Select(file => Path.GetFileNameWithoutExtension(file))
+                         .Select(name => numberExtractor.Match(name)))
             {
                 if (!matchNum.Success || !int.TryParse(matchNum.Groups["number"].Value, out var num)) continue;
                 if (num > maxNumber)
@@ -306,7 +307,6 @@ public class ImageService(
             throw new Exception($"A file with the name '{originalFileName}' already exists.");
 
         return originalFileName;
-
     }
 
     private record CachedImage(byte[] Content, string ContentType);

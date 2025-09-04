@@ -9,7 +9,7 @@
     <ItemGroup>
         <PackageReference Include="AutoMapper" Version="13.0.1"/>
         <PackageReference Include="BCrypt.Net-Next" Version="4.0.3"/>
-        <PackageReference Include="Cronos" Version="0.11.1" />
+        <PackageReference Include="Cronos" Version="0.11.1"/>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.16"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.16">
             <PrivateAssets>all</PrivateAssets>

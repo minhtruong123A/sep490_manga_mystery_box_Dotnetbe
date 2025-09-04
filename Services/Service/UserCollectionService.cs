@@ -9,7 +9,6 @@ namespace Services.Service;
 
 public class UserCollectionService(IUnitOfWork unitOfWork, IMapper mapper) : IUserCollectionService
 {
-
     public async Task CreateUserCollectionAsync(UserCollection collection)
     {
         await unitOfWork.UserCollectionRepository.AddAsync(collection);

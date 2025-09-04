@@ -19,7 +19,6 @@ public class ProductService(
     public async Task<ProductWithRarityDto?> GetProductWithRarityByIdAsync(string productId)
     {
         var dto = await unitOfWork.ProductRepository.GetProductWithRarityByIdAsync(productId);
-        if (dto == null) return null;
 
         //if (!string.IsNullOrEmpty(dto.UrlImage))
         //{
@@ -64,10 +63,7 @@ public class ProductService(
         if (product == null) return 0;
 
 
-        if (product.Is_Block)
-            product.Is_Block = false;
-        else
-            product.Is_Block = true;
+        product.Is_Block = !product.Is_Block;
         await unitOfWork.ProductRepository.UpdateAsync(product.Id, product);
         await unitOfWork.SaveChangesAsync();
 

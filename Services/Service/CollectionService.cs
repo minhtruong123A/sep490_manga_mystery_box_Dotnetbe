@@ -25,6 +25,5 @@ public class CollectionService(IUnitOfWork unitOfWork) : ICollectionService
         await unitOfWork.CollectionRepository.AddAsync(newCollection);
         await unitOfWork.SaveChangesAsync();
         return 1;
-
     }
 }

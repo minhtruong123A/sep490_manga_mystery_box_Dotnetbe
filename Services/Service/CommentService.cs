@@ -44,7 +44,6 @@ public class CommentService(IUnitOfWork unitOfWork, IModerationService moderatio
         existingRatingOnly.UpdatedAt = DateTime.UtcNow;
         await unitOfWork.CommentRepository.UpdateAsync(existingRatingOnly.Id, existingRatingOnly);
         return existingRatingOnly;
-
     }
 
     //comment create and validation
@@ -63,7 +62,6 @@ public class CommentService(IUnitOfWork unitOfWork, IModerationService moderatio
         existingCommentOnly.UpdatedAt = DateTime.UtcNow;
         await unitOfWork.CommentRepository.UpdateAsync(existingCommentOnly.Id, existingCommentOnly);
         return existingCommentOnly;
-
     }
 
     // delete all comment
@@ -129,7 +127,9 @@ public class CommentService(IUnitOfWork unitOfWork, IModerationService moderatio
         //if (!isSafe) throw new ValidationException("Comment contains inappropriate or harmful content.");
 
         var sanitized = SanitizeBadWords(content);
-        return IsMeaninglessContent(sanitized) ? throw new ValidationException("Comment contains meaningless or spam-like content.") : sanitized;
+        return IsMeaninglessContent(sanitized)
+            ? throw new ValidationException("Comment contains meaningless or spam-like content.")
+            : sanitized;
     }
 
     private bool IsMeaninglessContent(string content)
@@ -154,10 +154,10 @@ public class CommentService(IUnitOfWork unitOfWork, IModerationService moderatio
     {
         var normalized = text.Normalize(NormalizationForm.FormD);
         var sb = new StringBuilder();
-        foreach (var c in from c in normalized let unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c) where unicodeCategory != UnicodeCategory.NonSpacingMark select c)
-        {
-            sb.Append(c);
-        }
+        foreach (var c in from c in normalized
+                 let unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c)
+                 where unicodeCategory != UnicodeCategory.NonSpacingMark
+                 select c) sb.Append(c);
 
         return sb.ToString().Normalize(NormalizationForm.FormC);
     }

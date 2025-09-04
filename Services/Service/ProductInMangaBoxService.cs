@@ -37,7 +37,10 @@ public class ProductInMangaBoxService(IUnitOfWork uniUnitOfWork) : IProductInMan
 
             boxDetail = await uniUnitOfWork.MangaBoxRepository.GetByIdWithDetailsAsync(boxId);
             box = await uniUnitOfWork.MangaBoxRepository.GetByIdAsync(boxId);
-            foreach (var dto in from dto in dtos let exist = boxDetail.Products.Where(x => x.ProductId.Equals(dto.ProductId)).Any() where !exist select dto)
+            foreach (var dto in from dto in dtos
+                     let exist = boxDetail.Products.Where(x => x.ProductId.Equals(dto.ProductId)).Any()
+                     where !exist
+                     select dto)
             {
                 var productWithRarity =
                     await uniUnitOfWork.ProductRepository.GetProductWithRarityByIdAsync(dto.ProductId);
@@ -45,7 +48,8 @@ public class ProductInMangaBoxService(IUnitOfWork uniUnitOfWork) : IProductInMan
                 if (!productWithRarity.RarityName.Equals("epic") &&
                     !productWithRarity.RarityName.Equals("legendary")) continue;
                 var productInMangaBoxs = await uniUnitOfWork.ProductInMangaBoxRepository.GetAllAsync();
-                var productInMangaBoxExist = productInMangaBoxs.Any(x => x.ProductId.Equals(productWithRarity.ProductId));
+                var productInMangaBoxExist =
+                    productInMangaBoxs.Any(x => x.ProductId.Equals(productWithRarity.ProductId));
                 if (productInMangaBoxExist) continue;
                 if (product == null) throw new Exception("Product not exist");
                 if (box.CollectionTopicId.Equals(product.CollectionId))
@@ -69,7 +73,10 @@ public class ProductInMangaBoxService(IUnitOfWork uniUnitOfWork) : IProductInMan
 
         if (boxDetail.TotalProduct - boxDetail.Products.Count() != dtos.Count) return false;
         {
-            foreach (var dto in from dto in dtos let exist = boxDetail.Products.Any(x => x.ProductId.Equals(dto.ProductId)) where !exist select dto)
+            foreach (var dto in from dto in dtos
+                     let exist = boxDetail.Products.Any(x => x.ProductId.Equals(dto.ProductId))
+                     where !exist
+                     select dto)
             {
                 var productWithRarity =
                     await uniUnitOfWork.ProductRepository.GetProductWithRarityByIdAsync(dto.ProductId);
@@ -77,7 +84,8 @@ public class ProductInMangaBoxService(IUnitOfWork uniUnitOfWork) : IProductInMan
                 if (productWithRarity.RarityName.Equals("epic") || productWithRarity.RarityName.Equals("legendary"))
                 {
                     var productInMangaBoxs = await uniUnitOfWork.ProductInMangaBoxRepository.GetAllAsync();
-                    var productInMangaBoxExist = productInMangaBoxs.Any(x => x.ProductId.Equals(productWithRarity.ProductId));
+                    var productInMangaBoxExist =
+                        productInMangaBoxs.Any(x => x.ProductId.Equals(productWithRarity.ProductId));
                     if (!productInMangaBoxExist)
                     {
                         if (product == null) throw new Exception("Product not exist");
@@ -127,6 +135,5 @@ public class ProductInMangaBoxService(IUnitOfWork uniUnitOfWork) : IProductInMan
 
             return true;
         }
-
     }
 }

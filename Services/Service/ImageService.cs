@@ -136,13 +136,11 @@ public class ImageService(
         byte[] finalImageBytes;
         if (!string.IsNullOrEmpty(objectId))
         {
-            using (var image = await SixLaborsImage.LoadAsync(imageStream))
-            {
-                ApplyIdWatermark(image, objectId);
-                using var ms = new MemoryStream();
-                await image.SaveAsync(ms, new PngEncoder());
-                finalImageBytes = ms.ToArray();
-            }
+            using var image = await SixLaborsImage.LoadAsync(imageStream);
+            ApplyIdWatermark(image, objectId);
+            using var ms = new MemoryStream();
+            await image.SaveAsync(ms, new PngEncoder());
+            finalImageBytes = ms.ToArray();
         }
         else
         {
@@ -195,13 +193,11 @@ public class ImageService(
     private async Task<HttpResponseMessage> GetImageResponseAsync(string path)
     {
         var cacheKey = $"signed_url_{path}";
-        if (!cache.TryGetValue(cacheKey, out string signedUrl))
-        {
-            signedUrl = await supabaseStorageHelper.CreateSignedUrlAsync(path);
-            var cacheOptions = new MemoryCacheEntryOptions
-                { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(4) };
-            cache.Set(cacheKey, signedUrl, cacheOptions);
-        }
+        if (cache.TryGetValue(cacheKey, out string signedUrl)) return await _httpClient.GetAsync(signedUrl);
+        signedUrl = await supabaseStorageHelper.CreateSignedUrlAsync(path);
+        var cacheOptions = new MemoryCacheEntryOptions
+            { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(4) };
+        cache.Set(cacheKey, signedUrl, cacheOptions);
 
         return await _httpClient.GetAsync(signedUrl);
     }
@@ -284,37 +280,33 @@ public class ImageService(
             var maxNumber = 0;
             var numberExtractor = new Regex($@"^{rarity}CardNo(?<number>\d+){manga}$", RegexOptions.IgnoreCase);
 
-            foreach (var file in matchingFiles)
+            foreach (var matchNum in matchingFiles.Select(file => Path.GetFileNameWithoutExtension(file)).Select(name => numberExtractor.Match(name)))
             {
-                var name = Path.GetFileNameWithoutExtension(file);
-                var matchNum = numberExtractor.Match(name);
-                if (matchNum.Success && int.TryParse(matchNum.Groups["number"].Value, out var num))
-                    if (num > maxNumber)
-                        maxNumber = num;
+                if (!matchNum.Success || !int.TryParse(matchNum.Groups["number"].Value, out var num)) continue;
+                if (num > maxNumber)
+                    maxNumber = num;
             }
 
             var nextNumber = maxNumber + 1;
             return $"{rarity}CardNo{nextNumber}{manga}{extension}";
         }
 
-        if (boxsetPattern.IsMatch(baseName))
-        {
-            if (await supabaseStorageHelper.FileExistsAsync(originalFileName))
-                throw new Exception($"A file with the name '{originalFileName}' already exists.");
+        if (!boxsetPattern.IsMatch(baseName))
+            throw new Exception(
+                "Invalid file name format.\n" +
+                "Accepted formats:\n" +
+                "- '[Rarity]CardNo[Number][MangaName].png' (e.g., 'RareCardNo2OnePiece.png')\n" +
+                "- '[Rarity]Card[MangaName].png' (e.g., 'RareCardOnePiece.png')\n" +
+                "- '[MangaName]_Boxset.png' (e.g., 'TokyoGhoul_Boxset.png')\n\n" +
+                "Rarity must be one of: Common, Uncommon, Rare, Epic, Legendary.\n" +
+                "Number must be digits only.\n" +
+                "MangaName must be alphanumeric (no spaces or special characters)."
+            );
+        if (await supabaseStorageHelper.FileExistsAsync(originalFileName))
+            throw new Exception($"A file with the name '{originalFileName}' already exists.");
 
-            return originalFileName;
-        }
+        return originalFileName;
 
-        throw new Exception(
-            "Invalid file name format.\n" +
-            "Accepted formats:\n" +
-            "- '[Rarity]CardNo[Number][MangaName].png' (e.g., 'RareCardNo2OnePiece.png')\n" +
-            "- '[Rarity]Card[MangaName].png' (e.g., 'RareCardOnePiece.png')\n" +
-            "- '[MangaName]_Boxset.png' (e.g., 'TokyoGhoul_Boxset.png')\n\n" +
-            "Rarity must be one of: Common, Uncommon, Rare, Epic, Legendary.\n" +
-            "Number must be digits only.\n" +
-            "MangaName must be alphanumeric (no spaces or special characters)."
-        );
     }
 
     private record CachedImage(byte[] Content, string ContentType);

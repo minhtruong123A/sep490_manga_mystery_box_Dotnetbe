@@ -16,16 +16,15 @@ public class CollectionService(IUnitOfWork unitOfWork) : ICollectionService
     {
         var collections = await unitOfWork.CollectionRepository.GetAllAsync();
         var exist = collections.FirstOrDefault(x => x.Topic == topic);
-        if (exist == null)
+        if (exist != null) return 0;
+        var newCollection = new Collection
         {
-            var newCollection = new Collection();
-            newCollection.Topic = topic;
-            newCollection.IsSystem = true;
-            await unitOfWork.CollectionRepository.AddAsync(newCollection);
-            await unitOfWork.SaveChangesAsync();
-            return 1;
-        }
+            Topic = topic,
+            IsSystem = true
+        };
+        await unitOfWork.CollectionRepository.AddAsync(newCollection);
+        await unitOfWork.SaveChangesAsync();
+        return 1;
 
-        return 0;
     }
 }

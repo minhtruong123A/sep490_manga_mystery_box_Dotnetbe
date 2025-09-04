@@ -62,7 +62,7 @@ public class OrderHistoryService(IUnitOfWork unitOfWork, IOptions<FeeSettings> f
 
         var productOrders =
             await unitOfWork.productOrderRepository.FilterByAsync(p => p.BuyerId == userId || p.SellerId == userId);
-        if (productOrders?.Any() == true)
+        if (productOrders?.Any() != true) return result.OrderByDescending(r => r.PurchasedAt).ToList();
         {
             var productOrderIds = productOrders.Select(p => p.Id.ToString()).ToList();
             var productOrderHistories =
@@ -230,46 +230,44 @@ public class OrderHistoryService(IUnitOfWork unitOfWork, IOptions<FeeSettings> f
                 };
             }
 
-        if (!string.IsNullOrEmpty(orderHistory.ProductOrderId))
-            if (!string.IsNullOrEmpty(orderHistory.ProductOrderId))
+        if (string.IsNullOrEmpty(orderHistory.ProductOrderId)) return null;
+        {
+            if (string.IsNullOrEmpty(orderHistory.ProductOrderId)) return null;
+            var productOrder =
+                await unitOfWork.productOrderRepository.FindOneAsync(p =>
+                    p.Id.ToString() == orderHistory.ProductOrderId);
+            if (productOrder == null) return null;
+
+            var sellProduct =
+                await unitOfWork.SellProductRepository.FindOneAsync(sp => sp.Id == productOrder.SellProductId);
+            if (sellProduct == null) return null;
+
+            var product = await unitOfWork.ProductRepository.FindOneAsync(p => p.Id == sellProduct.ProductId);
+            if (product == null) return null;
+
+            var seller = await unitOfWork.UserRepository.FindOneAsync(u => u.Id == productOrder.SellerId);
+
+            var payment = await unitOfWork.DigitalPaymentSessionRepository.FindOneAsync(p =>
+                p.OrderId == orderHistory.Id && p.Type == nameof(DigitalPaymentSessionType.SellProduct));
+            if (payment == null) return null;
+
+            var isBuyer = productOrder.BuyerId == seller?.Id;
+
+            return new OrderHistoryDto
             {
-                var productOrder =
-                    await unitOfWork.productOrderRepository.FindOneAsync(p =>
-                        p.Id.ToString() == orderHistory.ProductOrderId);
-                if (productOrder == null) return null;
-
-                var sellProduct =
-                    await unitOfWork.SellProductRepository.FindOneAsync(sp => sp.Id == productOrder.SellProductId);
-                if (sellProduct == null) return null;
-
-                var product = await unitOfWork.ProductRepository.FindOneAsync(p => p.Id == sellProduct.ProductId);
-                if (product == null) return null;
-
-                var seller = await unitOfWork.UserRepository.FindOneAsync(u => u.Id == productOrder.SellerId);
-
-                var payment = await unitOfWork.DigitalPaymentSessionRepository.FindOneAsync(p =>
-                    p.OrderId == orderHistory.Id && p.Type == nameof(DigitalPaymentSessionType.SellProduct));
-                if (payment == null) return null;
-
-                var isBuyer = productOrder.BuyerId == seller?.Id;
-
-                return new OrderHistoryDto
-                {
-                    Type = isBuyer ? "ProductBuy" : "ProductSell",
-                    SellProductId = productOrder.SellProductId,
-                    ProductId = product.Id,
-                    ProductName = product.Name,
-                    SellerUsername = seller?.Username,
-                    SellerUrlImage = seller?.ProfileImage,
-                    IsSellSellProduct = sellProduct?.IsSell,
-                    Quantity = 1,
-                    TotalAmount = payment.Amount,
-                    TransactionCode = payment.Id,
-                    PurchasedAt = orderHistory.Datetime,
-                    transactionFeeRate = _feeSettings.AuctionFeeRate
-                };
-            }
-
-        return null;
+                Type = isBuyer ? "ProductBuy" : "ProductSell",
+                SellProductId = productOrder.SellProductId,
+                ProductId = product.Id,
+                ProductName = product.Name,
+                SellerUsername = seller?.Username,
+                SellerUrlImage = seller?.ProfileImage,
+                IsSellSellProduct = sellProduct?.IsSell,
+                Quantity = 1,
+                TotalAmount = payment.Amount,
+                TransactionCode = payment.Id,
+                PurchasedAt = orderHistory.Datetime,
+                transactionFeeRate = _feeSettings.AuctionFeeRate
+            };
+        }
     }
 }

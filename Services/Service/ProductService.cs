@@ -58,7 +58,7 @@ public class ProductService(
         return true;
     }
 
-    public async Task<int> changeStatusProduct(string id)
+    public async Task<int> ChangeStatusProduct(string id)
     {
         var product = await unitOfWork.ProductRepository.GetByIdAsync(id);
         if (product == null) return 0;

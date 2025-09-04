@@ -21,11 +21,9 @@ public class ProductFavoriteService(IUnitOfWork unitOfWork) : IProductFavoriteSe
     public async Task<bool> CreateAsync(string userId, string userProductId)
     {
         var favorites = await unitOfWork.ProductFavoriteRepository.GetAllAsync();
-        var exist = favorites.Where(x => x.User_Id.Equals(userId) && x.User_productId.Equals(userProductId))
-            .FirstOrDefault();
-        var count = favorites.Where(x => x.User_Id.Equals(userId)).Count();
+        var exist = favorites
+            .FirstOrDefault(x => x.User_Id.Equals(userId) && x.User_productId.Equals(userProductId));
         if (exist != null) return false;
-        //if (count >= 6) return false;
         var newFavorite = new ProductFavorite { User_Id = userId, User_productId = userProductId };
         await unitOfWork.ProductFavoriteRepository.AddAsync(newFavorite);
         await unitOfWork.SaveChangesAsync();

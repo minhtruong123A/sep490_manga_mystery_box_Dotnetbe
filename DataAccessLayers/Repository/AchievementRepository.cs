@@ -13,7 +13,7 @@ public class AchievementRepository(MongoDbContext context)
     private readonly IMongoCollection<Achievement> _achievementCollection = context.GetCollection<Achievement>("Achievement");
     private readonly IMongoCollection<Reward> _rewardCollection = context.GetCollection<Reward>("Reward");
 
-    public async Task<Achievement> GetAchievementByCollectionId(string collectionId)
+    public async Task<Achievement?> GetAchievementByCollectionId(string collectionId)
     {
         var achievement = await _achievementCollection.Find(x => x.CollectionId.Equals(collectionId))
             .FirstOrDefaultAsync();

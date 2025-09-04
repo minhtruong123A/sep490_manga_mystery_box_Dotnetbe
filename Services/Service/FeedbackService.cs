@@ -11,8 +11,8 @@ public class FeedbackService(IUnitOfWork unitOfWork) : IFeedbackService
     public async Task<bool> CreateFeedbackAsync(string userId, FeedbackCreateDto dto)
     {
         var exchange = await unitOfWork.ExchangeRepository.GetExchangeInfoById(dto.Exchange_infoId);
-        var sellproduct = await unitOfWork.SellProductRepository.GetByIdAsync(exchange.ItemReciveId);
-        var seller = await unitOfWork.UserRepository.GetByIdAsync(sellproduct.SellerId);
+        var sellProduct = await unitOfWork.SellProductRepository.GetByIdAsync(exchange.ItemReciveId);
+        var seller = await unitOfWork.UserRepository.GetByIdAsync(sellProduct.SellerId);
         var session = await unitOfWork.ExchangeSessionRepository.GetByIdAsync(exchange.ItemGiveId);
         if (session == null) throw new Exception("Session not existed");
         if (seller.Id.Equals(userId)) throw new Exception("You don't have permision feedback for this exchange");

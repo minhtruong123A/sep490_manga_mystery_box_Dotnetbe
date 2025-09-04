@@ -196,7 +196,7 @@ namespace SEP_MMB_API.Controllers
             try
             {
 
-                bool exchangeCode = await sellProductService.ChangestatusSellProductAsync(sellProductId);
+                bool exchangeCode = await sellProductService.ChangeStatusSellProductAsync(sellProductId);
 
                 response.Success = true;
                 response.Data = new

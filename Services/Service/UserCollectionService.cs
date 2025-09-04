@@ -9,7 +9,6 @@ namespace Services.Service;
 
 public class UserCollectionService(IUnitOfWork unitOfWork, IMapper mapper) : IUserCollectionService
 {
-    private readonly IMapper _mapper = mapper;
 
     public async Task CreateUserCollectionAsync(UserCollection collection)
     {

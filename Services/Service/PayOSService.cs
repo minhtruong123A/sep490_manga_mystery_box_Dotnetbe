@@ -112,16 +112,20 @@ public class PayOSService : IPayOSService
             var status = await GetPayOSStatusViaSdkAsync(tx.TransactionCode);
             Console.WriteLine($"[DEBUG] OrderCode: {tx.TransactionCode}, Status: {status}");
 
-            if (status == "PAID")
+            switch (status)
             {
-                await ProcessRechargeAsync(tx.TransactionCode, tx.Amount);
-                updatedCount++;
-            }
-            else if (status == "EXPIRED" || status == "CANCELLED")
-            {
-                var update = Builders<TransactionHistory>.Update.Set(x => x.Status, 3);
-                await _unitOfWork.TransactionHistoryRepository.UpdateFieldAsync(x => x.Id == tx.Id, update);
-                updatedCount++;
+                case "PAID":
+                    await ProcessRechargeAsync(tx.TransactionCode, tx.Amount);
+                    updatedCount++;
+                    break;
+                case "EXPIRED":
+                case "CANCELLED":
+                {
+                    var update = Builders<TransactionHistory>.Update.Set(x => x.Status, 3);
+                    await _unitOfWork.TransactionHistoryRepository.UpdateFieldAsync(x => x.Id == tx.Id, update);
+                    updatedCount++;
+                    break;
+                }
             }
         }
 

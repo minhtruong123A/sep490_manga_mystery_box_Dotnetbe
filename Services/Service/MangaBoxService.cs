@@ -20,23 +20,27 @@ public class MangaBoxService(IUnitOfWork unitOfWork, IImageService imageService,
         if (dto.ImageUrl != null)
         {
             var urlI = await imageService.UploadModeratorProductOrMysteryBoxImageAsync(dto.ImageUrl);
-            var mys1 = new MysteryBox();
-            mys1.Id = ObjectId.GenerateNewId().ToString();
-            mys1.Name = dto.Name;
-            mys1.Description = dto.Description;
-            mys1.TotalProduct = dto.TotalProduct;
-            mys1.Price = dto.Price;
-            mys1.UrlImage = urlI;
-            mys1.Title = dto.Title;
+            var mys1 = new MysteryBox
+            {
+                Id = ObjectId.GenerateNewId().ToString(),
+                Name = dto.Name,
+                Description = dto.Description,
+                TotalProduct = dto.TotalProduct,
+                Price = dto.Price,
+                UrlImage = urlI,
+                Title = dto.Title
+            };
             await unitOfWork.MysteryBoxRepository.AddAsync(mys1);
 
-            var box1 = new MangaBox();
-            box1.Status = 0;
-            box1.CreatedAt = DateTime.Now;
-            box1.UpdatedAt = DateTime.Now;
-            box1.MysteryBoxId = mys1.Id;
-            box1.CollectionTopicId = dto.CollectionTopicId;
-            box1.Title = dto.Title;
+            var box1 = new MangaBox
+            {
+                Status = 0,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                MysteryBoxId = mys1.Id,
+                CollectionTopicId = dto.CollectionTopicId,
+                Title = dto.Title
+            };
             await unitOfWork.MangaBoxRepository.AddAsync(box1);
             await unitOfWork.SaveChangesAsync();
 
@@ -45,23 +49,27 @@ public class MangaBoxService(IUnitOfWork unitOfWork, IImageService imageService,
 
         var url = await mysteryBoxService.GetImageUrlsByCollectionIdAsync(dto.CollectionTopicId);
 
-        var mys = new MysteryBox();
-        mys.Id = ObjectId.GenerateNewId().ToString();
-        mys.Name = dto.Name;
-        mys.Description = dto.Description;
-        mys.TotalProduct = dto.TotalProduct;
-        mys.Price = dto.Price;
-        mys.UrlImage = url;
-        mys.Title = dto.Title;
+        var mys = new MysteryBox
+        {
+            Id = ObjectId.GenerateNewId().ToString(),
+            Name = dto.Name,
+            Description = dto.Description,
+            TotalProduct = dto.TotalProduct,
+            Price = dto.Price,
+            UrlImage = url,
+            Title = dto.Title
+        };
         await unitOfWork.MysteryBoxRepository.AddAsync(mys);
 
-        var box = new MangaBox();
-        box.Status = 0;
-        box.CreatedAt = DateTime.Now;
-        box.UpdatedAt = DateTime.Now;
-        box.MysteryBoxId = mys.Id;
-        box.CollectionTopicId = dto.CollectionTopicId;
-        box.Title = dto.Title;
+        var box = new MangaBox
+        {
+            Status = 0,
+            CreatedAt = DateTime.Now,
+            UpdatedAt = DateTime.Now,
+            MysteryBoxId = mys.Id,
+            CollectionTopicId = dto.CollectionTopicId,
+            Title = dto.Title
+        };
         await unitOfWork.MangaBoxRepository.AddAsync(box);
         await unitOfWork.SaveChangesAsync();
 

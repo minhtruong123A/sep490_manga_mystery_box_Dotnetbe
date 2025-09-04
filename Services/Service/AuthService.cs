@@ -12,20 +12,11 @@ using Services.Interface;
 
 namespace Services.Service;
 
-public class AuthService : IAuthService
+public class AuthService(IUnitOfWork unitOfWork, IConfiguration configuration) : IAuthService
 {
-    private readonly IConfiguration _configuration;
-    private readonly IUnitOfWork _uniUnitOfWork;
-
-    public AuthService(IUnitOfWork unitOfWork, IConfiguration configuration)
-    {
-        _uniUnitOfWork = unitOfWork;
-        _configuration = configuration;
-    }
-
     public async Task<AuthResponseDto> Login(LoginDto loginDto)
     {
-        var account = await _uniUnitOfWork.UserRepository.GetSystemAccountByAccountName(loginDto.Name);
+        var account = await unitOfWork.UserRepository.GetSystemAccountByAccountName(loginDto.Name);
         if (account == null || !VerifyPassword(loginDto.Password, account.Password ?? ""))
             throw new UnauthorizedAccessException("Wrong email or password.");
 
@@ -53,7 +44,7 @@ public class AuthService : IAuthService
         var claims = context.User;
         var userName = claims.FindFirst(c => c.Type == "username")?.Value
                        ?? throw new Exception("User not found.");
-        var account = await _uniUnitOfWork.UserRepository.GetSystemAccountByAccountName(userName)
+        var account = await unitOfWork.UserRepository.GetSystemAccountByAccountName(userName)
                       ?? throw new Exception("User not found.");
         if (account.IsActive is false || account.EmailVerification is false)
             throw new ForbiddenException("Forbidden: Account is inactive or email not verified.");
@@ -77,7 +68,7 @@ public class AuthService : IAuthService
         if (string.IsNullOrWhiteSpace(token)) throw new ArgumentException("Refresh token is required");
 
         var handler = new JwtSecurityTokenHandler();
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:JWT_SECRET"]));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:JWT_SECRET"]));
         try
         {
             var principal = handler.ValidateToken(token, GetValidationParameters(), out _);
@@ -88,7 +79,7 @@ public class AuthService : IAuthService
             if (!claims.TryGetValue("username", out var username) || string.IsNullOrEmpty(username))
                 throw new SecurityTokenException("Invalid token: username missing");
 
-            var user = await _uniUnitOfWork.UserRepository.GetSystemAccountByAccountName(username)
+            var user = await unitOfWork.UserRepository.GetSystemAccountByAccountName(username)
                        ?? throw new Exception("User not found");
             var accessToken = CreateToken(user, false, 60);
             var refreshToken = CreateToken(user, true, 60 * 24 * 7);
@@ -124,7 +115,7 @@ public class AuthService : IAuthService
             ValidateIssuerSigningKey = true,
             //RequireExpirationTime = true,
             IssuerSigningKey =
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:JWT_SECRET"]))
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:JWT_SECRET"]))
         };
     }
 
@@ -136,7 +127,7 @@ public class AuthService : IAuthService
 
     private string CreateToken(User account, bool isRefreshToken = false, int expireMinutes = 30)
     {
-        var rawKey = _configuration["JwtSettings:JWT_SECRET"];
+        var rawKey = configuration["JwtSettings:JWT_SECRET"];
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(rawKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var expiresAt = DateTime.UtcNow.AddMinutes(expireMinutes);

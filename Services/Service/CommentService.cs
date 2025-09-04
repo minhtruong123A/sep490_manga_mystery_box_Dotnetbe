@@ -14,7 +14,6 @@ public class CommentService(IUnitOfWork unitOfWork, IModerationService moderatio
 {
     private static readonly HashSet<string> BadWords = LoadBadWords();
     private static readonly HashSet<string> AllowedShortWords = LoadAllowedShortWords();
-    private readonly IModerationService _moderationService = moderationService;
 
     public async Task<List<CommentWithUsernameDto>> GetAlCommentlBySellProductIdAsync(string sellProductId)
     {
@@ -32,22 +31,20 @@ public class CommentService(IUnitOfWork unitOfWork, IModerationService moderatio
         if (string.IsNullOrWhiteSpace(sellProductId))
             throw new Exception("SellProductId must not be empty or whitespace.");
 
-        if (rating < 0 || rating > 5) throw new Exception("Rating must be between 0 and 5.");
+        if (rating is < 0 or > 5) throw new Exception("Rating must be between 0 and 5.");
 
         var product = await unitOfWork.SellProductRepository.GetByIdAsync(sellProductId);
         if (product == null || !product.IsSell) throw new Exception("Product not found or not available for sale.");
 
         var existingRatingOnly =
             await unitOfWork.CommentRepository.GetRatingOnlyByUserAndProductAsync(userId, sellProductId);
-        if (existingRatingOnly != null)
-        {
-            existingRatingOnly.Rating = rating;
-            existingRatingOnly.UpdatedAt = DateTime.UtcNow;
-            await unitOfWork.CommentRepository.UpdateAsync(existingRatingOnly.Id, existingRatingOnly);
-            return existingRatingOnly;
-        }
+        if (existingRatingOnly == null)
+            return await unitOfWork.CommentRepository.CreateRatingOnlyAsync(sellProductId, userId, rating);
+        existingRatingOnly.Rating = rating;
+        existingRatingOnly.UpdatedAt = DateTime.UtcNow;
+        await unitOfWork.CommentRepository.UpdateAsync(existingRatingOnly.Id, existingRatingOnly);
+        return existingRatingOnly;
 
-        return await unitOfWork.CommentRepository.CreateRatingOnlyAsync(sellProductId, userId, rating);
     }
 
     //comment create and validation
@@ -56,19 +53,17 @@ public class CommentService(IUnitOfWork unitOfWork, IModerationService moderatio
         var sanitizedContent = ValidateCommentInput(sellProductId, content);
 
         var product = await unitOfWork.SellProductRepository.GetByIdAsync(sellProductId);
-        if (product == null || !product.IsSell) throw new Exception("Product not found or not available for sale.");
+        if (product is not { IsSell: true }) throw new Exception("Product not found or not available for sale.");
 
         var existingCommentOnly =
             await unitOfWork.CommentRepository.GetCommentOnlyByUserAndProductAsync(userId, sellProductId);
-        if (existingCommentOnly != null)
-        {
-            existingCommentOnly.Content = sanitizedContent;
-            existingCommentOnly.UpdatedAt = DateTime.UtcNow;
-            await unitOfWork.CommentRepository.UpdateAsync(existingCommentOnly.Id, existingCommentOnly);
-            return existingCommentOnly;
-        }
+        if (existingCommentOnly == null)
+            return await unitOfWork.CommentRepository.CreateCommentAsync(sellProductId, userId, sanitizedContent);
+        existingCommentOnly.Content = sanitizedContent;
+        existingCommentOnly.UpdatedAt = DateTime.UtcNow;
+        await unitOfWork.CommentRepository.UpdateAsync(existingCommentOnly.Id, existingCommentOnly);
+        return existingCommentOnly;
 
-        return await unitOfWork.CommentRepository.CreateCommentAsync(sellProductId, userId, sanitizedContent);
     }
 
     // delete all comment
@@ -134,9 +129,7 @@ public class CommentService(IUnitOfWork unitOfWork, IModerationService moderatio
         //if (!isSafe) throw new ValidationException("Comment contains inappropriate or harmful content.");
 
         var sanitized = SanitizeBadWords(content);
-        if (IsMeaninglessContent(sanitized))
-            throw new ValidationException("Comment contains meaningless or spam-like content.");
-        return sanitized;
+        return IsMeaninglessContent(sanitized) ? throw new ValidationException("Comment contains meaningless or spam-like content.") : sanitized;
     }
 
     private bool IsMeaninglessContent(string content)
@@ -144,10 +137,7 @@ public class CommentService(IUnitOfWork unitOfWork, IModerationService moderatio
         var text = content.Trim().ToLower();
 
         if (AllowedShortWords.Contains(text)) return false;
-        if (text.All(c => char.IsPunctuation(c) || char.IsSymbol(c))) return true;
-        if (HasSuspiciousRepetition(text)) return true;
-
-        return false;
+        return text.All(c => char.IsPunctuation(c) || char.IsSymbol(c)) || HasSuspiciousRepetition(text);
     }
 
     private string SanitizeBadWords(string content)
@@ -160,14 +150,13 @@ public class CommentService(IUnitOfWork unitOfWork, IModerationService moderatio
         });
     }
 
-    public static string RemoveDiacritics(string text)
+    private static string RemoveDiacritics(string text)
     {
         var normalized = text.Normalize(NormalizationForm.FormD);
         var sb = new StringBuilder();
-        foreach (var c in normalized)
+        foreach (var c in from c in normalized let unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c) where unicodeCategory != UnicodeCategory.NonSpacingMark select c)
         {
-            var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
-            if (unicodeCategory != UnicodeCategory.NonSpacingMark) sb.Append(c);
+            sb.Append(c);
         }
 
         return sb.ToString().Normalize(NormalizationForm.FormC);

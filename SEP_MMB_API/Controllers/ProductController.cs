@@ -122,11 +122,11 @@ namespace SEP_MMB_API.Controllers
 
         [Authorize]
         [HttpPatch("block-unlock-product")]
-        public async Task<IActionResult> changeStatusProduct(string id)
+        public async Task<IActionResult> ChangeStatusProduct(string id)
         {
             try
             {
-                var data = await productService.changeStatusProduct(id);
+                var data = await productService.ChangeStatusProduct(id);
                 if (data == 0)
                 {
                     return NotFound(new ResponseModel<string>

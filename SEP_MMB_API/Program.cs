@@ -10,7 +10,8 @@ builder.Services.AddConfigLoader(configuration)
     .AddRateLimiter(configuration)
     .AddDatabaseConfiguration(configuration)
     .AddRepositories()
-    .AddServices();
+    .AddServices()
+    .AddCronJobs();
 
 var app = builder.Build();
 
@@ -28,5 +29,7 @@ app.UseDevPasswordProtection(devPassword!)
     .UseSwaggerConfiguration();
 app.UseAuthorization();
 app.MapControllers();
+
+// await app.UseMongoSeedAsync();
 
 app.Run();

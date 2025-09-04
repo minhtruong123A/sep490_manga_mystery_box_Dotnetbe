@@ -5,15 +5,10 @@ namespace SEP_MMB_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BankController : ControllerBase
+    public class BankController(IAuthService authService, IBankService bankService) : ControllerBase
     {
-        private readonly IAuthService _authService;
-        private readonly IBankService _bankService;
-        public BankController(IAuthService authService, IBankService bankService)
-        {
-            _authService = authService;
-            _bankService = bankService;
-        }
+        private readonly IAuthService _authService = authService;
+        private readonly IBankService _bankService = bankService;
         //[Authorize]
         //[HttpGet("get-all-bank")]
         //public async Task<ActionResult<ResponseModel<List<Bank>>>> GetAllAsync()

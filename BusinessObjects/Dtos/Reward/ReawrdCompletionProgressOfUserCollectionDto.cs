@@ -9,6 +9,7 @@ namespace BusinessObjects.Dtos.Reward
     public class ReawrdCompletionProgressOfUserCollectionDto
     {
         public string AchievementId { get; set; }
+        public string RewardId { get; set; }
         public int Conditions { get; set; }
         public string? Url_image { get; set; }
         public string MangaBoxId { get; set; }

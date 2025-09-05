@@ -114,16 +114,16 @@ namespace DataAccessLayers.Repository
         {
             var userRewards = await _userRewardCollection.Find(x => x.UserId.Equals(userId)).ToListAsync();
             var rewardIds = userRewards.Select(x=>x.RewardId).Distinct().ToList();
-            var rewards = await _rewardCollection.Find(x=>rewardIds.Contains(x.Id) && x.Url_image!=null).ToListAsync();
+            var rewards = await _rewardCollection.Find(x=>rewardIds.Contains(x.Id) && !string.IsNullOrEmpty(x.Url_image)).ToListAsync();
 
-            return userRewards.Select(u =>
+            return rewards.Select(u =>
             {
-                var reward = rewards.FirstOrDefault(x => x.Id.Equals(u.RewardId));
+                var userReward = userRewards.FirstOrDefault(x => x.RewardId.Equals(u.Id) && x.UserId.Equals(userId));
                 return new GetAchievementMedalRewardDto
                 {
-                    userRewardId = u.Id,
-                    UrlImage = reward.Url_image,
-                    isPublic = u.isPublic
+                    userRewardId = userReward.Id,
+                    UrlImage = u?.Url_image??"unknow",
+                    isPublic = userReward.isPublic
                 };
             }
             ).ToList();
@@ -135,14 +135,14 @@ namespace DataAccessLayers.Repository
             var rewardIds = userRewards.Select(x => x.RewardId).Distinct().ToList();
             var rewards = await _rewardCollection.Find(x => rewardIds.Contains(x.Id) && x.Url_image != null).ToListAsync();
 
-            return userRewards.Select(u =>
+            return rewards.Select(u =>
             {
-                var reward = rewards.FirstOrDefault(x => x.Id.Equals(u.RewardId));
+                var userReward = userRewards.FirstOrDefault(x => x.RewardId.Equals(u.Id) && x.UserId.Equals(userId));
                 return new GetAchievementMedalRewardDto
                 {
-                    userRewardId = u.Id,
-                    UrlImage = reward.Url_image,
-                    isPublic = u.isPublic
+                    userRewardId = userReward.Id,
+                    UrlImage = u?.Url_image ?? "unknow",
+                    isPublic = userReward.isPublic
                 };
             }
             ).ToList();
@@ -194,6 +194,7 @@ namespace DataAccessLayers.Repository
                             return new ReawrdCompletionProgressOfUserCollectionDto
                             {
                                 AchievementId = a.Id,
+                                RewardId = r.Id,
                                 Conditions = r.Conditions,
                                 MangaBoxId = r.MangaBoxId,
                                 Quantity_box = r.Quantity_box,
@@ -205,6 +206,7 @@ namespace DataAccessLayers.Repository
                         return new ReawrdCompletionProgressOfUserCollectionDto
                         {
                             AchievementId = a.Id,
+                            RewardId = r.Id,
                             Conditions = r.Conditions,
                             MangaBoxId = r.MangaBoxId,
                             Quantity_box = r.Quantity_box,

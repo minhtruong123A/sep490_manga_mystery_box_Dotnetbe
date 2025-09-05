@@ -1,15 +1,9 @@
 ﻿using BusinessObjects.Dtos.Product;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Services.Interface
+namespace Services.Interface;
+
+public interface IUserProductService
 {
-    public interface IUserProductService
-    {
-        Task<List<CollectionProductsDto>> GetAllWithDetailsAsync(string id, string collectionId);
-        Task<bool> CheckedUpdateQuantityAsync(string userProductId);
-    }
+    Task<List<CollectionProductsDto>> GetAllWithDetailsAsync(string id, string collectionId);
+    Task<bool> CheckedUpdateQuantityAsync(string userProductId);
 }

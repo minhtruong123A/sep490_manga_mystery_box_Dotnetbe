@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.IdentityModel.Tokens.Jwt;
+using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Dtos;
 using BusinessObjects.Dtos.Auth;
@@ -9,48 +10,34 @@ using BusinessObjects.Dtos.User;
 using BusinessObjects.Dtos.UserCollection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using Net.payOS.Types;
 using Services.Interface;
-using Services.Service;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace SEP_MMB_API.Controllers
 {
     [ApiExplorerSettings(GroupName = "test")]
     [Route("api/[controller]")]
     [ApiController]
-    public class TestController : ControllerBase
+    public class TestController(
+        IUserService userService,
+        IAuthService authService,
+        IMangaBoxService mailboxService,
+        IMapper mapper,
+        IUserCollectionService userCollectionService,
+        ICommentService commentService,
+        IPayOSService payOsService,
+        IProductInMangaBoxService productInMangaBoxService,
+        IUseDigitalWalletService useDigitalWalletService)
+        : ControllerBase
     {
-        private readonly IUserService _userService;
-        private readonly IAuthService _authService;
-        private readonly IMangaBoxService _mangaBoxService;
-        private readonly IUserCollectionService _userCollectionService;
-        private readonly ICommentService _commentService;
-        private readonly IMapper _mapper;
-        private readonly IPayOSService _payOSService;
-        private readonly IProductInMangaBoxService _productInMangaBoxService;
-        private readonly IUseDigitalWalletService _useDigitalWalletService;
-
-        public TestController(IUserService userService, IAuthService authService, IMangaBoxService mailboxService, IMapper mapper, IUserCollectionService userCollectionService, ICommentService commentService, IPayOSService payOSService, IProductInMangaBoxService productInMangaBoxService, IUseDigitalWalletService useDigitalWalletService)
-        {
-            _userService = userService;
-            _authService = authService;
-            _mangaBoxService = mailboxService;
-            _userCollectionService = userCollectionService;
-            _commentService = commentService;
-            _mapper = mapper;
-            _payOSService = payOSService;
-            _productInMangaBoxService = productInMangaBoxService;
-            _useDigitalWalletService = useDigitalWalletService;
-        }
-
         [Tags("Server Test Fetch API Only")]
         [HttpGet("user")]
         public async Task<ActionResult<ResponseModel<List<UserInformationDto>>>> Get()
         {
             try
             {
-                var usersDto = await _userService.GetAllUsersAsync();
+                var usersDto = await userService.GetAllUsersAsync();
                 return Ok(new ResponseModel<List<UserInformationDto>>()
                 {
                     Data = usersDto,
@@ -76,7 +63,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                await _userService.DeleteUserByEmailAsync(email);
+                await userService.DeleteUserByEmailAsync(email);
                 return Ok(new ResponseModel<string>
                 {
                     Data = "User and associated email verification deleted successfully.",
@@ -117,7 +104,7 @@ namespace SEP_MMB_API.Controllers
                 var token = authHeader.Substring("Bearer ".Length).Trim();
                 var handler = new JwtSecurityTokenHandler();
 
-                handler.ValidateToken(token, _authService.GetValidationParameters(), out _);
+                handler.ValidateToken(token, authService.GetValidationParameters(), out _);
 
                 return Ok(new ResponseModel<BoolWrapper>
                 {
@@ -144,7 +131,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var result = await _authService.RefreshTokenAsync(dto.Token);
+                var result = await authService.RefreshTokenAsync(dto.Token);
 
                 return Ok(new ResponseModel<AuthResponseDto>
                 {
@@ -183,7 +170,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                await _commentService.DeleteAllCommentAsync();
+                await commentService.DeleteAllCommentAsync();
                 return Ok(new ResponseModel<string>
                 {
                     Data = "all comment deleted successfully.",
@@ -209,9 +196,9 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var mangaBox = _mapper.Map<MangaBox>(mangaBoxDto);
-                mangaBox.Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
-                var addedMangabox = await _mangaBoxService.AddAsync(mangaBox);
+                var mangaBox = mapper.Map<MangaBox>(mangaBoxDto);
+                mangaBox.Id = ObjectId.GenerateNewId().ToString();
+                var addedMangabox = await mailboxService.AddAsync(mangaBox);
                 return Ok(new ResponseModel<MangaBox>
                 {
                     Data = addedMangabox,
@@ -237,9 +224,9 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var productInMangaBoxMap = _mapper.Map<ProductInMangaBox>(productInMangaBox);
+                var productInMangaBoxMap = mapper.Map<ProductInMangaBox>(productInMangaBox);
                 //productInMangaBoxMap.Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
-                await _productInMangaBoxService.CreateProductInMangaBoxAsync(productInMangaBoxMap);
+                await productInMangaBoxService.CreateProductInMangaBoxAsync(productInMangaBoxMap);
                 return Ok(new ResponseModel<string>
                 {
                     Data = "Added successfully",
@@ -265,9 +252,9 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var userCollection = _mapper.Map<UserCollection>(dto);
-                userCollection.Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
-                await _userCollectionService.CreateUserCollectionAsync(userCollection);
+                var userCollection = mapper.Map<UserCollection>(dto);
+                userCollection.Id = ObjectId.GenerateNewId().ToString();
+                await userCollectionService.CreateUserCollectionAsync(userCollection);
                 return Ok(new ResponseModel<string>
                 {
                     Data = null,
@@ -292,10 +279,10 @@ namespace SEP_MMB_API.Controllers
         [HttpGet("test-create")]
         public async Task<IActionResult> TestCreate()
         {
-            var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+            var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
             long orderCode = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             var items = new List<ItemData> { new ItemData("Gói test VIP", 1, 20000) };
-            var result = await _payOSService.CreatePaymentLinkAsync(
+            var result = await payOsService.CreatePaymentLinkAsync(
                 orderCode,
                 amount: 20000,
                 description: "Test giao diện thanh toán",
@@ -323,8 +310,8 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var transactionCode = await _useDigitalWalletService.UpdateWalletWithTransactionAsync(account.Id, amount);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                var transactionCode = await useDigitalWalletService.UpdateWalletWithTransactionAsync(account.Id, amount);
 
                 return Ok(new ResponseModel<string>
                 {

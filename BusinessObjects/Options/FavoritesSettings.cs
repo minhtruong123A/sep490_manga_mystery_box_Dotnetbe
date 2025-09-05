@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace BusinessObjects.Options;
 
-namespace BusinessObjects.Options
+public class FavoritesSettings
 {
-    public class FavoritesSettings
-    {
-        public string CollectionTopic { get; set; }
-    }
+    public string CollectionTopic { get; set; }
 }

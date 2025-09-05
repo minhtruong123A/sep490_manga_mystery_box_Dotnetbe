@@ -1,15 +1,8 @@
-﻿using BusinessObjects;
-using BusinessObjects.Dtos.TransactionFee;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BusinessObjects.Dtos.TransactionFee;
 
-namespace Services.Interface
+namespace Services.Interface;
+
+public interface ITransactionFeeService
 {
-    public interface ITransactionFeeService
-    {
-        Task<List<TransactionFeeDto>> GetAllValidTransactionFeesAsync();
-    }
+    Task<List<TransactionFeeDto>> GetAllValidTransactionFeesAsync();
 }

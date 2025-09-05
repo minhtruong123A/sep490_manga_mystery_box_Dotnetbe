@@ -1,17 +1,11 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Dtos.Product;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DataAccessLayers.Interface
+namespace DataAccessLayers.Interface;
+
+public interface IProductRepository : IGenericRepository<Product>
 {
-    public interface IProductRepository : IGenericRepository<Product>
-    {
-        Task<ProductWithRarityDto?> GetProductWithRarityByIdAsync(string productId);
-        Task<List<ProductWithRarityForModeratorDto>> GetAllProductsWithRarityAsync();
-        Task CheckProduct(string productId);
-    }
+    Task<ProductWithRarityDto?> GetProductWithRarityByIdAsync(string productId);
+    Task<List<ProductWithRarityForModeratorDto>> GetAllProductsWithRarityAsync();
+    Task CheckProduct(string productId);
 }

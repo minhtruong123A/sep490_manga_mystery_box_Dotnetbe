@@ -3,31 +3,21 @@ using BusinessObjects.Dtos.Schema_Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
-using Services.Service;
 
 namespace SEP_MMB_API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CartController : ControllerBase
+    public class CartController(ICartService cartService, IAuthService authService) : ControllerBase
     {
-        private readonly ICartService _cartService;
-        private readonly IAuthService _authService;
-
-        public CartController(ICartService cartService, IAuthService authService)
-        {
-            _cartService = cartService;
-            _authService = authService;
-        }
-
         [Authorize(Roles = "user")]
         [HttpGet("view-cart")]
         public async Task<ActionResult<ResponseModel<CartViewDto>>> ViewCart()
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var cart = await _cartService.ViewCartAsync(account.Id);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                var cart = await cartService.ViewCartAsync(account.Id);
                 return Ok(new ResponseModel<CartViewDto>
                 {
                     Data = cart,
@@ -54,9 +44,9 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
                 var quantity = request.Quantity ?? 1;
-                await _cartService.AddToCartAsync(account.Id, request.SellProductId, request.MangaBoxId, quantity);
+                await cartService.AddToCartAsync(account.Id, request.SellProductId, request.MangaBoxId, quantity);
                 return Ok(new ResponseModel<object>
                 {
                     Data = new
@@ -97,10 +87,10 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
                 if (request.Quantity < 0) return BadRequest(new ResponseModel<object> { Success = false, Error = "Quantity cannot be negative." });
 
-                var updatedItem = await _cartService.UpdateItemQuantityAsync(account.Id, request.Id, request.Quantity);
+                var updatedItem = await cartService.UpdateItemQuantityAsync(account.Id, request.Id, request.Quantity);
                 return Ok(new ResponseModel<UpdateCartItemDto>
                 {
                     Data = updatedItem,
@@ -142,7 +132,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
                 if (string.IsNullOrWhiteSpace(sellProductId) && string.IsNullOrWhiteSpace(mangaBoxId))
                 {
                     return BadRequest(new ResponseModel<object>
@@ -153,7 +143,7 @@ namespace SEP_MMB_API.Controllers
                     });
                 }
 
-                await _cartService.RemoveFromCartAsync(account.Id, sellProductId, mangaBoxId);
+                await cartService.RemoveFromCartAsync(account.Id, sellProductId, mangaBoxId);
 
                 return Ok(new ResponseModel<object>
                 {
@@ -181,8 +171,8 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                await _cartService.ClearCartAsync(account.Id, type);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                await cartService.ClearCartAsync(account.Id, type);
 
                 return Ok(new ResponseModel<object>
                 {

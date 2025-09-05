@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace BusinessObjects.Enum;
 
-namespace BusinessObjects.Enum
+public enum TransactionStatus
 {
-    public enum TransactionStatus
-    {
-        Suspect = -1,
-        Pending = 1,
-        Success = 2,
-        Cancel = 3,
-    }
+    Suspect = -1,
+    Pending = 1,
+    Success = 2,
+    Cancel = 3
 }

@@ -1,19 +1,12 @@
 ﻿using BusinessObjects.Dtos.Product;
 using BusinessObjects.Dtos.UserCollection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Services.Interface
+namespace Services.Interface;
+
+public interface IProductFavoriteService
 {
-    public interface IProductFavoriteService
-    {
-        Task<List<UserCollectionGetAllDto>> GetFavoriteListWithDetailsAsync(string userId);
-        Task<List<CollectionProductsDto>> GetAllWithDetailsAsync(string userId);
-        Task<bool> CreateAsync(string userId, string userProductId);
-        Task<bool> DeleteAsync(string favoriteId);
-
-    }
+    Task<List<UserCollectionGetAllDto>> GetFavoriteListWithDetailsAsync(string userId);
+    Task<List<CollectionProductsDto>> GetAllWithDetailsAsync(string userId);
+    Task<bool> CreateAsync(string userId, string userProductId);
+    Task<bool> DeleteAsync(string favoriteId);
 }

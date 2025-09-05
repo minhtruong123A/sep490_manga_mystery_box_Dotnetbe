@@ -1,25 +1,16 @@
-﻿using BusinessObjects;
-using BusinessObjects.Dtos.Schema_Response;
+﻿using BusinessObjects.Dtos.Schema_Response;
 using BusinessObjects.Dtos.User;
 using BusinessObjects.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
-using Services.Service;
 
 namespace SEP_MMB_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserController(IUserService userService, IAuthService authService) : ControllerBase
     {
-        private readonly IUserService _userService;
-        private readonly IAuthService _authService;
-        public UserController(IUserService userService, IAuthService authService)
-        {
-            _userService = userService;
-            _authService = authService;
-        }
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Authorize]
@@ -28,7 +19,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var usersDto = await _userService.GetAllUsersAsync();
+                var usersDto = await userService.GetAllUsersAsync();
                 return Ok(new ResponseModel<List<UserInformationDto>>()
                 {
                     Data = usersDto,
@@ -54,8 +45,8 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var userDto = await _userService.GetUserByIdAsync(account.Id);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                var userDto = await userService.GetUserByIdAsync(account.Id);
                 return Ok(new ResponseModel<UserInformationDto>()
                 {
                     Data = userDto,
@@ -80,7 +71,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var userDto = await _userService.GetOtherUserByIdAsync(id);
+                var userDto = await userService.GetOtherUserByIdAsync(id);
                 return Ok(new ResponseModel<UserInformationDto>()
                 {
                     Data = userDto,
@@ -106,8 +97,8 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var response = await _userService.UpdateProfileAsync(dto.UrlImage, account.Id, dto);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                var response = await userService.UpdateProfileAsync(dto.UrlImage, account.Id, dto);
 
                 return Ok(new ResponseModel<UserUpdateResponseDto>
                 {
@@ -132,8 +123,8 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var result = await _userService.ChangePasswordAsync(account.Id,dto);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                var result = await userService.ChangePasswordAsync(account.Id,dto);
 
                 switch (result)
                 {

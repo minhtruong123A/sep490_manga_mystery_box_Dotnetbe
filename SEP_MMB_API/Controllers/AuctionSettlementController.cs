@@ -1,5 +1,4 @@
-﻿using BusinessObjects;
-using BusinessObjects.Dtos.Auction;
+﻿using BusinessObjects.Dtos.Auction;
 using BusinessObjects.Dtos.Schema_Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,21 +8,14 @@ namespace SEP_MMB_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuctionSettlementController : ControllerBase
+    public class AuctionSettlementController(IAuctionSettlementService auctionSettlementService) : ControllerBase
     {
-        private readonly IAuctionSettlementService _auctionSettlementService;
-
-        public AuctionSettlementController(IAuctionSettlementService auctionSettlementService)
-        {
-            _auctionSettlementService = auctionSettlementService;
-        }
-
         [HttpPost("finalize-auction/{auctionId}")]
         public async Task<ActionResult<ResponseModel<object>>> FinalizeAuction(string auctionId)
         {
             try
             {
-                var result = await _auctionSettlementService.FinalizeAuctionResultAsync(auctionId);
+                var result = await auctionSettlementService.FinalizeAuctionResultAsync(auctionId);
 
                 return Ok(new ResponseModel<object>
                 {
@@ -51,7 +43,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var result = await _auctionSettlementService.ChangeStatusAsync(auctionSessionId,status);
+                var result = await auctionSettlementService.ChangeStatusAsync(auctionSessionId,status);
                 if (status == 1 && result==true)
                 {
                     return Ok(new ResponseModel<object>
@@ -98,7 +90,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var result = await _auctionSettlementService.GetAuctionResultByIdAsync(id);
+                var result = await auctionSettlementService.GetAuctionResultByIdAsync(id);
                 if (result == null)
                     return NotFound(new ResponseModel<string>
                     {

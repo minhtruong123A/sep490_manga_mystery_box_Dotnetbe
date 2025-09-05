@@ -1,145 +1,137 @@
-﻿using BusinessObjects.Dtos.TransactionHistory;
+﻿using BusinessObjects;
+using BusinessObjects.Dtos.TransactionHistory;
 using BusinessObjects.Enum;
-using BusinessObjects;
-using DataAccessLayers.Interface;
-using Services.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DataAccessLayers.Exceptions;
 using BusinessObjects.Options;
+using DataAccessLayers.Interface;
 using Microsoft.Extensions.Options;
+using Services.Interface;
 
-namespace Services.Service
+namespace Services.Service;
+
+public class TransactionHistoryService(IUnitOfWork unitOfWork, IOptions<WithdrawRulesSettings> withdrawRulesSettings)
+    : ITransactionHistoryService
 {
-    public class TransactionHistoryService : ITransactionHistoryService
+    private readonly WithdrawRulesSettings _withdrawRulesSettings = withdrawRulesSettings.Value;
+
+    public async Task<List<TransactionHistoryDto>> GetTransactionHistoryAsync(string walletId)
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly WithdrawRulesSettings _withdrawRulesSettings;
+        return await unitOfWork.TransactionHistoryRepository.GetTransactionsByWalletIdAsync(walletId);
+    }
 
-        public TransactionHistoryService(IUnitOfWork unitOfWork, IOptions<WithdrawRulesSettings> withdrawRulesSettings)
-        {
-            _unitOfWork = unitOfWork;
-            _withdrawRulesSettings = withdrawRulesSettings.Value;
-        }
+    public async Task<object?> CreateRequestWithdrawAsync(string userId, int amount)
+    {
+        var user = await unitOfWork.UserRepository.GetByIdAsync(userId);
+        if (user == null) throw new Exception("User not found");
 
-        public async Task<List<TransactionHistoryDto>> GetTransactionHistoryAsync(string walletId) => await _unitOfWork.TransactionHistoryRepository.GetTransactionsByWalletIdAsync(walletId);
-        public async Task<object?> CreateRequestWithdrawAsync(string userId, int amount)
-        {
-            var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
-            if (user == null) throw new Exception("User not found");
+        var userBanks = await unitOfWork.UserBankRepository.GetAllAsync();
+        var userBank = userBanks.FirstOrDefault(x => x.UserId.Equals(user.Id));
+        if (userBank == null) return null;
 
-            var userBanks = await _unitOfWork.UserBankRepository.GetAllAsync();
-            var userBank = userBanks.FirstOrDefault(x => x.UserId.Equals(user.Id));
-            if (userBank == null) return null;
+        var todayStart = DateTime.UtcNow.Date;
+        var todayEnd = todayStart.AddDays(1).AddTicks(-1);
+        var withdrawCountTodayLong = await unitOfWork.TransactionHistoryRepository.CountAsync(x =>
+            x.WalletId == user.WalletId &&
+            x.Type == (int)TransactionType.Withdraw &&
+            x.DataTime >= todayStart &&
+            x.DataTime <= todayEnd);
+        var withdrawCountToday = (int)withdrawCountTodayLong;
+        var remainingLimit = Math.Max(0, _withdrawRulesSettings.LimitWithdraw - withdrawCountToday);
 
-            var todayStart = DateTime.UtcNow.Date;
-            var todayEnd = todayStart.AddDays(1).AddTicks(-1);
-            var withdrawCountTodayLong = await _unitOfWork.TransactionHistoryRepository.CountAsync(
-                x => x.WalletId == user.WalletId &&
-                     x.Type == (int)TransactionType.Withdraw &&
-                     x.DataTime >= todayStart &&
-                     x.DataTime <= todayEnd);
-            var withdrawCountToday = (int)withdrawCountTodayLong;
-            var remainingLimit = Math.Max(0, _withdrawRulesSettings.LimitWithdraw - withdrawCountToday);
-
-            if (amount < _withdrawRulesSettings.MinAmount || amount > _withdrawRulesSettings.MaxAmount)
+        if (amount < _withdrawRulesSettings.MinAmount || amount > _withdrawRulesSettings.MaxAmount)
+            return new WithdrawLimitInfoDto
             {
-                return new WithdrawLimitInfoDto
-                {
-                    WithdrawCountToday = withdrawCountToday,
-                    RemainingLimit = remainingLimit,
-                    Message = $"The withdrawal amount must be between {_withdrawRulesSettings.MinAmount:N0} VND and {_withdrawRulesSettings.MaxAmount:N0} VND."
-                };
-            }
-
-            if (withdrawCountToday >= _withdrawRulesSettings.LimitWithdraw)
-            {
-                return new WithdrawLimitInfoDto
-                {
-                    WithdrawCountToday = withdrawCountToday,
-                    RemainingLimit = remainingLimit,
-                    Message = $"You have reached the maximum number of withdraw requests for today ({_withdrawRulesSettings.LimitWithdraw})."
-                };
-            }
-
-            var newWithdraw = new TransactionHistory
-            {
-                Amount = amount,
-                WalletId = user.WalletId,
-                Type = (int)TransactionType.Withdraw,
-                Status = (int)TransactionStatus.Pending,
-                DataTime = DateTime.UtcNow,
-                TransactionCode = _withdrawRulesSettings.Statuses.WaitingModReview
+                WithdrawCountToday = withdrawCountToday,
+                RemainingLimit = remainingLimit,
+                Message =
+                    $"The withdrawal amount must be between {_withdrawRulesSettings.MinAmount:N0} VND and {_withdrawRulesSettings.MaxAmount:N0} VND."
             };
-            await _unitOfWork.TransactionHistoryRepository.AddAsync(newWithdraw);
-            await _unitOfWork.SaveChangesAsync();
 
-            return new TransactionHistoryDto
+        if (withdrawCountToday >= _withdrawRulesSettings.LimitWithdraw)
+            return new WithdrawLimitInfoDto
             {
-                Id = newWithdraw.Id,
-                Amount = newWithdraw.Amount,
-                Status = (TransactionStatus)newWithdraw.Status,
-                Type = (TransactionType)newWithdraw.Type,
-                DataTime = newWithdraw.DataTime,
-                TransactionCode = newWithdraw.TransactionCode
+                WithdrawCountToday = withdrawCountToday,
+                RemainingLimit = remainingLimit,
+                Message =
+                    $"You have reached the maximum number of withdraw requests for today ({_withdrawRulesSettings.LimitWithdraw})."
             };
-        }
 
-        public async Task<List<UserTransactionDto>> GetAllUsersWithTransactionsAsync()
+        var newWithdraw = new TransactionHistory
         {
-            var users = await _unitOfWork.UserRepository.GetAllAsync();
-            var result = new List<UserTransactionDto>();
+            Amount = amount,
+            WalletId = user.WalletId,
+            Type = (int)TransactionType.Withdraw,
+            Status = (int)TransactionStatus.Pending,
+            DataTime = DateTime.UtcNow,
+            TransactionCode = _withdrawRulesSettings.Statuses.WaitingModReview
+        };
+        await unitOfWork.TransactionHistoryRepository.AddAsync(newWithdraw);
+        await unitOfWork.SaveChangesAsync();
 
-            foreach (var user in users)
+        return new TransactionHistoryDto
+        {
+            Id = newWithdraw.Id,
+            Amount = newWithdraw.Amount,
+            Status = (TransactionStatus)newWithdraw.Status,
+            Type = (TransactionType)newWithdraw.Type,
+            DataTime = newWithdraw.DataTime,
+            TransactionCode = newWithdraw.TransactionCode
+        };
+    }
+
+    public async Task<List<UserTransactionDto>> GetAllUsersWithTransactionsAsync()
+    {
+        var users = await unitOfWork.UserRepository.GetAllAsync();
+        var result = new List<UserTransactionDto>();
+
+        foreach (var user in users)
+            if (!string.IsNullOrEmpty(user.WalletId))
             {
-                if (!string.IsNullOrEmpty(user.WalletId))
-                {
-                    var transactions = await _unitOfWork.TransactionHistoryRepository.GetTransactionsByWalletIdAsync(user.WalletId);
+                var transactions =
+                    await unitOfWork.TransactionHistoryRepository.GetTransactionsByWalletIdAsync(user.WalletId);
 
-                    result.Add(new UserTransactionDto
-                    {
-                        UserId = user.Id,
-                        Username = user.Username,
-                        WalletId = user.WalletId,
-                        Transactions = transactions
-                    });
-                }
+                result.Add(new UserTransactionDto
+                {
+                    UserId = user.Id,
+                    Username = user.Username,
+                    WalletId = user.WalletId,
+                    Transactions = transactions
+                });
             }
 
-            return result;
-        }
+        return result;
+    }
 
-        public async Task<List<TransactionHistoryRequestWithdrawOfUserDto>> GetAllRequestWithdrawAsync() => await _unitOfWork.TransactionHistoryRepository.GetAllRequestWithdrawAsync();
-        public async Task<bool> AcceptTransactionWithdrawAsync(string transactionId, string transactionCode)
-        {
-            var transaction = await _unitOfWork.TransactionHistoryRepository.GetByIdAsync(transactionId);
-            if (transaction == null) throw new Exception("Transaction not found");
-            var wallet = await _unitOfWork.UseDigitalWalletRepository.GetByIdAsync(transaction.WalletId);
-            if (wallet == null) throw new Exception("Wallet not found");
-            if (wallet.Ammount < transaction.Amount) throw new Exception("User wallet not enough");
-            wallet.Ammount -= transaction.Amount;
-            await _unitOfWork.UseDigitalWalletRepository.UpdateAsync(transaction.WalletId,wallet);
+    public async Task<List<TransactionHistoryRequestWithdrawOfUserDto>> GetAllRequestWithdrawAsync()
+    {
+        return await unitOfWork.TransactionHistoryRepository.GetAllRequestWithdrawAsync();
+    }
 
-            transaction.TransactionCode = transactionCode;
-            transaction.Status = (int)TransactionStatus.Success;
-            await _unitOfWork.TransactionHistoryRepository.UpdateAsync(transactionId, transaction);
-            await _unitOfWork.SaveChangesAsync();
-            return true;
-        }
+    public async Task<bool> AcceptTransactionWithdrawAsync(string transactionId, string transactionCode)
+    {
+        var transaction = await unitOfWork.TransactionHistoryRepository.GetByIdAsync(transactionId);
+        if (transaction == null) throw new Exception("Transaction not found");
+        var wallet = await unitOfWork.UseDigitalWalletRepository.GetByIdAsync(transaction.WalletId);
+        if (wallet == null) throw new Exception("Wallet not found");
+        if (wallet.Ammount < transaction.Amount) throw new Exception("User wallet not enough");
+        wallet.Ammount -= transaction.Amount;
+        await unitOfWork.UseDigitalWalletRepository.UpdateAsync(transaction.WalletId, wallet);
 
-        public async Task<bool> RejectTransactionWithdrawAsync(string transactionId)
-        {
-            var transaction = await _unitOfWork.TransactionHistoryRepository.GetByIdAsync(transactionId);
-            if (transaction == null) throw new Exception("Transaction not found");
+        transaction.TransactionCode = transactionCode;
+        transaction.Status = (int)TransactionStatus.Success;
+        await unitOfWork.TransactionHistoryRepository.UpdateAsync(transactionId, transaction);
+        await unitOfWork.SaveChangesAsync();
+        return true;
+    }
 
-            transaction.Status = (int)TransactionStatus.Cancel;
-            transaction.TransactionCode = _withdrawRulesSettings.Statuses.RejectedByMod;
-            await _unitOfWork.TransactionHistoryRepository.UpdateAsync(transactionId, transaction);
-            await _unitOfWork.SaveChangesAsync();
-            return true;
-        }
+    public async Task<bool> RejectTransactionWithdrawAsync(string transactionId)
+    {
+        var transaction = await unitOfWork.TransactionHistoryRepository.GetByIdAsync(transactionId);
+        if (transaction == null) throw new Exception("Transaction not found");
+
+        transaction.Status = (int)TransactionStatus.Cancel;
+        transaction.TransactionCode = _withdrawRulesSettings.Statuses.RejectedByMod;
+        await unitOfWork.TransactionHistoryRepository.UpdateAsync(transactionId, transaction);
+        await unitOfWork.SaveChangesAsync();
+        return true;
     }
 }

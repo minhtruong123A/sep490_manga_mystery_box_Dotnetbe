@@ -8,22 +8,15 @@ namespace SEP_MMB_API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class MysteryBoxController : ControllerBase
+    public class MysteryBoxController(IMysteryBoxService mysteryBoxService) : ControllerBase
     {
-        private readonly IMysteryBoxService _mysteryBoxService;
-
-        public MysteryBoxController(IMysteryBoxService mysteryBoxService)
-        {
-            _mysteryBoxService = mysteryBoxService;
-        }
-
         [Authorize]
         [HttpGet("box-image-paths")]
         public async Task<ActionResult<ResponseModel<List<string>>>> GetUniqueBoxImagePaths()
         {
             try
             {
-                var result = await _mysteryBoxService.GetAllUniqueImageUrlsAsync();
+                var result = await mysteryBoxService.GetAllUniqueImageUrlsAsync();
 
                 return Ok(new ResponseModel<List<string>>
                 {

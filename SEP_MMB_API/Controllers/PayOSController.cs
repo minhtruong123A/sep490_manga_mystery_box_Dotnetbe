@@ -4,30 +4,20 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Net.payOS.Types;
 using Services.Interface;
-using Services.Service;
 
 namespace SEP_MMB_API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class PayOSController : ControllerBase
+    public class PayOSController(IPayOSService payOsService, IAuthService authService) : ControllerBase
     {
-        private readonly IPayOSService _payOSService;
-        private readonly IAuthService _authService;
-
-        public PayOSController(IPayOSService payOSService, IAuthService authService)
-        {
-            _payOSService = payOSService;
-            _authService = authService;
-        }
-
         [Authorize(Roles = "user")]
         [HttpPost("create-payment")]
         public async Task<ActionResult<ResponseModel<object>>> CreatePayment([FromBody] CreatePaymentRequest req)
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
                 var items = req.Items.Select(x => new ItemData(x.Name, 1, x.Price)).ToList();
                 int totalAmount = items.Sum(i => i.price * i.quantity);
                 if (totalAmount <= 0)
@@ -42,7 +32,7 @@ namespace SEP_MMB_API.Controllers
                 }
 
                 long orderCode = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-                var result = await _payOSService.CreatePaymentLinkAsync(
+                var result = await payOsService.CreatePaymentLinkAsync(
                     orderCode,
                     totalAmount,
                     "Recharge",
@@ -82,7 +72,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var result = await _payOSService.CheckAndUpdatePendingTransactionsAsync();
+                var result = await payOsService.CheckAndUpdatePendingTransactionsAsync();
                 return Ok(new
                 {
                     message = "Checked and updated.",
@@ -116,7 +106,7 @@ namespace SEP_MMB_API.Controllers
                     });
                 }
 
-                var status = await _payOSService.GetPayOSStatusViaSdkAsync(orderCode);
+                var status = await payOsService.GetPayOSStatusViaSdkAsync(orderCode);
 
                 return Ok(new ResponseModel<object>
                 {

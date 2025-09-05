@@ -8,26 +8,20 @@ namespace SEP_MMB_API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class TransactionHistoryController : ControllerBase
+    public class TransactionHistoryController(
+        ITransactionHistoryService transactionHistoryService,
+        IAuthService authService)
+        : ControllerBase
     {
-        private readonly ITransactionHistoryService _transactionHistoryService;
-        private readonly IAuthService _authService;
-
-        public TransactionHistoryController(ITransactionHistoryService transactionHistoryService, IAuthService authService)
-        {
-            _transactionHistoryService = transactionHistoryService;
-            _authService = authService;
-        }
-
         [Authorize(Roles = "user")]
         [HttpGet("transaction-history")]
         public async Task<ActionResult<ResponseModel<List<TransactionHistoryDto>>>> GetUserWalletTransactions()
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
                 var walletId = account.WalletId;
-                var transactions = await _transactionHistoryService.GetTransactionHistoryAsync(walletId);
+                var transactions = await transactionHistoryService.GetTransactionHistoryAsync(walletId);
 
                 return Ok(new ResponseModel<List<TransactionHistoryDto>>
                 {
@@ -55,7 +49,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var result = await _transactionHistoryService.GetAllUsersWithTransactionsAsync();
+                var result = await transactionHistoryService.GetAllUsersWithTransactionsAsync();
 
                 return Ok(new ResponseModel<List<UserTransactionDto>>
                 {
@@ -83,7 +77,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var transactions = await _transactionHistoryService.GetAllRequestWithdrawAsync();
+                var transactions = await transactionHistoryService.GetAllRequestWithdrawAsync();
 
                 return Ok(new ResponseModel<List<TransactionHistoryRequestWithdrawOfUserDto>>
                 {
@@ -110,8 +104,8 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var transaction = await _transactionHistoryService.CreateRequestWithdrawAsync(account.Id,amount);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                var transaction = await transactionHistoryService.CreateRequestWithdrawAsync(account.Id,amount);
                 if (transaction == null)
                 {
                     return BadRequest(new ResponseModel<string>
@@ -158,7 +152,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var transaction = await _transactionHistoryService.AcceptTransactionWithdrawAsync(transactionId,transactionCode);
+                var transaction = await transactionHistoryService.AcceptTransactionWithdrawAsync(transactionId,transactionCode);
                 if (transaction == false)
                 {
                     return BadRequest(new ResponseModel<string>
@@ -194,7 +188,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var transaction = await _transactionHistoryService.RejectTransactionWithdrawAsync(transactionId);
+                var transaction = await transactionHistoryService.RejectTransactionWithdrawAsync(transactionId);
                 if (transaction == false)
                 {
                     return BadRequest(new ResponseModel<string>

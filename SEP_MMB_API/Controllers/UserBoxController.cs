@@ -1,40 +1,26 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using BusinessObjects;
+﻿using BusinessObjects.Dtos.Product;
 using BusinessObjects.Dtos.Schema_Response;
-using BusinessObjects.Dtos.User;
+using BusinessObjects.Dtos.UserBox;
+using BusinessObjects.Dtos.UserCollection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
-using Services.Service;
-using BusinessObjects.Dtos.UserCollection;
-using BusinessObjects.Dtos.UserBox;
-using BusinessObjects.Dtos.Product;
 
 namespace SEP_MMB_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserBoxController : ControllerBase
+    public class UserBoxController(IUserBoxService userBoxService, IAuthService authService) : ControllerBase
     {
-        private readonly IUserBoxService _userBoxService;
-        private readonly IAuthService _authService;
-
-        public UserBoxController(IUserBoxService userBoxService, IAuthService authService)
-        {
-            _userBoxService = userBoxService;
-            _authService = authService;
-        }
-
-        //check code
         [Authorize]
         [HttpGet("get-all-box-of-profile")]
         public async Task<ActionResult<ResponseModel<List<UserBoxGetAllDto>>>> GetAllCollectionOfProfile()
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
 
-                var boxDto = await _userBoxService.GetAllWithDetailsAsync(account.Id.ToString());
+                var boxDto = await userBoxService.GetAllWithDetailsAsync(account.Id.ToString());
 
                 return Ok(new ResponseModel<List<UserBoxGetAllDto>>
                 {
@@ -61,8 +47,8 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var result = await _userBoxService.OpenMysteryBoxAsync(userBoxId, account.Id.ToString());
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                var result = await userBoxService.OpenMysteryBoxAsync(userBoxId, account.Id.ToString());
 
                 return Ok(new ResponseModel<ProductResultDto>
                 {

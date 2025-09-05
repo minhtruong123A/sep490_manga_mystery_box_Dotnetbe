@@ -1,31 +1,21 @@
 ﻿using Services.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Services.Service
+namespace Services.Service;
+
+public class SignedUrlService(ISupabaseStorageHelper supabaseStorageHelper) : ISignedUrlService
 {
-    public class SignedUrlService : ISignedUrlService
+    public async Task<string?> GetSignedUrlIfAvailableAsync(string? path)
     {
-        private readonly ISupabaseStorageHelper _supabaseStorageHelper;
+        if (string.IsNullOrWhiteSpace(path)) return null;
 
-        public SignedUrlService(ISupabaseStorageHelper supabaseStorageHelper)
+        try
         {
-            _supabaseStorageHelper = supabaseStorageHelper;
+            var signedUrl = await supabaseStorageHelper.CreateSignedUrlAsync(path);
+            return signedUrl;
         }
-
-        public async Task<string?> GetSignedUrlIfAvailableAsync(string? path)
+        catch
         {
-            if (string.IsNullOrWhiteSpace(path)) return null;
-
-            try
-            {
-                var signedUrl = await _supabaseStorageHelper.CreateSignedUrlAsync(path);
-                return signedUrl;
-            }
-            catch { return null; }
+            return null;
         }
     }
 }

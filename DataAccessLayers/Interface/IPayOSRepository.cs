@@ -1,7 +1,6 @@
-﻿namespace DataAccessLayers.Interface
+﻿namespace DataAccessLayers.Interface;
+
+public interface IPayOSRepository
 {
-    public interface IPayOSRepository
-    {
-        Task<bool> RechargeWalletAsync(string orderCode, int amount);
-    }
+    Task<bool> RechargeWalletAsync(string orderCode, int amount);
 }

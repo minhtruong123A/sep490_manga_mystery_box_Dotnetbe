@@ -1,18 +1,11 @@
-﻿using BusinessObjects;
-using BusinessObjects.Dtos.Subscription;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BusinessObjects.Dtos.Subscription;
 
-namespace Services.Interface
+namespace Services.Interface;
+
+public interface ISubscriptionService
 {
-    public interface ISubscriptionService
-    {
-        Task<bool> CreateAsync(string id, SubscriptionCreateDto dto);
-        Task<List<SubcriptionFollowResponeDto>> GetAllFollowOfUserAsync(string userId);
-        Task<List<SubcriptionFollowerResponeDto>> GetAllFollowerOfUserAsync(string userId);
-        Task<bool> UnfollowAsync(string userId, string followerId);
-    }
+    Task<bool> CreateAsync(string id, SubscriptionCreateDto dto);
+    Task<List<SubcriptionFollowResponeDto>> GetAllFollowOfUserAsync(string userId);
+    Task<List<SubcriptionFollowerResponeDto>> GetAllFollowerOfUserAsync(string userId);
+    Task<bool> UnfollowAsync(string userId, string followerId);
 }

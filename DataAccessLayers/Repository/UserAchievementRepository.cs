@@ -35,10 +35,9 @@ public class UserAchievementRepository(MongoDbContext context, IOptions<RewardSe
                 .FirstOrDefaultAsync();
             var achievement = await _achievementCollection.Find(x => x.CollectionId.Equals(collection.Id))
                 .FirstOrDefaultAsync();
-            if (achievement != null)
+            if (achievement == null) continue;
             {
                 var rewards = await _rewardCollection.Find(x => x.AchievementId.Equals(achievement.Id)).ToListAsync();
-                var countReward = rewards.Count();
                 var products = await _productCollection.Find(x => x.CollectionId.Equals(collection.Id)).ToListAsync();
                 var countProductOfCollection = products.Count();
 
@@ -47,50 +46,47 @@ public class UserAchievementRepository(MongoDbContext context, IOptions<RewardSe
                     .ToListAsync();
                 var countUserProduct = userProducts.Count();
 
-                foreach (var reward in rewards)
-                    if (countUserProduct >= reward.Conditions)
+                foreach (var reward in rewards.Where(reward => countUserProduct >= reward.Conditions))
+                {
+                    var exist = await _userRewardCollection
+                        .Find(x => x.RewardId.Equals(reward.Id) && x.UserId.Equals(userID)).FirstOrDefaultAsync();
+                    if (exist != null) continue;
                     {
-                        var exist = await _userRewardCollection
-                            .Find(x => x.RewardId.Equals(reward.Id) && x.UserId.Equals(userID)).FirstOrDefaultAsync();
-                        if (exist == null)
+                        var rewardBoxExist = await _userBoxCollection
+                            .Find(x => x.BoxId.Equals(_settings.UniqueRewardMangaBoxId)).FirstOrDefaultAsync();
+                        if (rewardBoxExist == null)
                         {
-                            var rewardBoxExist = await _userBoxCollection
-                                .Find(x => x.BoxId.Equals(_settings.UniqueRewardMangaBoxId)).FirstOrDefaultAsync();
-                            if (rewardBoxExist == null)
+                            var newRewardBox = new UserBox
                             {
-                                var newRewardBox = new UserBox
-                                {
-                                    BoxId = reward.MangaBoxId,
-                                    Quantity = reward.Quantity_box,
-                                    UserId = userID,
-                                    UpdatedAt = DateTime.UtcNow
-                                };
-                                await _userBoxCollection.InsertOneAsync(newRewardBox);
-                            }
-
-                            //var updateQuantity = Builders<UserBox>.Update.Inc(x => x.Quantity, reward.Quantity_box);
-                            //Console.WriteLine("ưefjiowfjojifeow" + rewardBoxExist.Id);
-                            //await _userBoxCollection.UpdateOneAsync(rewardBoxExist.Id, updateQuantity);
-                            var filter = Builders<UserBox>.Filter.Eq(x => x.Id, rewardBoxExist.Id);
-                            var updateQuantity = Builders<UserBox>.Update.Inc(x => x.Quantity, reward.Quantity_box);
-                            await _userBoxCollection.UpdateOneAsync(filter, updateQuantity);
-
-                            var newUserReward = new UserReward
-                                { RewardId = reward.Id, UserId = userID, isReceive = true };
-                            await _userRewardCollection.InsertOneAsync(newUserReward);
+                                BoxId = reward.MangaBoxId,
+                                Quantity = reward.Quantity_box,
+                                UserId = userID,
+                                UpdatedAt = DateTime.UtcNow
+                            };
+                            await _userBoxCollection.InsertOneAsync(newRewardBox);
                         }
-                    }
 
-                if (countProductOfCollection == countUserProduct)
+                        //var updateQuantity = Builders<UserBox>.Update.Inc(x => x.Quantity, reward.Quantity_box);
+                        //Console.WriteLine("ưefjiowfjojifeow" + rewardBoxExist.Id);
+                        //await _userBoxCollection.UpdateOneAsync(rewardBoxExist.Id, updateQuantity);
+                        var filter = Builders<UserBox>.Filter.Eq(x => x.Id, rewardBoxExist.Id);
+                        var updateQuantity = Builders<UserBox>.Update.Inc(x => x.Quantity, reward.Quantity_box);
+                        await _userBoxCollection.UpdateOneAsync(filter, updateQuantity);
+
+                        var newUserReward = new UserReward
+                            { RewardId = reward.Id, UserId = userID, isReceive = true };
+                        await _userRewardCollection.InsertOneAsync(newUserReward);
+                    }
+                }
+
+                if (countProductOfCollection != countUserProduct) continue;
                 {
                     var exist = await _userAchievementCollection
                         .Find(x => x.AchievementId.Equals(achievement.Id) && x.UserId.Equals(userID))
                         .FirstOrDefaultAsync();
-                    if (exist == null)
-                    {
-                        var newUserAchivement = new UserAchievement { AchievementId = achievement.Id, UserId = userID };
-                        await _userAchievementCollection.InsertOneAsync(newUserAchivement);
-                    }
+                    if (exist != null) continue;
+                    var newUserAchivement = new UserAchievement { AchievementId = achievement.Id, UserId = userID };
+                    await _userAchievementCollection.InsertOneAsync(newUserAchivement);
                 }
             }
         }
@@ -98,20 +94,20 @@ public class UserAchievementRepository(MongoDbContext context, IOptions<RewardSe
         return true;
     }
 
-    public async Task<List<GetAchievementMedalRewardDto>> GetAllMedalOfUserAsync(string userId)
-    {
-        var userRewards = await _userRewardCollection.Find(x => x.UserId.Equals(userId)).ToListAsync();
-        var rewardIds = userRewards.Select(x => x.RewardId).Distinct().ToList();
-        var rewards = await _rewardCollection.Find(x => rewardIds.Contains(x.Id) && x.Url_image != null).ToListAsync();
+        public async Task<List<GetAchievementMedalRewardDto>> GetAllMedalOfUserAsync(string userId)
+        {
+            var userRewards = await _userRewardCollection.Find(x => x.UserId.Equals(userId)).ToListAsync();
+            var rewardIds = userRewards.Select(x=>x.RewardId).Distinct().ToList();
+            var rewards = await _rewardCollection.Find(x=>rewardIds.Contains(x.Id) && !string.IsNullOrEmpty(x.Url_image)).ToListAsync();
 
-        return userRewards.Select(u =>
+            return rewards.Select(u =>
             {
-                var reward = rewards.FirstOrDefault(x => x.Id.Equals(u.RewardId));
+                var userReward = userRewards.FirstOrDefault(x => x.RewardId.Equals(u.Id) && x.UserId.Equals(userId));
                 return new GetAchievementMedalRewardDto
                 {
-                    userRewardId = u.Id,
-                    UrlImage = reward.Url_image,
-                    isPublic = u.isPublic
+                    userRewardId = userReward.Id,
+                    UrlImage = u?.Url_image??"unknow",
+                    isPublic = userReward.isPublic
                 };
             }
         ).ToList();
@@ -124,14 +120,14 @@ public class UserAchievementRepository(MongoDbContext context, IOptions<RewardSe
         var rewardIds = userRewards.Select(x => x.RewardId).Distinct().ToList();
         var rewards = await _rewardCollection.Find(x => rewardIds.Contains(x.Id) && x.Url_image != null).ToListAsync();
 
-        return userRewards.Select(u =>
+            return rewards.Select(u =>
             {
-                var reward = rewards.FirstOrDefault(x => x.Id.Equals(u.RewardId));
+                var userReward = userRewards.FirstOrDefault(x => x.RewardId.Equals(u.Id) && x.UserId.Equals(userId));
                 return new GetAchievementMedalRewardDto
                 {
-                    userRewardId = u.Id,
-                    UrlImage = reward.Url_image,
-                    isPublic = u.isPublic
+                    userRewardId = userReward.Id,
+                    UrlImage = u?.Url_image ?? "unknow",
+                    isPublic = userReward.isPublic
                 };
             }
         ).ToList();
@@ -141,21 +137,21 @@ public class UserAchievementRepository(MongoDbContext context, IOptions<RewardSe
     {
         var userReward = await _userRewardCollection.Find(x => x.Id.Equals(userRewardId)).FirstOrDefaultAsync();
         if (userReward == null) throw new Exception("Medal not exist");
-        if (userReward.isPublic)
+        switch (userReward.isPublic)
         {
-            var filter = Builders<UserReward>.Update.Set(x => x.isPublic, false);
-            await _userRewardCollection.UpdateOneAsync(x => x.Id.Equals(userRewardId), filter);
-            return true;
+            case true:
+            {
+                var filter = Builders<UserReward>.Update.Set(x => x.isPublic, false);
+                await _userRewardCollection.UpdateOneAsync(x => x.Id.Equals(userRewardId), filter);
+                return true;
+            }
+            case false:
+            {
+                var filter = Builders<UserReward>.Update.Set(x => x.isPublic, true);
+                await _userRewardCollection.UpdateOneAsync(x => x.Id.Equals(userRewardId), filter);
+                return true;
+            }
         }
-
-        if (!userReward.isPublic)
-        {
-            var filter = Builders<UserReward>.Update.Set(x => x.isPublic, true);
-            await _userRewardCollection.UpdateOneAsync(x => x.Id.Equals(userRewardId), filter);
-            return true;
-        }
-
-        return false;
     }
 
     public async Task<List<AchievementOfUserCollectionCompletionProgressDto>>
@@ -175,17 +171,18 @@ public class UserAchievementRepository(MongoDbContext context, IOptions<RewardSe
             .FirstOrDefaultAsync();
         var mysBox = await _mysteryBoxCollection.Find(x => x.Id.Equals(mangaBox.MysteryBoxId)).FirstOrDefaultAsync();
 
-        return achievements.Select(a =>
-        {
-            var rewardDtos = rewards.Select(r =>
+            return achievements.Select(a =>
             {
-                if (r.AchievementId.Equals(a.Id))
+                var rewardDtos = rewards.Select(r =>
                 {
+                    if (!r.AchievementId.Equals(a.Id)) return new ReawrdCompletionProgressOfUserCollectionDto();
                     var existComplete = userRewards.FirstOrDefault(x => x.RewardId.Equals(r.Id));
                     if (existComplete != null)
+                    {
                         return new ReawrdCompletionProgressOfUserCollectionDto
                         {
                             AchievementId = a.Id,
+                            RewardId = r.Id,
                             Conditions = r.Conditions,
                             MangaBoxId = r.MangaBoxId,
                             Quantity_box = r.Quantity_box,
@@ -193,9 +190,11 @@ public class UserAchievementRepository(MongoDbContext context, IOptions<RewardSe
                             MangaBox_image = mysBox?.UrlImage ?? "",
                             isComplete = true
                         };
+                    }
                     return new ReawrdCompletionProgressOfUserCollectionDto
                     {
                         AchievementId = a.Id,
+                        RewardId = r.Id,
                         Conditions = r.Conditions,
                         MangaBoxId = r.MangaBoxId,
                         Quantity_box = r.Quantity_box,
@@ -203,10 +202,7 @@ public class UserAchievementRepository(MongoDbContext context, IOptions<RewardSe
                         MangaBox_image = mysBox?.UrlImage ?? "",
                         isComplete = false
                     };
-                }
-
-                return new ReawrdCompletionProgressOfUserCollectionDto();
-            }).ToList();
+                }).ToList();
 
             var collection = _collectionCollection.Find(x => x.Id.Equals(a.CollectionId)).FirstOrDefault();
             var userCollection = userCollections.FirstOrDefault(x => x.CollectionId.Equals(collection.Id));

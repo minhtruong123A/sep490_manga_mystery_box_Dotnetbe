@@ -1,120 +1,106 @@
-﻿using BusinessObjects.Mongodb;
-using BusinessObjects;
-using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BusinessObjects;
+using BusinessObjects.Mongodb;
 using DataAccessLayers.Interface;
+using MongoDB.Driver;
 
-namespace DataAccessLayers.Repository
+namespace DataAccessLayers.Repository;
+
+public class PayOSRepository(MongoDbContext context, IMongoClient mongoClient) : IPayOSRepository
 {
-    public class PayOSRepository : IPayOSRepository
+    private readonly IMongoCollection<TransactionHistory> _transactionCollection = context.GetCollection<TransactionHistory>("TransactionHistory");
+    private readonly IMongoCollection<User> _userCollection = context.GetCollection<User>("User");
+    private readonly IMongoCollection<UseDigitalWallet> _walletCollection = context.GetCollection<UseDigitalWallet>("UseDigitalWallet");
+
+    public async Task<bool> RechargeWalletAsync(string orderCode, int amount)
     {
-        private readonly IMongoCollection<UseDigitalWallet> _walletCollection;
-        private readonly IMongoCollection<TransactionHistory> _transactionCollection;
-        private readonly IMongoCollection<User> _userCollection;
-        private readonly IMongoClient _mongoClient;
-
-        public PayOSRepository(MongoDbContext context, IMongoClient mongoClient)
+        using (var session = await mongoClient.StartSessionAsync())
         {
-            _mongoClient = mongoClient;
-            _walletCollection = context.GetCollection<UseDigitalWallet>("UseDigitalWallet");
-            _transactionCollection = context.GetCollection<TransactionHistory>("TransactionHistory");
-            _userCollection = context.GetCollection<User>("User");
-        }
+            session.StartTransaction();
 
-        public async Task<bool> RechargeWalletAsync2(string orderCode, int amount)
-        {
             try
             {
-                var transaction = await _transactionCollection.Find(x => x.TransactionCode == orderCode).FirstOrDefaultAsync();
-                if (transaction == null) return false;
+                var transaction = await _transactionCollection
+                    .Find(session, x => x.TransactionCode == orderCode)
+                    .FirstOrDefaultAsync();
 
-                var wallet = await _walletCollection.Find(x => x.Id == transaction.WalletId).FirstOrDefaultAsync();
-                if (wallet == null) return false;
+                if (transaction == null)
+                {
+                    await session.AbortTransactionAsync();
+                    return false;
+                }
 
-                if (transaction.Status == 2) return true;
+                var wallet = await _walletCollection
+                    .Find(session, x => x.Id == transaction.WalletId)
+                    .FirstOrDefaultAsync();
 
-                var update = Builders<UseDigitalWallet>.Update
+                if (wallet == null)
+                {
+                    await session.AbortTransactionAsync();
+                    return false;
+                }
+
+                if (transaction.Status == 2)
+                {
+                    await session.AbortTransactionAsync();
+                    return true;
+                }
+
+                var updateWallet = Builders<UseDigitalWallet>.Update
                     .Inc(x => x.Ammount, amount)
                     .Set(x => x.IsActive, true);
-                await _walletCollection.UpdateOneAsync(x => x.Id == wallet.Id, update);
+                await _walletCollection.UpdateOneAsync(
+                    session,
+                    x => x.Id == wallet.Id,
+                    updateWallet
+                );
 
-                var updateTransaction = Builders<TransactionHistory>.Update.Set(x => x.Status, 2);
-                await _transactionCollection.UpdateOneAsync(x => x.Id == transaction.Id, updateTransaction);
+                var updateTransaction = Builders<TransactionHistory>.Update
+                    .Set(x => x.Status, 2);
+                await _transactionCollection.UpdateOneAsync(
+                    session,
+                    x => x.Id == transaction.Id,
+                    updateTransaction
+                );
 
+                await session.CommitTransactionAsync();
                 return true;
             }
             catch (Exception ex)
             {
+                await session.AbortTransactionAsync();
                 Console.WriteLine($"[Recharge Error] {ex.Message}");
                 return false;
             }
         }
+    }
 
-        public async Task<bool> RechargeWalletAsync(string orderCode, int amount)
+    public async Task<bool> RechargeWalletAsync2(string orderCode, int amount)
+    {
+        try
         {
-            using (var session = await _mongoClient.StartSessionAsync())
-            {
-                session.StartTransaction();
+            var transaction = await _transactionCollection.Find(x => x.TransactionCode == orderCode)
+                .FirstOrDefaultAsync();
+            if (transaction == null) return false;
 
-                try
-                {
-                    var transaction = await _transactionCollection
-                        .Find(session, x => x.TransactionCode == orderCode)
-                        .FirstOrDefaultAsync();
+            var wallet = await _walletCollection.Find(x => x.Id == transaction.WalletId).FirstOrDefaultAsync();
+            if (wallet == null) return false;
 
-                    if (transaction == null)
-                    {
-                        await session.AbortTransactionAsync();
-                        return false;
-                    }
+            if (transaction.Status == 2) return true;
 
-                    var wallet = await _walletCollection
-                        .Find(session, x => x.Id == transaction.WalletId)
-                        .FirstOrDefaultAsync();
+            var update = Builders<UseDigitalWallet>.Update
+                .Inc(x => x.Ammount, amount)
+                .Set(x => x.IsActive, true);
+            await _walletCollection.UpdateOneAsync(x => x.Id == wallet.Id, update);
 
-                    if (wallet == null)
-                    {
-                        await session.AbortTransactionAsync();
-                        return false;
-                    }
+            var updateTransaction = Builders<TransactionHistory>.Update.Set(x => x.Status, 2);
+            await _transactionCollection.UpdateOneAsync(x => x.Id == transaction.Id, updateTransaction);
 
-                    if (transaction.Status == 2)
-                    {
-                        await session.AbortTransactionAsync();
-                        return true;
-                    }
-
-                    var updateWallet = Builders<UseDigitalWallet>.Update
-                        .Inc(x => x.Ammount, amount)
-                        .Set(x => x.IsActive, true);
-                    await _walletCollection.UpdateOneAsync(
-                        session,
-                        x => x.Id == wallet.Id,
-                        updateWallet
-                    );
-
-                    var updateTransaction = Builders<TransactionHistory>.Update
-                        .Set(x => x.Status, 2);
-                    await _transactionCollection.UpdateOneAsync(
-                        session,
-                        x => x.Id == transaction.Id,
-                        updateTransaction
-                    );
-
-                    await session.CommitTransactionAsync();
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    await session.AbortTransactionAsync();
-                    Console.WriteLine($"[Recharge Error] {ex.Message}");
-                    return false;
-                }
-            }             
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Recharge Error] {ex.Message}");
+            return false;
         }
     }
 }

@@ -1,14 +1,8 @@
 ﻿using BusinessObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DataAccessLayers.Interface
+namespace DataAccessLayers.Interface;
+
+public interface IEmailVerificationRepository : IGenericRepository<EmailVerification>
 {
-    public interface IEmailVerificationRepository : IGenericRepository<EmailVerification>
-    {
-        Task DeleteByEmailAsync(string email);
-    }
+    Task DeleteByEmailAsync(string email);
 }

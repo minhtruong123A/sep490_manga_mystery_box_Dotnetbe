@@ -1,18 +1,8 @@
-﻿using BusinessObjects.Mongodb;
-using BusinessObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BusinessObjects;
+using BusinessObjects.Mongodb;
 using DataAccessLayers.Interface;
 
-namespace DataAccessLayers.Repository
-{
-    public class BoxOrderRepository : GenericRepository<BoxOrder>, IBoxOrderRepository
-    {
-        public BoxOrderRepository(MongoDbContext context) : base(context.GetCollection<BoxOrder>("BoxOrder"))
-        {
-        }
-    }
-}
+namespace DataAccessLayers.Repository;
+
+public class BoxOrderRepository(MongoDbContext context)
+    : GenericRepository<BoxOrder>(context.GetCollection<BoxOrder>("BoxOrder")), IBoxOrderRepository;

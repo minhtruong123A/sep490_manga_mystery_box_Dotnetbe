@@ -1,34 +1,24 @@
-﻿using BusinessObjects;
-using BusinessObjects.Dtos.Bank;
-using BusinessObjects.Dtos.Schema_Response;
+﻿using BusinessObjects.Dtos.Schema_Response;
 using BusinessObjects.Dtos.Subscription;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
-using Services.Service;
 
 namespace SEP_MMB_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SubscriptionController : ControllerBase
+    public class SubscriptionController(IAuthService authService, ISubscriptionService subscriptionService)
+        : ControllerBase
     {
-        private readonly IAuthService _authService;
-        private readonly ISubscriptionService _subscriptionService;
-        public SubscriptionController(IAuthService authService, ISubscriptionService subscriptionService)
-        {
-            _authService = authService;
-            _subscriptionService = subscriptionService;
-        }
-
         [Authorize]
         [HttpPost("subscription/add-follower")]
         public async Task<ActionResult<ResponseModel<string>>> CreateAsync([FromBody] SubscriptionCreateDto dto)
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var response = await _subscriptionService.CreateAsync(account.Id,dto);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                var response = await subscriptionService.CreateAsync(account.Id,dto);
 
                 return Ok(new ResponseModel<string>
                 {
@@ -54,7 +44,7 @@ namespace SEP_MMB_API.Controllers
             try
             {
                 //var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var response = await _subscriptionService.GetAllFollowerOfUserAsync(myUserId);
+                var response = await subscriptionService.GetAllFollowerOfUserAsync(myUserId);
 
                 return Ok(new ResponseModel<List<SubcriptionFollowerResponeDto>>
                 {
@@ -79,7 +69,7 @@ namespace SEP_MMB_API.Controllers
             try
             {
                 //var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var response = await _subscriptionService.GetAllFollowOfUserAsync(myUserId);
+                var response = await subscriptionService.GetAllFollowOfUserAsync(myUserId);
 
                 return Ok(new ResponseModel<List<SubcriptionFollowResponeDto>>
                 {
@@ -104,8 +94,8 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var response = await _subscriptionService.UnfollowAsync(userId,account.Id);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                var response = await subscriptionService.UnfollowAsync(userId,account.Id);
                 if (response) {
                     return Ok(new ResponseModel<string>
                     {

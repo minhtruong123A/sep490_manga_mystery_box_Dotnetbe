@@ -3,149 +3,137 @@ using BusinessObjects;
 using BusinessObjects.Dtos.User;
 using BusinessObjects.Enum;
 using DataAccessLayers.Interface;
-using DataAccessLayers.UnitOfWork;
 using Microsoft.AspNetCore.Http;
-using MongoDB.Driver;
-using Services.Helper.Supabase;
 using Services.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Services.Service
+namespace Services.Service;
+
+public class UserService(IUnitOfWork unitOfWork, IMapper mapper, IImageService imageService)
+    : IUserService
 {
-    public class UserService : IUserService
+    //get all user
+    public async Task<List<UserInformationDto>> GetAllUsersAsync()
     {
-        private readonly IUnitOfWork _uniUnitOfWork;
-        private readonly IMapper _mapper;
-        private readonly IImageService _imageService;
+        var users = await unitOfWork.UserRepository.GetAllAsync();
+        var userDtos = mapper.Map<List<UserInformationDto>>(users);
+        return userDtos;
+    }
 
-        public UserService(IUnitOfWork unitOfWork, IMapper mapper, IImageService imageService)
+    //basic CRUD User
+    //get profile by user ID
+    public async Task<UserInformationDto> GetUserByIdAsync(string id)
+    {
+        var userBanks = await unitOfWork.UserBankRepository.GetAllAsync();
+        var accountBank = userBanks.Where(x => x.UserId.Equals(id)).FirstOrDefault();
+
+        var user = await unitOfWork.UserRepository.GetByIdAsync(id);
+        var userDto = mapper.Map<UserInformationDto>(user);
+        if (accountBank != null)
         {
-            _uniUnitOfWork = unitOfWork;
-            _mapper = mapper;
-            _imageService = imageService;
+            userDto.BankId = accountBank.BankId;
+            userDto.Banknumber = accountBank.BankNumber;
+            userDto.AccountBankName = accountBank.AccountBankName;
         }
 
-        //get all user
-        public async Task<List<UserInformationDto>> GetAllUsersAsync()
+        return userDto;
+    }
+
+    public async Task<UserInformationDto> GetOtherUserByIdAsync(string id)
+    {
+        var user = await unitOfWork.UserRepository.GetByIdAsync(id);
+        var userDto = mapper.Map<UserInformationDto>(user);
+        return userDto;
+    }
+
+    public async Task CreateUserAsync(User user)
+    {
+        await unitOfWork.UserRepository.AddAsync(user);
+    }
+
+
+    public async Task UpdateUserAsync(string id, User user)
+    {
+        await unitOfWork.UserRepository.UpdateAsync(id, user);
+    }
+
+
+    public async Task DeleteUserAsync(string id)
+    {
+        await unitOfWork.UserRepository.DeleteAsync(id);
+    }
+
+
+    //delete user and email verification by email
+    public async Task DeleteUserByEmailAsync(string email)
+    {
+        _ = await unitOfWork.UserRepository.GetByEmailAsync(email) ?? throw new Exception("User not found");
+        await unitOfWork.UserRepository.DeleteByEmailAsync(email);
+        await unitOfWork.EmailVerificationRepository.DeleteByEmailAsync(email);
+    }
+
+    public async Task<ChangePasswordResult> ChangePasswordAsync(string userId, ChangePasswordDto dto)
+    {
+        var user = await unitOfWork.UserRepository.GetByIdAsync(userId);
+        if (user == null) throw new Exception("User not found");
+
+        if (!BCrypt.Net.BCrypt.Verify(dto.CurentPassword, user.Password))
+            return ChangePasswordResult.InvalidCurrentPassword;
+
+        if (!dto.NewPassword.Equals(dto.ConfirmPassword)) return ChangePasswordResult.PasswordMismatch;
+        dto.NewPassword = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+        return await unitOfWork.UserRepository.ChangePasswordAsync(userId, dto);
+    }
+
+    public async Task<UserUpdateResponseDto> UpdateProfileAsync(IFormFile file, string userId, UserUpdateDto dto)
+    {
+        var user = await unitOfWork.UserRepository.FindOneAsync(x => x.Id == userId) ??
+                   throw new Exception("User not found");
+        var filePath = user.ProfileImage;
+        if (file != null && file.Length > 0)
         {
-            var users = await _uniUnitOfWork.UserRepository.GetAllAsync();
-            var userDtos = _mapper.Map<List<UserInformationDto>>(users);
-            return userDtos;
+            if (!string.IsNullOrWhiteSpace(user.ProfileImage))
+                await imageService.DeleteProfileImageAsync(user.ProfileImage);
+
+            filePath = await imageService.UploadProfileImageAsync(file);
+            user.ProfileImage = filePath;
         }
 
-        //basic CRUD User
-        //get profile by user ID
-        public async Task<UserInformationDto> GetUserByIdAsync(string id)
+        var bank = await unitOfWork.UserBankRepository.FindOneAsync(x => x.UserId == userId);
+
+        if (bank == null)
         {
-            var userBanks = await _uniUnitOfWork.UserBankRepository.GetAllAsync();
-            var accountBank = userBanks.Where(x=>x.UserId.Equals(id)).FirstOrDefault();
-            
-            var user = await _uniUnitOfWork.UserRepository.GetByIdAsync(id);
-            var userDto = _mapper.Map<UserInformationDto>(user);
-            if (accountBank != null)
-            {
-                userDto.BankId = accountBank.BankId;
-                userDto.Banknumber = accountBank.BankNumber;
-                userDto.AccountBankName = accountBank.AccountBankName;
-            }
-            
-            return userDto;
+            bank = new UserBank { UserId = userId };
+            if (!string.IsNullOrWhiteSpace(dto.BankNumber)) bank.BankNumber = dto.BankNumber;
+            if (!string.IsNullOrWhiteSpace(dto.AccountBankName)) bank.AccountBankName = dto.AccountBankName;
+            if (!string.IsNullOrWhiteSpace(dto.BankId)) bank.BankId = dto.BankId;
+
+            await unitOfWork.UserBankRepository.AddAsync(bank);
+            await unitOfWork.SaveChangesAsync();
         }
-        public async Task<UserInformationDto> GetOtherUserByIdAsync(string id)
+        else
         {
-            var user = await _uniUnitOfWork.UserRepository.GetByIdAsync(id);
-            var userDto = _mapper.Map<UserInformationDto>(user);
-            return userDto;
+            if (!string.IsNullOrWhiteSpace(dto.BankNumber)) bank.BankNumber = dto.BankNumber;
+            if (!string.IsNullOrWhiteSpace(dto.AccountBankName)) bank.AccountBankName = dto.AccountBankName;
+            if (!string.IsNullOrWhiteSpace(dto.BankId)) bank.BankId = dto.BankId;
+
+            await unitOfWork.UserBankRepository.UpdateAsync(bank.Id, bank);
+            await unitOfWork.SaveChangesAsync();
         }
 
-        public async Task CreateUserAsync(User user) => await _uniUnitOfWork.UserRepository.AddAsync(user);
-
-
-        public async Task UpdateUserAsync(string id, User user) => await _uniUnitOfWork.UserRepository.UpdateAsync(id, user);
-
-
-        public async Task DeleteUserAsync(string id) => await _uniUnitOfWork.UserRepository.DeleteAsync(id);
-
-
-        //delete user and email verification by email
-        public async Task DeleteUserByEmailAsync(string email)
-        {
-            _ = await _uniUnitOfWork.UserRepository.GetByEmailAsync(email) ?? throw new Exception("User not found");
-            await _uniUnitOfWork.UserRepository.DeleteByEmailAsync(email);
-            await _uniUnitOfWork.EmailVerificationRepository.DeleteByEmailAsync(email);
-        }
-
-        public async Task<ChangePasswordResult> ChangePasswordAsync(string userId,ChangePasswordDto dto)
-        {
-            var user = await _uniUnitOfWork.UserRepository.GetByIdAsync(userId);
-            if (user == null) throw new Exception("User not found");
-
-            if (!BCrypt.Net.BCrypt.Verify(dto.CurentPassword, user.Password))
-            {
-                return ChangePasswordResult.InvalidCurrentPassword;
-            }
-
-            if (!dto.NewPassword.Equals(dto.ConfirmPassword))
-            {
-                return ChangePasswordResult.PasswordMismatch;
-            }
-            dto.NewPassword = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
-            return await _uniUnitOfWork.UserRepository.ChangePasswordAsync(userId,dto);
-        }
-
-        public async Task<UserUpdateResponseDto> UpdateProfileAsync(IFormFile file, string userId, UserUpdateDto dto)
-        {
-
-            var user = await _uniUnitOfWork.UserRepository.FindOneAsync(x => x.Id == userId) ?? throw new Exception("User not found");
-            var filePath = user.ProfileImage;
-            if (file != null && file.Length > 0)
-            {
-                if (!string.IsNullOrWhiteSpace(user.ProfileImage)) await _imageService.DeleteProfileImageAsync(user.ProfileImage);
-
-                filePath = await _imageService.UploadProfileImageAsync(file);
-                user.ProfileImage = filePath;
-            }
-            var bank = await _uniUnitOfWork.UserBankRepository.FindOneAsync(x => x.UserId == userId);
-
-            if (bank == null)
-            {
-                bank = new UserBank { UserId = userId };
-                if (!string.IsNullOrWhiteSpace(dto.BankNumber)) bank.BankNumber = dto.BankNumber;
-                if (!string.IsNullOrWhiteSpace(dto.AccountBankName)) bank.AccountBankName = dto.AccountBankName;
-                if (!string.IsNullOrWhiteSpace(dto.BankId)) bank.BankId = dto.BankId;
-
-                await _uniUnitOfWork.UserBankRepository.AddAsync(bank);
-                await _uniUnitOfWork.SaveChangesAsync();
-            }
-            else
-            {
-                if (!string.IsNullOrWhiteSpace(dto.BankNumber)) bank.BankNumber = dto.BankNumber;
-                if (!string.IsNullOrWhiteSpace(dto.AccountBankName)) bank.AccountBankName = dto.AccountBankName;
-                if (!string.IsNullOrWhiteSpace(dto.BankId)) bank.BankId = dto.BankId;
-
-                await _uniUnitOfWork.UserBankRepository.UpdateAsync(bank.Id, bank);
-                await _uniUnitOfWork.SaveChangesAsync();
-            }
-
-            if (!string.IsNullOrWhiteSpace(dto.PhoneNumber)) user.PhoneNumber = dto.PhoneNumber;
+        if (!string.IsNullOrWhiteSpace(dto.PhoneNumber)) user.PhoneNumber = dto.PhoneNumber;
 /*            if (!string.IsNullOrWhiteSpace(dto.Username)) user.Username = dto.Username;*/
 
-            await _uniUnitOfWork.UserRepository.UpdateAsync(userId, user);
-            await _uniUnitOfWork.SaveChangesAsync();
+        await unitOfWork.UserRepository.UpdateAsync(userId, user);
+        await unitOfWork.SaveChangesAsync();
 
-            return new UserUpdateResponseDto()
-            {
-                Username = user.Username,
-                ProfileImage = user.ProfileImage,
-                PhoneNumber = user.PhoneNumber,
-                AccountBankName = bank?.AccountBankName ?? "",
-                BankNumber = bank?.BankNumber ?? "",
-                Bankid = bank?.BankId ?? ""
-            };
-        }
+        return new UserUpdateResponseDto
+        {
+            Username = user.Username,
+            ProfileImage = user.ProfileImage,
+            PhoneNumber = user.PhoneNumber,
+            AccountBankName = bank?.AccountBankName ?? "",
+            BankNumber = bank?.BankNumber ?? "",
+            Bankid = bank?.BankId ?? ""
+        };
     }
 }

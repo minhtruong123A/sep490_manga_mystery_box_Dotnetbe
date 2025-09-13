@@ -1,16 +1,9 @@
 ﻿using BusinessObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Services.Interface
+namespace Services.Interface;
+
+public interface IUseDigitalWalletService
 {
-    public interface IUseDigitalWalletService
-    {
-        Task<UseDigitalWallet?> GetWalletByIdAsync(string id);
-        Task<string> UpdateWalletWithTransactionAsync(string userId, int amount);
-    }
+    Task<UseDigitalWallet?> GetWalletByIdAsync(string id);
+    Task<string> UpdateWalletWithTransactionAsync(string userId, int amount);
 }

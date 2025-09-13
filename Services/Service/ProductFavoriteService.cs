@@ -1,43 +1,38 @@
-﻿using BusinessObjects.Dtos.Product;
-using BusinessObjects;
+﻿using BusinessObjects;
+using BusinessObjects.Dtos.Product;
+using BusinessObjects.Dtos.UserCollection;
 using DataAccessLayers.Interface;
 using Services.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BusinessObjects.Dtos.UserCollection;
 
-namespace Services.Service
+namespace Services.Service;
+
+public class ProductFavoriteService(IUnitOfWork unitOfWork) : IProductFavoriteService
 {
-    public class ProductFavoriteService : IProductFavoriteService
+    public async Task<List<UserCollectionGetAllDto>> GetFavoriteListWithDetailsAsync(string userId)
     {
-        private readonly IUnitOfWork _unitOfWork;
-        public ProductFavoriteService(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
-        public async Task<List<UserCollectionGetAllDto>> GetFavoriteListWithDetailsAsync(string userId) => await _unitOfWork.ProductFavoriteRepository.GetFavoriteListWithDetailsAsync(userId);
-        public async Task<List<CollectionProductsDto>> GetAllWithDetailsAsync(string userId)=> await _unitOfWork.ProductFavoriteRepository.GetAllWithDetailsAsync(userId);
+        return await unitOfWork.ProductFavoriteRepository.GetFavoriteListWithDetailsAsync(userId);
+    }
 
-        public async Task<bool> CreateAsync(string userId, string userProductId)
-        {
-            var favorites = await _unitOfWork.ProductFavoriteRepository.GetAllAsync();
-            var exist = favorites.Where(x=> x.User_Id.Equals(userId) && x.User_productId.Equals(userProductId)).FirstOrDefault();
-            var count = favorites.Where(x => x.User_Id.Equals(userId)).Count();
-            if (exist != null) return false;
-            //if (count >= 6) return false;
-            var newFavorite = new ProductFavorite {User_Id = userId, User_productId = userProductId};
-            await _unitOfWork.ProductFavoriteRepository.AddAsync(newFavorite);
-            await _unitOfWork.SaveChangesAsync();
-            return true;
-        }
+    public async Task<List<CollectionProductsDto>> GetAllWithDetailsAsync(string userId)
+    {
+        return await unitOfWork.ProductFavoriteRepository.GetAllWithDetailsAsync(userId);
+    }
 
-        public async Task<bool> DeleteAsync(string favoriteId)
-        {
-            await _unitOfWork.ProductFavoriteRepository.DeleteAsync(favoriteId);
-            return true;
-        }   
+    public async Task<bool> CreateAsync(string userId, string userProductId)
+    {
+        var favorites = await unitOfWork.ProductFavoriteRepository.GetAllAsync();
+        var exist = favorites
+            .FirstOrDefault(x => x.User_Id.Equals(userId) && x.User_productId.Equals(userProductId));
+        if (exist != null) return false;
+        var newFavorite = new ProductFavorite { User_Id = userId, User_productId = userProductId };
+        await unitOfWork.ProductFavoriteRepository.AddAsync(newFavorite);
+        await unitOfWork.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> DeleteAsync(string favoriteId)
+    {
+        await unitOfWork.ProductFavoriteRepository.DeleteAsync(favoriteId);
+        return true;
     }
 }

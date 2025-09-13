@@ -1,17 +1,11 @@
 ﻿using BusinessObjects.Dtos.MangaBox;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace BusinessObjects.Dtos.Cart
+namespace BusinessObjects.Dtos.Cart;
+
+public class CartBoxDto
 {
-    public class CartBoxDto
-    {
-        public string CartBoxId { get; set; } = null!;
-        public string MangaBoxId { get; set; } = null!;
-        public MangaBoxDetailDto Box { get; set; } = null!;
-        public int Quantity { get; set; }
-    }
+    public string CartBoxId { get; set; } = null!;
+    public string MangaBoxId { get; set; } = null!;
+    public MangaBoxDetailDto Box { get; set; } = null!;
+    public int Quantity { get; set; }
 }

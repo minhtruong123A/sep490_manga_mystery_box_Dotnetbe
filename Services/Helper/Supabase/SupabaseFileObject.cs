@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
-namespace Services.Helper.Supabase
+namespace Services.Helper.Supabase;
+
+public class SupabaseFileObject
 {
-    public class SupabaseFileObject
-    {
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
-    }
+    [JsonPropertyName("name")] public string Name { get; set; }
 }

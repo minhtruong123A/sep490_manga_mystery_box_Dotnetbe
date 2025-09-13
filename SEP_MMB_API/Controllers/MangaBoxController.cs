@@ -5,32 +5,23 @@ using BusinessObjects.Dtos.UserBox;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
-using Services.Service;
-using System.Transactions;
 
 namespace SEP_MMB_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MangaBoxController : ControllerBase
+    public class MangaBoxController(
+        IMangaBoxService mangaBoxService,
+        IAuthService authService,
+        IProductInMangaBoxService productInMangaBoxService)
+        : ControllerBase
     {
-        private readonly IMangaBoxService _mangaBoxService;
-        private readonly IProductInMangaBoxService _productInMangaBoxService;
-        private readonly IAuthService _authService;
-
-        public MangaBoxController(IMangaBoxService mangaBoxService, IAuthService authService, IProductInMangaBoxService productInMangaBoxService)
-        {
-            _mangaBoxService = mangaBoxService;
-            _authService = authService;
-            _productInMangaBoxService = productInMangaBoxService;
-        }
-
         [HttpGet("get-all-mystery-box")]
         public async Task<ActionResult<ResponseModel<List<MangaBoxGetAllDto>>>> GetMangaBoxDetails()
         {
             try
             {
-                var response = await _mangaBoxService.GetAllWithDetailsAsync();
+                var response = await mangaBoxService.GetAllWithDetailsAsync();
                 return Ok(new ResponseModel<List<MangaBoxGetAllDto>>
                 {
                     Data = response,
@@ -55,7 +46,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var data = await _mangaBoxService.GetByIdWithDetailsAsync(id);
+                var data = await mangaBoxService.GetByIdWithDetailsAsync(id);
                 if (data == null)
                 {
                     return NotFound(new ResponseModel<string>
@@ -92,7 +83,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var response = await _mangaBoxService.CreateNewMangaBoxAsync(dto);
+                var response = await mangaBoxService.CreateNewMangaBoxAsync(dto);
                 if (response)
                 {
                     return Ok(new ResponseModel<string>
@@ -129,7 +120,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var response = await _productInMangaBoxService.CreateAsync(boxId, dtos);
+                var response = await productInMangaBoxService.CreateAsync(boxId, dtos);
                 if (response)
                 {
                     return Ok(new ResponseModel<string>
@@ -167,8 +158,8 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var transactionCode = await _mangaBoxService.BuyBoxAsync(account.Id, request.MangaBoxId, request.Quantity);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                var transactionCode = await mangaBoxService.BuyBoxAsync(account.Id, request.MangaBoxId, request.Quantity);
 
                 return Ok(new ResponseModel<BuyBoxResponseDto>
                 {

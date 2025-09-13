@@ -5,8 +5,6 @@ namespace BusinessObjects;
 
 public class MangaBox
 {
-    public class MangaBox
-    {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
@@ -19,6 +17,5 @@ public class MangaBox
         public DateTime UpdatedAt { get; set; }
         public int Status { get; set; }
         public string Title { get; set; }
-    }
 }
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
+using System.Net;
 
 namespace BusinessObjects.Mongodb;
 
@@ -12,6 +13,7 @@ public class MongoDbContext
     {
         try
         {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls13;
             var connectionString = configuration.GetConnectionString("MongoDb");
             Console.WriteLine($"Connecting to MongoDb with connection string:\n{connectionString}");
 

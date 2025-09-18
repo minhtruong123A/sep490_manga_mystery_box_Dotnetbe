@@ -57,6 +57,9 @@ jobs:
         run: |
           REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           echo "REGISTRY=ghcr.io/$REPO_LOWER" >> $GITHUB_ENV
+          
+      - name: Deploy API
+        run: docker compose -f .docker/compose.yaml --profile prod pull
 
       - name: Deploy API
         run: docker compose -f .docker/compose.yaml --profile prod -p mmb-application up -d

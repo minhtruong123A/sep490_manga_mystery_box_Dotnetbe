@@ -24,10 +24,44 @@ app.UseAuthentication();
 
 app.UseDevPasswordProtection(devPassword!)
     .UseMongoInjectionFilter()
-    .UseRefreshTokenRestriction().UseSwaggerConfiguration()
-    .UseForwardConfig()
-    .UseSwaggerConfiguration();
+    .UseRefreshTokenRestriction();
+
+//allow /cs and / run together
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/cs", out var remaining))
+    {
+        context.Request.PathBase = "/cs";
+        context.Request.Path = remaining;
+    }
+
+    await next();
+});
+
+
 app.UseAuthorization();
+
+app.UsePathBase("/cs");
+app.Use((context, next) =>
+{
+    var prefix = context.Request.Headers["X-Forwarded-Prefix"].FirstOrDefault();
+    if (!string.IsNullOrEmpty(prefix))
+    {
+        context.Request.PathBase = prefix;
+    }
+    return next();
+});
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/cs/swagger/v1/swagger.json", "Main User API");
+    c.SwaggerEndpoint("/cs/swagger/test/swagger.json", "Dev Server Test API");
+    c.RoutePrefix = "swagger";
+    c.ConfigObject.AdditionalItems["https"] = true;
+    c.EnableFilter();
+});
+
+
 app.MapControllers();
 
 // await app.UseMongoSeedAsync();

@@ -6,6 +6,8 @@ services:
     build:
       context: ../
       dockerfile: Dockerfile
+    env_file:
+      - /home/khai-npm/cs.env
     ports:
       - 8080:8080
     networks:

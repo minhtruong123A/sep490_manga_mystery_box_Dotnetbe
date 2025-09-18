@@ -1,4 +1,5 @@
 using Cronos;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -6,10 +7,10 @@ using Services.Interface;
 
 namespace Services.Cron;
 
-public class ImageWarmupCron(ILogger<ImageWarmupCron> logger, IServiceProvider serviceProvider)
+public class ImageWarmupCron(ILogger<ImageWarmupCron> logger, IServiceProvider serviceProvider, IConfiguration configuration)
     : BackgroundService
 {
-    private readonly CronExpression _expression = CronExpression.Parse("*/2 * * * *");
+    private readonly CronExpression _expression = CronExpression.Parse(configuration["CronJobs:MyJob"] ?? "*/5 * * * *");
     private readonly TimeZoneInfo _timeZoneInfo = TimeZoneInfo.Local;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

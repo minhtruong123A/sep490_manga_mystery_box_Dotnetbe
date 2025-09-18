@@ -60,10 +60,15 @@ jobs:
 
       - name: Pull MMB Image
         run: docker compose -f .docker/compose.yaml pull
-
+      - name: Create Env
+        run: |
+          echo "${{secrets.ENV}}" >> .env
       - name: Deploy API
-        run: docker compose -f .docker/compose.yaml -p mmb-application up -d
-
+        run: docker compose -f .docker/compose.yaml --env-file .env -p mmb-application up -d
+      
+      - name: Remove Env File
+        run: rm .env
+        
       - name: Prune Docker Images
         run: docker image prune -a -f
 

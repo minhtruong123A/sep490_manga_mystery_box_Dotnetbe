@@ -1,0 +1,17 @@
+services:
+  mmb-api:
+    container_name: mmb-api
+    restart: always
+    image: ${REGISTRY}/mmb-aspnet:latest
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    networks:
+      mmb-networks:
+
+networks:
+  mmb-networks:
+    name: mmb-networks
+    external: true

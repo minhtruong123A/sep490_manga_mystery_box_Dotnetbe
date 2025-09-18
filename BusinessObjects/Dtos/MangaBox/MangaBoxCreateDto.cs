@@ -11,4 +11,7 @@ public class MangaBoxCreateDto
     public int TotalProduct { get; set; }
     public IFormFile? ImageUrl { get; set; }
     public string CollectionTopicId { get; set; }
+    public int Quantity { get; set; }
+    public DateTime Start_time { get; set; }
+    public DateTime End_time { get; set; }
 }

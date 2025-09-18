@@ -31,6 +31,10 @@ public class ProductRepository(MongoDbContext context, ISellProductRepository se
             Name = product.Name,
             UrlImage = product.UrlImage,
             Description = product.Description,
+            Quantity = product.Quantity,
+            QuantityCurrent = product.QuantityCurrent,
+            Status = product.Status,
+            CreateAt = product.CreatedAt,
             RarityName = rarity?.Name ?? "Unknown"
         };
     }
@@ -48,8 +52,12 @@ public class ProductRepository(MongoDbContext context, ISellProductRepository se
                 Name = product.Name,
                 UrlImage = product.UrlImage,
                 Description = product.Description,
+                Quantity = product.Quantity,
+                QuantityCurrent = product.QuantityCurrent,
+                Status = product.Status,
                 RarityName = rarity?.Name ?? "Unknown",
                 CollectionId = product.CollectionId,
+                CreateAt = product.CreatedAt,
                 is_Block = product.Is_Block
             };
         });

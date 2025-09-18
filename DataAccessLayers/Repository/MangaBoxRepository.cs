@@ -64,6 +64,9 @@ public class MangaBoxRepository(MongoDbContext context)
                 UrlImage = mysteryBox?.UrlImage ?? "Unknonwn",
                 CollectionTopic = collection?.Topic ?? "Unknown",
                 CreatedAt = mangabox?.CreatedAt ?? null,
+                Quantity = mangabox.Quantity,
+                End_time = mangabox.End_time,
+                Start_time = mangabox.Start_time,
                 Status = mangabox.Status
             };
         }).ToList();
@@ -136,6 +139,9 @@ public class MangaBoxRepository(MongoDbContext context)
             UrlImage = mysteryBox?.UrlImage,
             CollectionTopic = collection?.Topic ?? "Unknown",
             TotalProduct = mysteryBox.TotalProduct,
+            Quantity = mangaBox.Quantity,
+            Start_time = mangaBox.Start_time,
+            End_time = mangaBox.End_time,
             Products = productDtos
         };
     }

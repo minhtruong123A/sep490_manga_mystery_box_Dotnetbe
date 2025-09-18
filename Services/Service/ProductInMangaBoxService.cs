@@ -1,6 +1,8 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Dtos.ProductInMangaBox;
+using BusinessObjects.Enum;
 using DataAccessLayers.Interface;
+using MongoDB.Driver.Linq;
 using Services.Interface;
 
 namespace Services.Service;
@@ -81,7 +83,7 @@ public class ProductInMangaBoxService(IUnitOfWork uniUnitOfWork) : IProductInMan
                 var productWithRarity =
                     await uniUnitOfWork.ProductRepository.GetProductWithRarityByIdAsync(dto.ProductId);
                 var product = await uniUnitOfWork.ProductRepository.GetByIdAsync(dto.ProductId);
-                if (productWithRarity.RarityName.Equals("epic") || productWithRarity.RarityName.Equals("legendary"))
+                if (productWithRarity.RarityName.Equals("legendary"))
                 {
                     var productInMangaBoxs = await uniUnitOfWork.ProductInMangaBoxRepository.GetAllAsync();
                     var productInMangaBoxExist =
@@ -98,6 +100,8 @@ public class ProductInMangaBoxService(IUnitOfWork uniUnitOfWork) : IProductInMan
                             productInMangaBox.Name = product.Name;
                             productInMangaBox.Description = product.Description;
                             await uniUnitOfWork.ProductInMangaBoxRepository.AddAsync(productInMangaBox);
+                            product.Status = (int)ProductStatus.Using_Limit;
+                            await uniUnitOfWork.ProductRepository.UpdateAsync(product.Id, product);
                             boxDetail = await uniUnitOfWork.MangaBoxRepository.GetByIdWithDetailsAsync(boxId);
                             if (boxDetail.TotalProduct == boxDetail.Products.Count())
                             {
@@ -124,6 +128,15 @@ public class ProductInMangaBoxService(IUnitOfWork uniUnitOfWork) : IProductInMan
                     productInMangaBox.Description = product.Description;
                     await uniUnitOfWork.ProductInMangaBoxRepository.AddAsync(productInMangaBox);
                     box.Status = 1;
+                    var products = await uniUnitOfWork.ProductInMangaBoxRepository.GetAllAsync();
+                    var productBoxExist = products.Where(x => x.ProductId.Equals(product.Id)).ToList();
+                    if (productBoxExist.Count() >= 2)
+                    {
+                        product.Status = (int)ProductStatus.Reuse;
+                        await uniUnitOfWork.ProductRepository.UpdateAsync(product.Id, product);
+                    }
+                    product.Status = (int)ProductStatus.Using;
+                    await uniUnitOfWork.ProductRepository.UpdateAsync(product.Id, product);
                     await uniUnitOfWork.MangaBoxRepository.UpdateAsync(box.Id, box);
                     await uniUnitOfWork.SaveChangesAsync();
                 }

@@ -16,7 +16,9 @@ public class Product
     public DateTime UpdatedAt { get; set; }
     public string UrlImage { get; set; }
     public bool Is_Block { get; set; }
-
+    public int Quantity { get; set; }
+    public int QuantityCurrent { get; set; }
+    public int Status { get; set; }
     public string CollectionId { get; set; }
     /*public Product(string title, string rarityId, string description = "")
     {

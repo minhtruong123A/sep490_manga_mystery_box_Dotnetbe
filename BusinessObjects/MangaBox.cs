@@ -3,7 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace BusinessObjects;
 
-public class MangaBox
+public class MangaBox 
 {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

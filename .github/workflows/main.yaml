@@ -29,8 +29,8 @@ jobs:
           echo "REGISTRY=ghcr.io/$REPO_LOWER" >> $GITHUB_ENV
       - name: Build Docker Images
         run: |
-          docker compose -f .docker/compose.yaml build --parallel
-          docker compose -f .docker/compose.yaml push
+          docker compose -f .docker/compose.yaml --profile build build --parallel
+          docker compose -f .docker/compose.yaml --profile build push
 
   deploy:
     name: Deploy API
@@ -59,7 +59,7 @@ jobs:
           echo "REGISTRY=ghcr.io/$REPO_LOWER" >> $GITHUB_ENV
 
       - name: Deploy API
-        run: docker compose -f .docker/compose.yaml --env-file /home/khai-npm/cs.env -p mmb-application up -d
+        run: docker compose -f .docker/compose.yaml --profile prod -p mmb-application up -d
       
       - name: Prune Docker Images
         run: docker image prune -a -f

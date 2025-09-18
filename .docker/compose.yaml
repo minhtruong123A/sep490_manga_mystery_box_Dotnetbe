@@ -10,9 +10,18 @@ services:
       - /home/khai-npm/cs.env
     ports:
       - 8080:8080
+    profiles:
+      - prod
     networks:
       mmb-networks:
-
+        
+  mmb-api-build:
+    image: ${REGISTRY}/mmb-aspnet:latest
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    profiles:
+      - build
 networks:
   mmb-networks:
     name: mmb-networks

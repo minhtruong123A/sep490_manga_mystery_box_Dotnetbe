@@ -9,4 +9,6 @@ public class ProductCreateDto
     public string Description { get; set; }
     public IFormFile? UrlImage { get; set; }
     public string CollectionId { get; set; }
+    public int Quantity { get; set; }
+    public int Status { get; set; }
 }

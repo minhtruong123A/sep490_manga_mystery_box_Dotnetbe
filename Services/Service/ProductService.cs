@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Dtos.Product;
+using BusinessObjects.Enum;
 using DataAccessLayers.Interface;
 using Services.Interface;
 
@@ -52,6 +53,17 @@ public class ProductService(
         newProduct.CreatedAt = DateTime.Now;
         newProduct.UpdatedAt = DateTime.Now;
         newProduct.Is_Block = false;
+        newProduct.Status = dto.Status;
+        if(dto.Status == (int)ProductStatus.Limit)
+        {
+            newProduct.Quantity = dto.Quantity;
+            newProduct.QuantityCurrent = 0;
+            await unitOfWork.ProductRepository.AddAsync(newProduct);
+            await unitOfWork.SaveChangesAsync();
+            return true;
+        }
+        newProduct.Quantity = -1;
+        newProduct.QuantityCurrent = 0;
         await unitOfWork.ProductRepository.AddAsync(newProduct);
         await unitOfWork.SaveChangesAsync();
         return true;

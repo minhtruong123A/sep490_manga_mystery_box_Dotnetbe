@@ -145,6 +145,9 @@ public class MangaBoxService(IUnitOfWork unitOfWork, IImageService imageService,
             UpdatedAt = DateTime.Now,
             MysteryBoxId = mysteryBoxId,
             CollectionTopicId = dto.CollectionTopicId,
+            Start_time = dto.Start_time,
+            End_time = dto.End_time,
+            Quantity = dto.Quantity,
             Title = dto.Title
         };
     }

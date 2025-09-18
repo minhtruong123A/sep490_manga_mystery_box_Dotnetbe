@@ -62,9 +62,11 @@ jobs:
         run: docker compose -f .docker/compose.yaml pull
       - name: Create Env
         run: |
-          echo "${{secrets.ENV}}" >> .env
+          cat > .docker/.env <<EOF
+          ${{secrets.ENV}}
+          EOF
       - name: Deploy API
-        run: docker compose -f .docker/compose.yaml --env-file .env -p mmb-application up -d
+        run: docker compose -f .docker/compose.yaml --env-file .docker/.env -p mmb-application up -d
       
       - name: Remove Env File
         run: rm .env

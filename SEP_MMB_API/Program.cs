@@ -53,8 +53,8 @@ app.UseDevPasswordProtection(devPassword!)
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Main User API");
-    c.SwaggerEndpoint("/swagger/test/swagger.json", "Dev Server Test API");
+    c.SwaggerEndpoint("v1/swagger.json", "Main User API");
+    c.SwaggerEndpoint("test/swagger.json", "Dev Server Test API");
     c.RoutePrefix = "swagger";
     c.ConfigObject.AdditionalItems["https"] = true;
     c.EnableFilter();

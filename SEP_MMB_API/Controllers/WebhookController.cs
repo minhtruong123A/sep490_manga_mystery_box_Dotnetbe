@@ -1,16 +1,9 @@
-﻿using BusinessObjects.Dtos.PayOS;
+﻿using System.Text.Json;
+using BusinessObjects.Dtos.PayOS;
 using BusinessObjects.Dtos.Schema_Response;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Net.payOS;
-using Net.payOS.Types;
 using Services.Helper;
 using Services.Interface;
-using System.Text;
-//using Newtonsoft.Json;
-//using Newtonsoft.Json.Linq;
-using System.Text.Json;
-
 
 namespace SEP_MMB_API.Controllers
 {

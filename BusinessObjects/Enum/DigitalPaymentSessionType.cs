@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace BusinessObjects.Enum;
 
-namespace BusinessObjects.Enum
+public enum DigitalPaymentSessionType
 {
-    public enum DigitalPaymentSessionType
-    {
-        MysteryBox = 0,
-        SellProduct = 1
-    }
+    MysteryBox = 0,
+    SellProduct = 1
 }

@@ -4,21 +4,14 @@ using BusinessObjects.Dtos.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
-using Services.Service;
 
 namespace SEP_MMB_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CollectionController : ControllerBase
+    public class CollectionController(IAuthService authService, ICollectionService service) : ControllerBase
     {
-        private readonly IAuthService _authService;
-        private readonly ICollectionService _service;
-        public CollectionController(IAuthService authService, ICollectionService service)
-        {
-            _authService = authService;
-            _service = service;
-        }
+        private readonly IAuthService _authService = authService;
 
         [Authorize]
         [HttpGet("get-all-collection")]
@@ -27,7 +20,7 @@ namespace SEP_MMB_API.Controllers
             try
             {
 
-                var response = await _service.GetAllAsync();
+                var response = await service.GetAllAsync();
 
                 return Ok(new ResponseModel<List<Collection>>
                 {
@@ -53,7 +46,7 @@ namespace SEP_MMB_API.Controllers
             try
             {
 
-                var response = await _service.CreateCollectionAsync(topic);
+                var response = await service.CreateCollectionAsync(topic);
                 if(response == 1)
                 {
                     return Ok(new ResponseModel<string>

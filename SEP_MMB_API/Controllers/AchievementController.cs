@@ -4,29 +4,21 @@ using BusinessObjects.Dtos.Schema_Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
-using Services.Service;
 
 namespace SEP_MMB_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AchievementController : ControllerBase
+    public class AchievementController(IAuthService authService, IAchievementService achievementService)
+        : ControllerBase
     {
-        private readonly IAuthService _authService;
-        private readonly IAchievementService _achievementService;
-
-        public AchievementController(IAuthService authService, IAchievementService achievementService)
-        {
-            _authService = authService;
-            _achievementService = achievementService;
-        }
         [Authorize]
         [HttpGet("get-achievement-with-reward-of-collection")]
         public async Task<ActionResult<ResponseModel<AchievementWithAllRewardDto>>> GetAchievementWithRewardOfCollection(string collectionId)
         {
             try
             {
-                var response = await _achievementService.GetAchiementWithRewardByCollectionIdAsync(collectionId);
+                var response = await achievementService.GetAchiementWithRewardByCollectionIdAsync(collectionId);
                 if (response == null)
                 {
                     return BadRequest(new ResponseModel<string>
@@ -58,7 +50,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var response = await _achievementService.CreateAchievementOfCollection(collectionId, name_Achievement);
+                var response = await achievementService.CreateAchievementOfCollection(collectionId, name_Achievement);
                 if (!response)
                 {
                     return BadRequest(new ResponseModel<string>
@@ -90,7 +82,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var response = await _achievementService.CreateRewardOfAchievement(collectionId, dto);
+                var response = await achievementService.CreateRewardOfAchievement(collectionId, dto);
                 if (!response)
                 {
                     return BadRequest(new ResponseModel<string>

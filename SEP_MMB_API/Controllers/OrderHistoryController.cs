@@ -8,25 +8,17 @@ namespace SEP_MMB_API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class OrderHistoryController : ControllerBase
+    public class OrderHistoryController(IAuthService authService, IOrderHistoryService orderHistoryService)
+        : ControllerBase
     {
-        private readonly IAuthService _authService;
-        private readonly IOrderHistoryService _orderHistoryService;
-
-        public OrderHistoryController(IAuthService authService, IOrderHistoryService orderHistoryService)
-        {
-            _authService = authService;
-            _orderHistoryService = orderHistoryService;
-        }
-
         [Authorize(Roles = "user")]
         [HttpGet]
         public async Task<ActionResult<ResponseModel<List<OrderHistoryDto>>>> GetOrderHistory()
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var result = await _orderHistoryService.GetOrderHistoryAsync(account.Id);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                var result = await orderHistoryService.GetOrderHistoryAsync(account.Id);
 
                 return Ok(new ResponseModel<List<OrderHistoryDto>>
                 {
@@ -54,7 +46,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var result = await _orderHistoryService.GetAllUserOrderHistoriesAsync();
+                var result = await orderHistoryService.GetAllUserOrderHistoriesAsync();
 
                 return Ok(new ResponseModel<List<UserOrderHistoryResultDto>>
                 {
@@ -82,7 +74,7 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var data = await _orderHistoryService.GetOrderHistoryByIdAsync(orderHistoryId);
+                var data = await orderHistoryService.GetOrderHistoryByIdAsync(orderHistoryId);
 
                 if (data == null)
                     return NotFound(new ResponseModel<string>

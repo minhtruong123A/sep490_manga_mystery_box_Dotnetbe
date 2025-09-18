@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
-namespace BusinessObjects.Dtos.Cart
+namespace BusinessObjects.Dtos.Cart;
+
+public class AddToCartRequestDto
 {
-    public class AddToCartRequestDto
-    {
-        public string? SellProductId { get; set; }
-        public string? MangaBoxId { get; set; }
-        [DefaultValue(1)]
-        public int? Quantity { get; set; }
-    }
+    public string? SellProductId { get; set; }
+    public string? MangaBoxId { get; set; }
+
+    [DefaultValue(1)] public int? Quantity { get; set; }
 }

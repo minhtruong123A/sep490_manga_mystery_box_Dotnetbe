@@ -1,18 +1,8 @@
-﻿using BusinessObjects.Mongodb;
-using BusinessObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BusinessObjects;
+using BusinessObjects.Mongodb;
 using DataAccessLayers.Interface;
 
-namespace DataAccessLayers.Repository
-{
-    public class OrderHistoryRepository : GenericRepository<OrderHistory>, IOrderHistoryRepository
-    {
-        public OrderHistoryRepository(MongoDbContext context) : base(context.GetCollection<OrderHistory>("OrderHistory"))
-        {
-        }
-    }
-}
+namespace DataAccessLayers.Repository;
+
+public class OrderHistoryRepository(MongoDbContext context)
+    : GenericRepository<OrderHistory>(context.GetCollection<OrderHistory>("OrderHistory")), IOrderHistoryRepository;

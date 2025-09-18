@@ -1,16 +1,10 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Dtos.Bank;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Services.Interface
+namespace Services.Interface;
+
+public interface IBankService
 {
-    public interface IBankService
-    {
-        Task<List<Bank>> GetAllAsync();
-        Task<string> CreateAsync(List<BankCreateDto> dto);
-    }
+    Task<List<Bank>> GetAllAsync();
+    Task<string> CreateAsync(List<BankCreateDto> dto);
 }

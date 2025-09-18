@@ -1,31 +1,22 @@
-﻿using BusinessObjects;
-using BusinessObjects.Dtos.Report;
-using BusinessObjects.Dtos.Schema_Response;
+﻿using BusinessObjects.Dtos.Schema_Response;
 using BusinessObjects.Dtos.TransactionFee;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
-using Services.Service;
 
 namespace SEP_MMB_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TransactionFeeController : ControllerBase
+    public class TransactionFeeController(ITransactionFeeService transactionFeeService) : ControllerBase
     {
-        private readonly ITransactionFeeService _transactionFeeService;
-        public TransactionFeeController(ITransactionFeeService transactionFeeService)
-        {
-            _transactionFeeService = transactionFeeService;
-        }
-
         [Authorize(Roles = "admin")]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllAsync()
         {
             try
             {
-                var data = await _transactionFeeService.GetAllValidTransactionFeesAsync();
+                var data = await transactionFeeService.GetAllValidTransactionFeesAsync();
 
                 if (data == null || data.Count == 0)
                 {

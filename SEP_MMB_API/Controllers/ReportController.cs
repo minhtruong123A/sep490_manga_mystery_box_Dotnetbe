@@ -1,32 +1,21 @@
-﻿using BusinessObjects;
-using BusinessObjects.Dtos.Product;
-using BusinessObjects.Dtos.Report;
+﻿using BusinessObjects.Dtos.Report;
 using BusinessObjects.Dtos.Schema_Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
-using Services.Service;
 
 namespace SEP_MMB_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ReportController : ControllerBase
+    public class ReportController(IReportService reportService, IAuthService authService) : ControllerBase
     {
-        private readonly IReportService _reportService;
-        private readonly IAuthService _authService;
-        public ReportController(IReportService reportService, IAuthService authService)
-        {
-            _reportService = reportService;
-            _authService = authService;
-        }
-
         [HttpGet("get-all-report")]
         public async Task<IActionResult> GetAllAsync()
         {
             try
             {
-                var data = await _reportService.GetAllReportAsync();
+                var data = await reportService.GetAllReportAsync();
                 if (data == null)
                 {
                     return NotFound(new ResponseModel<string>
@@ -64,8 +53,8 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var data = await _reportService.GetAllReportOfUserAsync(account.Id);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                var data = await reportService.GetAllReportOfUserAsync(account.Id);
                 if (data == null)
                 {
                     return NotFound(new ResponseModel<string>
@@ -103,8 +92,8 @@ namespace SEP_MMB_API.Controllers
         {
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                var data = await _reportService.GetSalesReportAsync(account.Id);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                var data = await reportService.GetSalesReportAsync(account.Id);
                 if (data == null)
                 {
                     return NotFound(new ResponseModel<string>
@@ -143,8 +132,8 @@ namespace SEP_MMB_API.Controllers
             var response = new ResponseModel<object>();
             try
             {
-                var (account, _, _, _) = await _authService.GetUserWithTokens(HttpContext);
-                bool status = await _reportService.CreateReportAsync(dto, account.Id);
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                bool status = await reportService.CreateReportAsync(dto, account.Id);
 
                 response.Success = true;
                 response.Data = new
@@ -171,7 +160,7 @@ namespace SEP_MMB_API.Controllers
             var response = new ResponseModel<object>();
             try
             {
-                bool status = await _reportService.UpdateStatus(reportId);
+                bool status = await reportService.UpdateStatus(reportId);
 
                 response.Success = true;
                 response.Data = new

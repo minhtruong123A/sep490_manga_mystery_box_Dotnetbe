@@ -104,4 +104,16 @@ public class ProductRepository(MongoDbContext context, ISellProductRepository se
                 await sellProductRepository.CancelSellProductAsync(sellProduct.Id);
         }
     }
+
+    public async Task<Product?> FindProductByIdAsync(string productId)
+    {
+        var filter = Builders<Product>.Filter.Eq(p => p.Id, productId);
+        return await _productCollection.Find(filter).FirstOrDefaultAsync();
+    }
+
+    public async Task UpdateProductAsync(Product product)
+    {
+        var filter = Builders<Product>.Filter.Eq(p => p.Id, product.Id);
+        await _productCollection.ReplaceOneAsync(filter, product);
+    }
 }

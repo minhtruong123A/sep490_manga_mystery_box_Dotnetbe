@@ -27,4 +27,5 @@ public interface IGenericRepository<T> where T : class
     Task UpdateAsync(IClientSessionHandle session, string id, T entity);
     Task UpdateFieldAsync(IClientSessionHandle session, Expression<Func<T, bool>> filter, UpdateDefinition<T> update);
     Task<IEnumerable<T>> FindAllAsync(IClientSessionHandle session, Expression<Func<T, bool>> predicate);
+    Task<UpdateResult> UpdateFieldAsync(FilterDefinition<T> filter, UpdateDefinition<T> update);
 }

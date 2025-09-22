@@ -10,13 +10,14 @@ namespace DataAccessLayers.Repository;
 public class UserBoxRepository(
     MongoDbContext context,
     IMangaBoxRepository mangaBoxRepository,
-    IUserAchievementRepository userAchievementRepository)
+    IUserAchievementRepository userAchievementRepository,
+    IProductRepository productRepository)
     : GenericRepository<UserBox>(context.GetCollection<UserBox>("UserBox")), IUserBoxRepository
 {
     private readonly IMongoCollection<Collection> _collectionCollection = context.GetCollection<Collection>("Collection");
     private readonly IMongoCollection<MangaBox> _mangaBoxCollection = context.GetCollection<MangaBox>("MangaBox");
-
     private readonly IMongoCollection<MysteryBox> _mysteryBoxCollection = context.GetCollection<MysteryBox>("MysteryBox");
+    
     private readonly IMongoCollection<UserBox> _userBoxCollection = context.GetCollection<UserBox>("UserBox");
     private readonly IMongoCollection<UserCollection> _userCollectionCollection = context.GetCollection<UserCollection>("UserCollection");
     private readonly IMongoCollection<UserProduct> _userProductCollection = context.GetCollection<UserProduct>("User_Product");
@@ -167,11 +168,90 @@ public class UserBoxRepository(
 
         if (selectedRarityName == null) selectedRarityName = rarityChances.Last().RarityName;
 
-        var itemsInSelectedRarity = products
+        List<ProductInBoxDto> itemsInSelectedRarity = null;
+        List<ProductInBoxDto> validPool = new List<ProductInBoxDto>();
+        List<ProductInBoxDto> lastChancePool = new List<ProductInBoxDto>();
+        itemsInSelectedRarity = products
             .Where(p => p.RarityName == selectedRarityName)
             .ToList();
-        var itemIndex = rand.Next(itemsInSelectedRarity.Count);
+        foreach (var item in itemsInSelectedRarity)
+        {
+            var product = productRepository.FindProductByIdAsync(item.ProductId).GetAwaiter().GetResult();
+            if (product == null) continue;
 
-        return itemsInSelectedRarity[itemIndex];
+            if (product.Status == 3)
+            {
+                if (product.QuantityCurrent < product.Quantity)
+                {
+                    product.QuantityCurrent += 1;
+                    if (product.QuantityCurrent == product.Quantity)
+                        product.Status = -1;
+
+                    productRepository.UpdateProductAsync(product).GetAwaiter().GetResult();
+                    validPool.Add(item);
+                }
+            }
+            else if (product.Status != -1)
+            {
+                validPool.Add(item);
+            }
+        }
+
+        if (!validPool.Any())
+        {
+            foreach (var item in itemsInSelectedRarity)
+            {
+                var product = productRepository.FindProductByIdAsync(item.ProductId).GetAwaiter().GetResult();
+                if (product == null) continue;
+
+                if (product.Status == 3 && product.QuantityCurrent < product.Quantity)
+                {
+                    product.QuantityCurrent += 1;
+                    if (product.QuantityCurrent == product.Quantity) product.Status = -1;
+                    productRepository.UpdateProductAsync(product).GetAwaiter().GetResult();
+                    validPool.Add(item);
+                }
+                else if (product.Status != -1 && product.Status != 1)
+                {
+                    validPool.Add(item);
+                }
+            }
+
+            if (!validPool.Any())
+            {
+                selectedRarityName = rarityChances.Last().RarityName;
+                itemsInSelectedRarity = products
+                    .Where(p => p.RarityName == selectedRarityName)
+                    .ToList();
+
+                foreach (var item in itemsInSelectedRarity)
+                {
+                    var product = productRepository.FindProductByIdAsync(item.ProductId).GetAwaiter().GetResult();
+                    if (product == null) continue;
+
+                    if (product.Status == 3)
+                    {
+                        if (product.QuantityCurrent < product.Quantity)
+                        {
+                            product.QuantityCurrent += 1;
+                            if (product.QuantityCurrent == product.Quantity)
+                                product.Status = -1;
+
+                            productRepository.UpdateProductAsync(product).GetAwaiter().GetResult();
+                            validPool.Add(item);
+                        }
+                    }
+                    else if (product.Status != -1)
+                    {
+                        validPool.Add(item);
+                    }
+                }
+            }
+        }
+
+        if (!validPool.Any()) throw new Exception("No available products to gacha");
+        var itemIndex = rand.Next(validPool.Count);
+
+        return validPool[itemIndex];
     }
 }

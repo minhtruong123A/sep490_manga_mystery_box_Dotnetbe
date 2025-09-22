@@ -123,4 +123,9 @@ public class GenericRepository<T>(IMongoCollection<T> collection) : IGenericRepo
     {
         return await _collection.CountDocumentsAsync(expression);
     }
+
+    public async Task<UpdateResult> UpdateFieldAsync(FilterDefinition<T> filter, UpdateDefinition<T> update)
+    {
+        return await _collection.UpdateOneAsync(filter, update);
+    }
 }

@@ -3,6 +3,7 @@ using BusinessObjects.Dtos.MangaBox;
 using BusinessObjects.Enum;
 using DataAccessLayers.Interface;
 using MongoDB.Bson;
+using MongoDB.Driver;
 using Services.Interface;
 
 namespace Services.Service;
@@ -182,6 +183,32 @@ public class MangaBoxService(IUnitOfWork unitOfWork, IImageService imageService,
 
     private async Task UpdateUserBoxAsync(string userId, string boxId, int quantity)
     {
+        var mangaBox = await unitOfWork.MangaBoxRepository.FindOneAsync(x => x.Id == boxId);
+        if (mangaBox == null) throw new Exception("MangaBox not found.");
+        if (mangaBox.Status != 1) throw new Exception("This MangaBox is not available for purchase.");
+        if (mangaBox.End_time <= DateTime.UtcNow) throw new Exception("This MangaBox has expired.");
+        if (mangaBox.Quantity < quantity) throw new Exception("Not enough quantity available.");
+
+        var now = DateTime.UtcNow;
+        var filter = Builders<MangaBox>.Filter.And(
+            Builders<MangaBox>.Filter.Eq(b => b.Id, boxId),
+            Builders<MangaBox>.Filter.Gte(b => b.Quantity, quantity),
+            Builders<MangaBox>.Filter.Eq(b => b.Status, 1)
+        );
+        var update = Builders<MangaBox>.Update
+            .Inc(b => b.Quantity, -quantity)
+            .Set(b => b.UpdatedAt, now);
+        var result = await unitOfWork.MangaBoxRepository.UpdateFieldAsync(filter, update);
+        if (result.ModifiedCount == 0) throw new Exception("Failed to update MangaBox: it may have been modified or stock insufficient.");
+
+        var zeroStockFilter = Builders<MangaBox>.Filter.And(
+            Builders<MangaBox>.Filter.Eq(b => b.Id, boxId),
+            Builders<MangaBox>.Filter.Eq(b => b.Status, 1),
+            Builders<MangaBox>.Filter.Lte(b => b.Quantity, 0)
+        );
+        var zeroStockUpdate = Builders<MangaBox>.Update.Set(b => b.Status, 0);
+        await unitOfWork.MangaBoxRepository.UpdateFieldAsync(zeroStockFilter, zeroStockUpdate);
+
         var userBox = await unitOfWork.UserBoxRepository.FindOneAsync(x => x.UserId == userId && x.BoxId == boxId);
         if (userBox == null)
         {

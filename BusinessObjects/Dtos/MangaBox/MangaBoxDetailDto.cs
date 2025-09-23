@@ -12,6 +12,7 @@ public class MangaBoxDetailDto
     public string CollectionTopic { get; set; }
     public string UrlImage { get; set; }
     public int Quantity { get; set; }
+    public DateTime Create_at { get; set; }
     public DateTime Start_time { get; set; }
     public DateTime End_time { get; set; }
     public int TotalProduct { get; set; }

@@ -142,6 +142,7 @@ public class MangaBoxRepository(MongoDbContext context)
             Quantity = mangaBox.Quantity,
             Start_time = mangaBox.Start_time,
             End_time = mangaBox.End_time,
+            Create_at = mangaBox.CreatedAt,
             Products = productDtos
         };
     }

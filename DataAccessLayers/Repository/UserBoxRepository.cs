@@ -2,7 +2,9 @@
 using BusinessObjects.Dtos.Product;
 using BusinessObjects.Dtos.UserBox;
 using BusinessObjects.Mongodb;
+using BusinessObjects.Options;
 using DataAccessLayers.Interface;
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
 namespace DataAccessLayers.Repository;
@@ -11,13 +13,14 @@ public class UserBoxRepository(
     MongoDbContext context,
     IMangaBoxRepository mangaBoxRepository,
     IUserAchievementRepository userAchievementRepository,
-    IProductRepository productRepository)
+    IProductRepository productRepository,
+    IOptions<RewardSettings> settings)
     : GenericRepository<UserBox>(context.GetCollection<UserBox>("UserBox")), IUserBoxRepository
 {
     private readonly IMongoCollection<Collection> _collectionCollection = context.GetCollection<Collection>("Collection");
     private readonly IMongoCollection<MangaBox> _mangaBoxCollection = context.GetCollection<MangaBox>("MangaBox");
     private readonly IMongoCollection<MysteryBox> _mysteryBoxCollection = context.GetCollection<MysteryBox>("MysteryBox");
-    
+    private readonly RewardSettings _settings = settings.Value;
     private readonly IMongoCollection<UserBox> _userBoxCollection = context.GetCollection<UserBox>("UserBox");
     private readonly IMongoCollection<UserCollection> _userCollectionCollection = context.GetCollection<UserCollection>("UserCollection");
     private readonly IMongoCollection<UserProduct> _userProductCollection = context.GetCollection<UserProduct>("User_Product");
@@ -178,14 +181,17 @@ public class UserBoxRepository(
         {
             var product = productRepository.FindProductByIdAsync(item.ProductId).GetAwaiter().GetResult();
             if (product == null) continue;
-
+            if (product.CollectionId == _settings.UniqueRewardCollectionId)
+            {
+                validPool.Add(item);
+                continue;
+            }
             if (product.Status == 3)
             {
                 if (product.QuantityCurrent < product.Quantity)
                 {
                     product.QuantityCurrent += 1;
-                    if (product.QuantityCurrent == product.Quantity)
-                        product.Status = -1;
+                    if (product.QuantityCurrent == product.Quantity) product.Status = -1;
 
                     productRepository.UpdateProductAsync(product).GetAwaiter().GetResult();
                     validPool.Add(item);
@@ -234,8 +240,7 @@ public class UserBoxRepository(
                         if (product.QuantityCurrent < product.Quantity)
                         {
                             product.QuantityCurrent += 1;
-                            if (product.QuantityCurrent == product.Quantity)
-                                product.Status = -1;
+                            if (product.QuantityCurrent == product.Quantity) product.Status = -1;
 
                             productRepository.UpdateProductAsync(product).GetAwaiter().GetResult();
                             validPool.Add(item);

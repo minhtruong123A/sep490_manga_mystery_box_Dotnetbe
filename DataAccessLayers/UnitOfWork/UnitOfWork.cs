@@ -94,7 +94,7 @@ public class UnitOfWork(
         _productRepository ??= new ProductRepository(_context, SellProductRepository);
 
     public IUserBoxRepository UserBoxRepository => _userBoxRepository ??=
-        new UserBoxRepository(_context, MangaBoxRepository, UserAchievementRepository, ProductRepository);
+        new UserBoxRepository(_context, MangaBoxRepository, UserAchievementRepository, ProductRepository, _rewardSettings);
 
     public IUserProductRepository UserProductRepository =>
         _userProductRepository ??= new UserProductRepository(_context);

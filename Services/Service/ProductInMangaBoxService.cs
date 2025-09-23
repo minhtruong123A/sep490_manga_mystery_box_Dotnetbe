@@ -116,36 +116,37 @@ public class ProductInMangaBoxService(IUnitOfWork uniUnitOfWork) : IProductInMan
                         }
                     }
                 }
-
-                if (product == null) throw new Exception("Product not exist");
-                if (box.CollectionTopicId.Equals(product.CollectionId))
-                {
-                    var productInMangaBox = new ProductInMangaBox();
-                    productInMangaBox.ProductId = dto.ProductId;
-                    productInMangaBox.Chance = dto.Chance;
-                    productInMangaBox.MangaBoxId = boxId;
-                    productInMangaBox.Name = product.Name;
-                    productInMangaBox.Description = product.Description;
-                    await uniUnitOfWork.ProductInMangaBoxRepository.AddAsync(productInMangaBox);
-                    box.Status = 1;
-                    var products = await uniUnitOfWork.ProductInMangaBoxRepository.GetAllAsync();
-                    var productBoxExist = products.Where(x => x.ProductId.Equals(product.Id)).ToList();
-                    if (productBoxExist.Count() >= 2)
-                    {
-                        product.Status = (int)ProductStatus.Reuse;
-                        await uniUnitOfWork.ProductRepository.UpdateAsync(product.Id, product);
-                    }
-                    product.Status = (int)ProductStatus.Using;
-                    await uniUnitOfWork.ProductRepository.UpdateAsync(product.Id, product);
-                    await uniUnitOfWork.MangaBoxRepository.UpdateAsync(box.Id, box);
-                    await uniUnitOfWork.SaveChangesAsync();
-                }
                 else
                 {
-                    throw new Exception("Products not included in this box");
-                }
+                    if (product == null) throw new Exception("Product not exist");
+                    if (box.CollectionTopicId.Equals(product.CollectionId))
+                    {
+                        var productInMangaBox = new ProductInMangaBox();
+                        productInMangaBox.ProductId = dto.ProductId;
+                        productInMangaBox.Chance = dto.Chance;
+                        productInMangaBox.MangaBoxId = boxId;
+                        productInMangaBox.Name = product.Name;
+                        productInMangaBox.Description = product.Description;
+                        await uniUnitOfWork.ProductInMangaBoxRepository.AddAsync(productInMangaBox);
+                        box.Status = 1;
+                        var products = await uniUnitOfWork.ProductInMangaBoxRepository.GetAllAsync();
+                        var productBoxExist = products.Where(x => x.ProductId.Equals(product.Id)).ToList();
+                        if (productBoxExist.Count() >= 2)
+                        {
+                            product.Status = (int)ProductStatus.Reuse;
+                            await uniUnitOfWork.ProductRepository.UpdateAsync(product.Id, product);
+                        }
+                        product.Status = (int)ProductStatus.Using;
+                        await uniUnitOfWork.ProductRepository.UpdateAsync(product.Id, product);
+                        await uniUnitOfWork.MangaBoxRepository.UpdateAsync(box.Id, box);
+                        await uniUnitOfWork.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        throw new Exception("Products not included in this box");
+                    }
+                }  
             }
-
             return true;
         }
     }

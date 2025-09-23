@@ -9,4 +9,5 @@ public interface IMangaBoxRepository : IGenericRepository<MangaBox>
     Task<List<MangaBoxGetAllDto>> GetAllWithDetailsAsync();
     Task<MangaBoxDetailDto?> GetByIdWithDetailsAsync(string id);
     Task<MysteryBox?> FindMysteryBoxByUrlImageAsync(string urlImage);
+    Task<bool> DeleteMangaBoxNotUse(string mangaBoxId);
 }

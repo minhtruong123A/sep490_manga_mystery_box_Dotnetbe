@@ -62,6 +62,8 @@ public class MangaBoxService(IUnitOfWork unitOfWork, IImageService imageService,
         return orderHistory.Id;
     }
 
+    public async Task<bool> DeleteMangaBoxNotUse(string mangaBoxId) => await unitOfWork.MangaBoxRepository.DeleteMangaBoxNotUse(mangaBoxId);
+
     private static void ValidateQuantity(int quantity)
     {
         if (quantity <= 0)
@@ -228,4 +230,5 @@ public class MangaBoxService(IUnitOfWork unitOfWork, IImageService imageService,
             await unitOfWork.UserBoxRepository.UpdateAsync(userBox.Id, userBox);
         }
     }
+
 }

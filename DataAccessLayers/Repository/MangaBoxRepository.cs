@@ -150,4 +150,14 @@ public class MangaBoxRepository(MongoDbContext context)
     {
         return await _mysteryBoxCollection.Find(m => m.UrlImage == urlImage).FirstOrDefaultAsync();
     }
+
+    public async Task<bool> DeleteMangaBoxNotUse(string mangaBoxId)
+    {
+        var manBox = await _mangaBoxCollection.Find(x=>x.Id.Equals(mangaBoxId)).FirstOrDefaultAsync();
+        var filterMys = Builders<MysteryBox>.Filter.Eq(x => x.Id, manBox.MysteryBoxId);
+        await _mysteryBoxCollection.DeleteOneAsync(filterMys);
+        var filterMan = Builders<MangaBox>.Filter.Eq(x => x.Id, mangaBoxId);
+        await _mangaBoxCollection.DeleteOneAsync(filterMan);
+        return true;
+    }
 }

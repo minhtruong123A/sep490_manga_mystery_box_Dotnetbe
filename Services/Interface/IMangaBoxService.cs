@@ -10,4 +10,5 @@ public interface IMangaBoxService
     Task<List<MangaBoxGetAllDto>> GetAllWithDetailsAsync();
     Task<MangaBoxDetailDto?> GetByIdWithDetailsAsync(string id);
     Task<string> BuyBoxAsync(string userId, string boxId, int quantity);
+    Task<bool> DeleteMangaBoxNotUse(string mangaBoxId);
 }

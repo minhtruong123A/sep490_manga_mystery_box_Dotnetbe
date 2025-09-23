@@ -184,5 +184,42 @@ namespace SEP_MMB_API.Controllers
                 });
             }
         }
+        [Authorize]
+        [HttpDelete("delete-box")]
+        public async Task<ActionResult<ResponseModel<string>>> DeleteBox(string mangaBoxId)
+        {
+            try
+            {
+                var response = await mangaBoxService.DeleteMangaBoxNotUse(mangaBoxId);
+                if (response)
+                {
+                    return Ok(new ResponseModel<string>
+                    {
+                        Success = true,
+                        Data = "Delete box successfully!",
+                        Error = null,
+                        ErrorCode = 0
+                    });
+                }
+                return BadRequest(new ResponseModel<string>
+                {
+                    Success = false,
+                    Data = null,
+                    Error = "Failed to delete",
+                    ErrorCode = 400
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel<string>
+                {
+                    Success = false,
+                    Data = null,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
     }
 }

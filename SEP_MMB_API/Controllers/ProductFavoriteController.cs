@@ -75,8 +75,9 @@ namespace SEP_MMB_API.Controllers
                 {
                     return BadRequest(new ResponseModel<string>
                     {
-                        Success = true,
-                        Data = "Add to favorite failed because this product exist in your favorite"
+                        Success = false,
+                        Error = "Add to favorite failed because this product exist in your favorite",
+                        ErrorCode = 400
                     });
                 }
                 return Ok(new ResponseModel<string>

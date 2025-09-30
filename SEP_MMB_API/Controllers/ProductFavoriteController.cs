@@ -121,5 +121,31 @@ namespace SEP_MMB_API.Controllers
                 });
             }
         }
+
+        [Authorize]
+        [HttpDelete("delete-favorite-list")]
+        public async Task<ActionResult<ResponseModel<string>>> DeleteFavoriteListOfUser()
+        {
+            try
+            {
+                var (account, _, _, _) = await authService.GetUserWithTokens(HttpContext);
+                var response = await productFavoriteService.DeleteFavoriteListOfUserAsync(account.Id);
+
+                return Ok(new ResponseModel<string>
+                {
+                    Success = true,
+                    Data = "Delete favorite list successfull"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, new ResponseModel<object>
+                {
+                    Success = false,
+                    Error = ex.Message,
+                    ErrorCode = 400
+                });
+            }
+        }
     }
 }

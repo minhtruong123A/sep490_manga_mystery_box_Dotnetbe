@@ -8,4 +8,5 @@ public interface IProductFavoriteRepository : IGenericRepository<ProductFavorite
 {
     Task<List<UserCollectionGetAllDto>> GetFavoriteListWithDetailsAsync(string userId);
     Task<List<CollectionProductsDto>> GetAllWithDetailsAsync(string userId);
+    Task<bool> DeleteFavoriteListOfUser(string userId);
 }

@@ -9,4 +9,5 @@ public interface IProductFavoriteService
     Task<List<CollectionProductsDto>> GetAllWithDetailsAsync(string userId);
     Task<bool> CreateAsync(string userId, string userProductId);
     Task<bool> DeleteAsync(string favoriteId);
+    Task<bool> DeleteFavoriteListOfUserAsync(string userId);
 }

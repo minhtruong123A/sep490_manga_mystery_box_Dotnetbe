@@ -25,7 +25,7 @@ public class ProductFavoriteService(IUnitOfWork unitOfWork) : IProductFavoriteSe
             .FirstOrDefault(x => x.User_Id.Equals(userId) && x.User_productId.Equals(userProductId));
         var existUserProduct = await unitOfWork.UserProductRepository.GetByIdAsync(userProductId);
         if (existFavorite != null) return false;
-        if (existUserProduct != null) return false;
+        if (existUserProduct.Quantity == 0) throw new Exception("You don't have this product");
         var newFavorite = new ProductFavorite { User_Id = userId, User_productId = userProductId };
         await unitOfWork.ProductFavoriteRepository.AddAsync(newFavorite);
         await unitOfWork.SaveChangesAsync();
@@ -36,5 +36,10 @@ public class ProductFavoriteService(IUnitOfWork unitOfWork) : IProductFavoriteSe
     {
         await unitOfWork.ProductFavoriteRepository.DeleteAsync(favoriteId);
         return true;
+    }
+
+    public async Task<bool> DeleteFavoriteListOfUserAsync(string userId)
+    {
+        return await unitOfWork.ProductFavoriteRepository.DeleteFavoriteListOfUser(userId);
     }
 }

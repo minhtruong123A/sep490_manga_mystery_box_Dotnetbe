@@ -123,6 +123,15 @@ public class ProductFavoriteRepository(MongoDbContext context, IOptions<Favorite
         return result.ToList();
     }
 
+    public async Task<bool> DeleteFavoriteListOfUser(string userId)
+    {
+        var productFavorites = await _productFavorite
+            .Find(p => p.User_Id == userId)
+            .ToListAsync();
+        var filter = Builders<ProductFavorite>.Filter.Eq(x => x.User_Id, userId);
+        await _productFavorite.DeleteManyAsync(filter);
+        return true;
+    }
     public async Task CheckUserProductValid(string userId)
     {
         var productFavorites = await _productFavorite

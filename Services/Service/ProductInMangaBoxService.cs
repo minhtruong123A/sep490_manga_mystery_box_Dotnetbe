@@ -83,7 +83,7 @@ public class ProductInMangaBoxService(IUnitOfWork uniUnitOfWork) : IProductInMan
                 var productWithRarity =
                     await uniUnitOfWork.ProductRepository.GetProductWithRarityByIdAsync(dto.ProductId);
                 var product = await uniUnitOfWork.ProductRepository.GetByIdAsync(dto.ProductId);
-                if (productWithRarity.RarityName.Equals("legendary"))
+                if (productWithRarity.RarityName.Equals("legendary") || productWithRarity.RarityName.Equals("epic"))
                 {
                     var productInMangaBoxs = await uniUnitOfWork.ProductInMangaBoxRepository.GetAllAsync();
                     var productInMangaBoxExist =

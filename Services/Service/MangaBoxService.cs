@@ -141,6 +141,7 @@ public class MangaBoxService(IUnitOfWork unitOfWork, IImageService imageService,
 
     private static MangaBox CreateMangaBox(MangaBoxCreateDto dto, string mysteryBoxId)
     {
+        if (dto.Quantity <= 0) throw new Exception("Quantity of box must greater than 0");
         return new MangaBox
         {
             Status = 0,

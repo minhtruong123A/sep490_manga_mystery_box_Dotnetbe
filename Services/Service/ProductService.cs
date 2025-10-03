@@ -56,6 +56,7 @@ public class ProductService(
         newProduct.Status = dto.Status;
         if(dto.Status == (int)ProductStatus.Limit)
         {
+            if (dto.Quantity <= 0) throw new Exception("Quantity must greater than 0");
             newProduct.Quantity = dto.Quantity;
             newProduct.QuantityCurrent = 0;
             await unitOfWork.ProductRepository.AddAsync(newProduct);
